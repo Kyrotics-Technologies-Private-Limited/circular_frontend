@@ -1,0 +1,68 @@
+frontend/
+├── package.json
+├── tsconfig.json
+├── .env
+├── public/
+├── src/
+│   ├── index.tsx
+│   ├── App.tsx
+│   ├── components/
+│   │   ├── auth/
+│   │   │   ├── Login.tsx
+│   │   │   ├── Register.tsx
+│   │   │   └── AuthGuard.tsx
+│   │   ├── layout/
+│   │   │   ├── MainLayout.tsx
+│   │   │   ├── Header.tsx
+│   │   │   ├── Sidebar.tsx
+│   │   │   └── Footer.tsx
+│   │   ├── organizations/
+│   │   │   ├── OrganizationList.tsx
+│   │   │   ├── OrganizationForm.tsx
+│   │   │   ├── OrganizationDetails.tsx
+│   │   │   └── MembersManagement.tsx
+│   │   ├── files/
+│   │   │   ├── FileExplorer.tsx
+│   │   │   ├── FileUpload.tsx
+│   │   │   ├── FolderCreate.tsx
+│   │   │   ├── BreadcrumbNav.tsx
+│   │   │   └── FileCard.tsx
+│   │   └── translation/
+│   │       ├── TranslationEditor.tsx
+│   │       ├── TextEditor.tsx
+│   │       ├── SplitView.tsx
+│   │       └── TranslationOptions.tsx
+│   ├── pages/
+│   │   ├── Home.tsx
+│   │   ├── Dashboard.tsx
+│   │   ├── Organizations.tsx
+│   │   ├── FileManager.tsx
+│   │   ├── TranslationPage.tsx
+│   │   ├── Profile.tsx
+│   │   └── NotFound.tsx
+│   ├── services/
+│   │   ├── api.ts
+│   │   ├── auth.service.ts
+│   │   ├── organization.service.ts
+│   │   ├── file.service.ts
+│   │   └── translation.service.ts
+│   ├── utils/
+│   │   ├── firebase.ts
+│   │   ├── fileHelpers.ts
+│   │   └── formatters.ts
+│   ├── hooks/
+│   │   ├── useAuth.ts
+│   │   ├── useFiles.ts
+│   │   ├── useTranslation.ts
+│   │   └── useOrganization.ts
+│   ├── contexts/
+│   │   ├── AuthContext.tsx
+│   │   ├── FileContext.tsx
+│   │   └── OrganizationContext.tsx
+│   ├── types/
+│   │   ├── User.ts
+│   │   ├── Organization.ts
+│   │   ├── File.ts
+│   │   └── Translation.ts
+│   └── styles/
+│       └── tailwind.css

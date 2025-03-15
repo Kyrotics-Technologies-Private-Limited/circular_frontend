@@ -1,0 +1,66 @@
+// src/services/api.ts
+import axios, { AxiosRequestConfig, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { auth } from '../utils/firebase';
+
+// Create axios instance
+const api = axios.create({
+  baseURL: import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// Request interceptor to add auth token
+api.interceptors.request.use(
+  async (config: InternalAxiosRequestConfig) => {
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        const token = await user.getIdToken();
+        config.headers = config.headers || {};
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
+  (error: AxiosError) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor to handle errors
+api.interceptors.response.use(
+  (response: AxiosResponse) => {
+    return response;
+  },
+  async (error: AxiosError) => {
+    const originalRequest = error.config;
+    
+    // Handle token refreshing if needed
+    if (error.response?.status === 401 && originalRequest) {
+      try {
+        // Force token refresh
+        const user = auth.currentUser;
+        if (user) {
+          await user.getIdToken(true);
+          
+          // Retry the original request with new token
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        // Token refresh failed
+        console.error('Token refresh failed:', refreshError);
+        
+        // Force logout if refresh fails
+        await auth.signOut();
+        window.location.href = '/login';
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
+export default api;
