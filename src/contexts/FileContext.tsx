@@ -8,7 +8,7 @@ import {
 } from "react";
 import { FileItem, Folder } from "../types/File";
 import { useOrganization } from "./OrganizationContext";
-import { getFiles, getFolders } from "../services/file.service";
+import { getFiles, getFilesByFolderId, getFolders } from "../services/file.service";
 
 interface FileContextType {
   files: FileItem[];
@@ -66,7 +66,7 @@ export const FileProvider = ({
 
       // Get files and folders for current organization and folder
       const [filesData, foldersData] = await Promise.all([
-        getFiles(currentOrganization.id, currentFolder?.id),
+        getFilesByFolderId(currentOrganization.id, currentFolder?.id),
         getFolders(currentOrganization.id, currentFolder?.id),
       ]);
 
@@ -141,7 +141,7 @@ export const FileProvider = ({
         if (currentOrganization) {
           try {
             const [filesData, foldersData] = await Promise.all([
-              getFiles(currentOrganization.id, folder?.id),
+              getFilesByFolderId(currentOrganization.id, folder?.id),
               getFolders(currentOrganization.id, folder?.id),
             ]);
             

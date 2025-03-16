@@ -17,8 +17,17 @@ import FileManager from "./pages/FileManager";
 import TranslationPage from "./pages/TranslationPage";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import Home from "./pages/Home";
 import AuthGuard from "./components/auth/AuthGuard";
+import RoleGuard from "./components/auth/RoleGuard";
 import MainLayout from "./components/layout/MainLayout";
+import AdminLayout from "./components/layout/AdminLayout";
+
+// Admin pages
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminOrganizations from "./pages/admin/AdminOrganizations";
+import UserManagement from "./pages/admin/UserManagement";
+import RoleBasedRedirect from "./components/auth/RoleBasedRedirect";
 
 const App: React.FC = () => {
   return (
@@ -26,11 +35,24 @@ const App: React.FC = () => {
       <Router>
         <Routes>
           {/* Public routes */}
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Protected routes */}
+          {/* Protected routes for all authenticated users */}
           <Route element={<AuthGuard />}>
+            {/* Default redirect based on role */}
+            <Route
+              path="/"
+              element={
+                <RoleBasedRedirect
+                  userRedirect="/dashboard"
+                  adminRedirect="/admin/dashboard"
+                  superAdminRedirect="/admin/dashboard"
+                />
+              }
+            />
+
             <Route
               element={
                 <OrganizationProvider>
@@ -41,7 +63,6 @@ const App: React.FC = () => {
               }
             >
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/organizations" element={<Organizations />} />
               <Route path="/files" element={<FileManager />} />
               <Route
                 path="/translation/:fileId"
@@ -49,10 +70,69 @@ const App: React.FC = () => {
               />
               <Route path="/profile" element={<Profile />} />
             </Route>
+
+            {/* Routes visible only to admins and super admins */}
+            <Route
+              element={<RoleGuard allowedRoles={["admin", "super_admin"]} />}
+            >
+              <Route
+                element={
+                  <OrganizationProvider>
+                    {" "}
+                    {/* Add OrganizationProvider here */}
+                    <FileProvider>
+                      <AdminLayout />
+                    </FileProvider>
+                  </OrganizationProvider>
+                }
+              >
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route
+                  path="/admin/user-management"
+                  element={<UserManagement />}
+                />
+                <Route path="/admin/files" element={<FileManager />} />
+                <Route path="/admin/settings" element={<Profile />} />
+              </Route>
+            </Route>
+
+            {/* Routes visible only to super admins */}
+            <Route element={<RoleGuard allowedRoles={["super_admin"]} />}>
+              <Route
+                element={
+                  <OrganizationProvider>
+                    {" "}
+                    {/* Add OrganizationProvider here */}
+                    <FileProvider>
+                      <AdminLayout />
+                    </FileProvider>
+                  </OrganizationProvider>
+                }
+              >
+                <Route
+                  path="/admin/organizations"
+                  element={<AdminOrganizations />}
+                />
+                <Route path="/admin/users" element={<UserManagement />} />
+              </Route>
+            </Route>
+
+            {/* Only show Organizations page to super admins */}
+            <Route element={<RoleGuard allowedRoles={["super_admin"]} />}>
+              <Route
+                path="/organizations"
+                element={
+                  <OrganizationProvider>
+                    <MainLayout>
+                      <Organizations />
+                    </MainLayout>
+                  </OrganizationProvider>
+                }
+              />
+            </Route>
           </Route>
 
           {/* Fallback routes */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

@@ -27,7 +27,15 @@ const Login: React.FC = () => {
       
       const user = await loginUser(email, password);
       setCurrentUser(user);
-      navigate('/dashboard');
+      
+      // Redirect based on user role
+      if (user.role === 'super_admin') {
+        navigate('/admin/dashboard');
+      } else if (user.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       console.error('Login error:', err);
       setError(err.message || 'Failed to log in');

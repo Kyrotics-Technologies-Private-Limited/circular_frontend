@@ -10,9 +10,15 @@ interface HeaderProps {
   onSidebarToggle: () => void;
   user: User | null;
   organization: Organization | null;
+  showAdminLink?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ onSidebarToggle, user, organization }) => {
+const Header: React.FC<HeaderProps> = ({ 
+  onSidebarToggle, 
+  user, 
+  organization,
+  showAdminLink = false
+}) => {
   const navigate = useNavigate();
   const { organizations, setCurrentOrganization } = useOrganization();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -95,17 +101,29 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle, user, organization }) 
                     <p className="px-4 py-2 text-sm text-gray-500">No organizations available</p>
                   )}
                   <div className="border-t border-gray-100"></div>
-                  <Link
-                    to="/organizations"
-                    className="block px-4 py-2 text-sm text-indigo-600 hover:bg-gray-100"
-                    onClick={() => setShowOrgMenu(false)}
-                  >
-                    Manage Organizations
-                  </Link>
+                  {user?.role === 'super_admin' && (
+                    <Link
+                      to="/organizations"
+                      className="block px-4 py-2 text-sm text-indigo-600 hover:bg-gray-100"
+                      onClick={() => setShowOrgMenu(false)}
+                    >
+                      Manage Organizations
+                    </Link>
+                  )}
                 </div>
               </div>
             )}
           </div>
+          
+          {/* Admin Link (if user is admin or super admin) */}
+          {showAdminLink && (
+            <Link
+              to="/admin/dashboard"
+              className="text-sm font-medium text-indigo-600 hover:text-indigo-900"
+            >
+              Admin Panel
+            </Link>
+          )}
           
           {/* Profile Menu */}
           <div className="relative">
@@ -121,11 +139,16 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle, user, organization }) 
             </button>
             
             {showProfileMenu && (
-              <div className="origin-top-right z-100 absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+              <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
                 <div className="py-1" role="menu" aria-orientation="vertical">
                   <div className="px-4 py-2 text-sm text-gray-900 border-b border-gray-100">
                     <p className="font-medium">{user?.displayName || 'User'}</p>
                     <p className="text-gray-500 truncate">{user?.email}</p>
+                    {user?.role !== 'user' && (
+                      <p className="text-indigo-600 font-medium">
+                        {user?.role === 'super_admin' ? 'Super Admin' : 'Admin'}
+                      </p>
+                    )}
                   </div>
                   <Link
                     to="/profile"

@@ -36,16 +36,36 @@ export const uploadFile = async (
 /**
  * Get all files for an organization or folder
  */
+// export const getFiles = async (
+//   organizationId: string,
+//   folderId?: string
+// ): Promise<FileItem[]> => {
+//   try {
+//     const params: Record<string, string> = { organizationId };
+    
+//     if (folderId) {
+//       params.folderId = folderId;
+//     }
+    
+//     const response = await api.get('/files', { params });
+//     return response.data.files;
+//   } catch (error) {
+//     console.error('Error getting files:', error);
+//     throw error;
+//   }
+// };
+
+// Update getFiles function in file.service.ts
 export const getFiles = async (
   organizationId: string,
-  folderId?: string
+
 ): Promise<FileItem[]> => {
   try {
-    const params: Record<string, string> = { organizationId };
-    
-    if (folderId) {
-      params.folderId = folderId;
+    if (!organizationId) {
+      return [];
     }
+    
+    const params: Record<string, string> = { organizationId };
     
     const response = await api.get('/files', { params });
     return response.data.files;
@@ -54,6 +74,30 @@ export const getFiles = async (
     throw error;
   }
 };
+
+export const getFilesByFolderId = async (
+  organizationId: string,
+  folderId?: string
+): Promise<FileItem[]> => {
+  try {
+    if (!organizationId) {
+      return [];
+    }
+    
+    const params: Record<string, string> = { organizationId };
+    
+    if (folderId) {
+      params.folderId = folderId;
+    }
+    
+    const response = await api.get('/files/getFilesByFolderId', { params });
+    return response.data.files;
+  } catch (error) {
+    console.error('Error getting files:', error);
+    throw error;
+  }
+};
+
 
 /**
  * Get a specific file by ID

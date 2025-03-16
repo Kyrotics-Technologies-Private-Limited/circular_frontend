@@ -92,6 +92,8 @@ const TranslationEditor: React.FC = () => {
           targetLanguage,
         });
       }
+
+      console.log("Translation result:", file);
     } catch (err: any) {
       console.error("Error translating:", err);
       setError(err.message || "Failed to translate file");
@@ -153,6 +155,7 @@ const TranslationEditor: React.FC = () => {
   // Handle translated content change
   const handleTranslatedContentChange = (content: string) => {
     setTranslatedContent(content);
+
   };
 
   // Handle language change

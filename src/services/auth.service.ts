@@ -91,6 +91,7 @@ export const resetPassword = async (email: string): Promise<void> => {
 export const getCurrentUser = async (): Promise<User | null> => {
   try {
     const response = await api.get('/auth/profile');
+    console.log('response',response.data.user.role)
     return response.data.user;
   } catch (error) {
     console.error('Error getting current user:', error);
@@ -117,6 +118,19 @@ export const updateUserProfile = async (data: { displayName?: string; photoURL?:
   } catch (error) {
     console.error('Error updating profile:', error);
     throw error;
+  }
+};
+
+/**
+ * Get All Users
+ */
+export const getAllUsers = async (): Promise<User | null> => {
+  try {
+    const response = await api.get('/auth/getAllUsers');
+    return response.data.users;
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    return null;
   }
 };
 
