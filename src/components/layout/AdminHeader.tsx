@@ -84,7 +84,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ onSidebarToggle, user }) => {
                     </p>
                   </div>
                   <Link
-                    to="/profile"
+                    to="/admin/profile"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     onClick={() => setShowProfileMenu(false)}
                     role="menuitem"

@@ -49,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({
   };
   
   return (
-    <header className="flex-shrink-0 relative h-16 bg-white shadow">
+    <header className="flex-shrink-0 z-1 relative h-16 bg-white shadow">
       <div className="flex items-center justify-between h-full px-4 sm:px-6">
         <div className="flex items-center">
           <button

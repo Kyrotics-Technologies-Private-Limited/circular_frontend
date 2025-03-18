@@ -28,6 +28,10 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminOrganizations from "./pages/admin/AdminOrganizations";
 import UserManagement from "./pages/admin/UserManagement";
 import RoleBasedRedirect from "./components/auth/RoleBasedRedirect";
+import ManageRequests from "./pages/superAdmin/ManageRequest";
+import ManageOrganizations from "./pages/superAdmin/ManageOrganizations";
+import ManageUsers from "./pages/superAdmin/ManageUsers";
+import SignupRequestDetails from "./pages/superAdmin/SignupRequestDetails";
 
 const App: React.FC = () => {
   return (
@@ -38,6 +42,7 @@ const App: React.FC = () => {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+      
 
           {/* Protected routes for all authenticated users */}
           <Route element={<AuthGuard />}>
@@ -92,7 +97,7 @@ const App: React.FC = () => {
                   element={<UserManagement />}
                 />
                 <Route path="/admin/files" element={<FileManager />} />
-                <Route path="/admin/settings" element={<Profile />} />
+                <Route path="/admin/profile" element={<Profile />} />
               </Route>
             </Route>
 
@@ -110,10 +115,12 @@ const App: React.FC = () => {
                 }
               >
                 <Route
-                  path="/admin/organizations"
-                  element={<AdminOrganizations />}
+                  path="/super-admin/organizations"
+                  element={<ManageOrganizations />}
                 />
-                <Route path="/admin/users" element={<UserManagement />} />
+                <Route path="/super-admin/users" element={<ManageUsers />} />
+                <Route path="/super-admin/requests" element={<ManageRequests />} />
+                <Route path="/super-admin/request/:id" element={<SignupRequestDetails />} />
               </Route>
             </Route>
 
