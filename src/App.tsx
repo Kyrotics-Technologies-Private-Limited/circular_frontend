@@ -4,7 +4,7 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
+  // Navigate,
 } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { OrganizationProvider } from "./contexts/OrganizationContext";
@@ -25,7 +25,7 @@ import AdminLayout from "./components/layout/AdminLayout";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminOrganizations from "./pages/admin/AdminOrganizations";
+// import AdminOrganizations from "./pages/admin/AdminOrganizations";
 import UserManagement from "./pages/admin/UserManagement";
 import RoleBasedRedirect from "./components/auth/RoleBasedRedirect";
 import ManageRequests from "./pages/superAdmin/ManageRequest";

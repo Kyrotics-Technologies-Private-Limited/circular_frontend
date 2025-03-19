@@ -14,26 +14,85 @@ import { User } from '../types/User';
 /**
  * Register a new user
  */
-export const registerUser = async (email: string, password: string, displayName: string): Promise<User> => {
+interface RegisterUserParams {
+  email: string;
+  password: string;
+  name: string;
+  accountType: 'individual' | 'organization';
+  orgName?: string;
+  CIN?: string;
+}
+
+export const registerUser = async ({
+  email,
+  password,
+  name,
+  accountType,
+  orgName,
+  CIN
+}: RegisterUserParams): Promise<User> => {
   try {
     // Create user in Firebase Auth
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     
-    // Update display name
+    // Update profile with name
     if (userCredential.user) {
       await updateProfile(userCredential.user, {
-        displayName
+        displayName: name // Firebase Auth still uses displayName
       });
     }
     
-    // Create user profile in backend
-    const response = await api.post('/auth/profile');
+    // Get ID token for backend authentication
+    const idToken = await userCredential.user.getIdToken();
+    
+    // Create user profile in backend with account type info
+    const response = await api.post('/auth/createUser', 
+      {
+        name,
+        accountType,
+        ...(accountType === 'organization' ? { orgName, CIN } : {})
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${idToken}`
+        }
+      }
+    );
+    
+    if (!response.data.success) {
+      // If backend registration fails, delete the Firebase Auth user to maintain consistency
+      await userCredential.user.delete();
+      throw new Error(response.data.message || 'Failed to create user profile');
+    }
+    
     return response.data.user;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Registration error:', error);
-    throw error;
+    // Return a more specific error message if available
+    throw new Error(error.message || 'Registration failed');
   }
 };
+
+// export const registerUser = async (email: string, password: string, displayName: string): Promise<User> => {
+//   try {
+//     // Create user in Firebase Auth
+//     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    
+//     // Update display name
+//     if (userCredential.user) {
+//       await updateProfile(userCredential.user, {
+//         displayName
+//       });
+//     }
+    
+//     // Create user profile in backend
+//     const response = await api.post('/auth/createUser');
+//     return response.data.user;
+//   } catch (error) {
+//     console.error('Registration error:', error);
+//     throw error;
+//   }
+// };
 
 /**
  * Login user
