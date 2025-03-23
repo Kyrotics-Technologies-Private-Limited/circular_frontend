@@ -1,7 +1,7 @@
 // src/pages/admin/AdminDashboard.tsx
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { getUserOrganizations } from "../../services/organization.service";
+import { getAllOrganizations } from "../../services/organization.service";
 import { getFiles } from "../../services/file.service";
 import { useOrganization } from "../../contexts/OrganizationContext";
 import { FileItem } from "../../types/File";
@@ -42,11 +42,11 @@ const AdminDashboard: React.FC = () => {
         setRecentFiles(sorted);
         // Fetch organizations (for super admin)
         if (isSuperAdmin) {
-          const orgs = await getUserOrganizations();
+          const orgs = await getAllOrganizations();
 
           // Sum total users from all organizations
-          const total = orgs.reduce((acc, org) => acc + org.members.length, 0);
-          setTotalUsers(total);
+          // const total = orgs.reduce((acc, org) => acc + org.members.length, 0);
+          // setTotalUsers(total);
         }
 
         // In a real application, you would fetch these stats from your backend

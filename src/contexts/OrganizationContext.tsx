@@ -1,7 +1,7 @@
 // src/contexts/OrganizationContext.tsx
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Organization } from '../types/Organization';
-import { getUserOrganizations } from '../services/organization.service';
+import { getAllOrganizations } from '../services/organization.service';
 import { useAuth } from './AuthContext';
 
 // Define UserType as a union type
@@ -54,7 +54,7 @@ export const OrganizationProvider = ({ children }: OrganizationProviderProps): R
 
     try {
       setLoading(true);
-      const userOrganizations = await getUserOrganizations();
+      const userOrganizations = await getAllOrganizations();
       setOrganizations(userOrganizations);
       
       // Only set organization if in organization mode

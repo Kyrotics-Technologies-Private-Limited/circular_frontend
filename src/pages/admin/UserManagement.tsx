@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useOrganization } from '../../contexts/OrganizationContext';
-import { addOrganizationMember, removeOrganizationMember } from '../../services/organization.service';
+import { addOrganizationUser, removeOrganizationUser } from '../../services/organization.service';
 import { User } from '../../types/User';
 import { getAllUsers } from '../../services/auth.service';
 
@@ -19,7 +19,7 @@ const UserManagement: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState<string>('');
-  const [role, setRole] = useState<'member' | 'admin'>('member');
+  const [role, setRole] = useState<'user' | 'admin'>('user');
   const [adding, setAdding] = useState<boolean>(false);
   const [removing, setRemoving] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -96,10 +96,10 @@ const UserManagement: React.FC = () => {
       setError(null);
       setSuccessMessage(null);
       
-      await addOrganizationMember(currentOrganization.id, { email, role });
+      await addOrganizationUser(currentOrganization.id, { email, role });
       
       setEmail('');
-      setRole('member');
+      setRole('user');
       setSuccessMessage('Member added successfully');
       
       // Refresh data
@@ -138,7 +138,7 @@ const UserManagement: React.FC = () => {
       setError(null);
       setSuccessMessage(null);
       
-      await removeOrganizationMember(currentOrganization.id, userId);
+      await removeOrganizationUser(currentOrganization.id, userId);
       
       setSuccessMessage('Member removed successfully');
       
@@ -233,7 +233,7 @@ const UserManagement: React.FC = () => {
                 id="role"
                 name="role"
                 value={role}
-                onChange={(e) => setRole(e.target.value as 'member' | 'admin')}
+                onChange={(e) => setRole(e.target.value as 'user' | 'admin')}
                 className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
               >
                 <option value="member">Member</option>
