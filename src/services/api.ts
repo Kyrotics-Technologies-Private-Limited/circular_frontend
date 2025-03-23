@@ -1,10 +1,10 @@
 // src/services/api.ts
-import axios, { AxiosRequestConfig, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios, {  AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { auth } from '../utils/firebase';
 
 // Create axios instance
 const api = axios.create({
-  baseURL: import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+  baseURL: import.meta.env.REACT_APP_API_URL || 'http://localhost:5566/api',
   headers: {
     'Content-Type': 'application/json'
   }
