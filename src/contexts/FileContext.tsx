@@ -8,7 +8,14 @@ import {
 } from "react";
 import { FileItem, Folder } from "../types/File";
 import { useOrganization } from "./OrganizationContext";
-import { getFiles, getFilesByFolderId, getFolders } from "../services/file.service";
+// import { useAuth } from "./AuthContext"; // Assuming you have an auth context
+import { 
+  // getFiles, 
+  getFilesByFolderId, 
+  getFolders, 
+  shareFile, 
+  shareFolder 
+} from "../services/file.service";
 
 interface FileContextType {
   files: FileItem[];
@@ -16,11 +23,14 @@ interface FileContextType {
   currentFolder: Folder | null;
   currentPath: Folder[];
   loading: boolean;
+  sharing: boolean;
   error: string | null;
   setCurrentFolder: (folder: Folder | null) => void;
   refreshFiles: () => Promise<void>;
   navigateToFolder: (folder: Folder | null) => Promise<void>;
   navigateUp: () => Promise<void>;
+  shareSelectedFile: (fileId: string, userIds: string[]) => Promise<void>;
+  shareSelectedFolder: (folderId: string, userIds: string[]) => Promise<void>;
   clearError: () => void;
 }
 
@@ -47,6 +57,7 @@ export const FileProvider = ({
   const [currentFolder, setCurrentFolder] = useState<Folder | null>(null);
   const [currentPath, setCurrentPath] = useState<Folder[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [sharing, setSharing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   
   // Add navigation tracking to prevent circular updates
@@ -54,20 +65,13 @@ export const FileProvider = ({
   const navigationId = useRef(0);
 
   const fetchFilesAndFolders = async () => {
-    if (!currentOrganization) {
-      setFiles([]);
-      setFolders([]);
-      setLoading(false);
-      return;
-    }
-
     try {
       setLoading(true);
 
       // Get files and folders for current organization and folder
       const [filesData, foldersData] = await Promise.all([
-        getFilesByFolderId(currentOrganization.id, currentFolder?.id),
-        getFolders(currentOrganization.id, currentFolder?.id),
+        getFilesByFolderId(currentOrganization?.id, currentFolder?.id),
+        getFolders(currentOrganization?.id, currentFolder?.id),
       ]);
 
       setFiles(filesData);
@@ -94,7 +98,7 @@ export const FileProvider = ({
     while (currentParent) {
       try {
         // This would ideally be a separate function to get a single folder
-        const parentFolders = await getFolders(currentOrganization!.id);
+        const parentFolders = await getFolders(currentOrganization?.id);
         const parentFolder = parentFolders.find((f) => f.id === currentParent);
 
         if (parentFolder) {
@@ -138,28 +142,22 @@ export const FileProvider = ({
         // Manually fetch files instead of relying on the useEffect
         setLoading(true);
         
-        if (currentOrganization) {
-          try {
-            const [filesData, foldersData] = await Promise.all([
-              getFilesByFolderId(currentOrganization.id, folder?.id),
-              getFolders(currentOrganization.id, folder?.id),
-            ]);
-            
-            // Check if this is still the most recent navigation
-            if (currentNavId === navigationId.current) {
-              setFiles(filesData);
-              setFolders(foldersData);
-              setError(null);
-            }
-          } catch (err) {
-            console.error("Error fetching files and folders:", err);
-            setError("Failed to fetch files and folders");
-          } finally {
-            setLoading(false);
+        try {
+          const [filesData, foldersData] = await Promise.all([
+            getFilesByFolderId(currentOrganization?.id, folder?.id),
+            getFolders(currentOrganization?.id, folder?.id),
+          ]);
+          
+          // Check if this is still the most recent navigation
+          if (currentNavId === navigationId.current) {
+            setFiles(filesData);
+            setFolders(foldersData);
+            setError(null);
           }
-        } else {
-          setFiles([]);
-          setFolders([]);
+        } catch (err) {
+          console.error("Error fetching files and folders:", err);
+          setError("Failed to fetch files and folders");
+        } finally {
           setLoading(false);
         }
       }
@@ -180,7 +178,7 @@ export const FileProvider = ({
 
     if (parentId) {
       try {
-        const parentFolders = await getFolders(currentOrganization!.id);
+        const parentFolders = await getFolders(currentOrganization?.id);
         const parentFolder = parentFolders.find((f) => f.id === parentId);
 
         if (parentFolder) {
@@ -197,6 +195,40 @@ export const FileProvider = ({
     }
   };
 
+  // Share a file with other users
+  const shareSelectedFile = async (fileId: string, userIds: string[]): Promise<void> => {
+    try {
+      setSharing(true);
+      setError(null);
+      
+      await shareFile(fileId, userIds);
+      await refreshFiles();
+    } catch (err: any) {
+      console.error('Error sharing file:', err);
+      setError(err.message || 'Failed to share file');
+      throw err;
+    } finally {
+      setSharing(false);
+    }
+  };
+  
+  // Share a folder with other users
+  const shareSelectedFolder = async (folderId: string, userIds: string[]): Promise<void> => {
+    try {
+      setSharing(true);
+      setError(null);
+      
+      await shareFolder(folderId, userIds);
+      await refreshFiles();
+    } catch (err: any) {
+      console.error('Error sharing folder:', err);
+      setError(err.message || 'Failed to share folder');
+      throw err;
+    } finally {
+      setSharing(false);
+    }
+  };
+
   // Refresh files and folders
   const refreshFiles = async (): Promise<void> => {
     await fetchFilesAndFolders();
@@ -207,10 +239,9 @@ export const FileProvider = ({
     setError(null);
   };
 
-  // Fetch files and folders when organization changes (but not when currentFolder changes)
+  // Fetch files and folders when organization changes or when component first mounts
   useEffect(() => {
     fetchFilesAndFolders();
-    // Only depend on organization changes, not on folder changes
   }, [currentOrganization]);
 
   const value = {
@@ -219,11 +250,14 @@ export const FileProvider = ({
     currentFolder,
     currentPath,
     loading,
+    sharing,
     error,
     setCurrentFolder,
     refreshFiles,
     navigateToFolder,
     navigateUp,
+    shareSelectedFile,
+    shareSelectedFolder,
     clearError,
   };
 

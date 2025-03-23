@@ -19,7 +19,7 @@ interface RegisterUserParams {
   password: string;
   name: string;
   accountType: 'individual' | 'organization';
-  orgName?: string;
+  organizationName?: string;
   CIN?: string;
 }
 
@@ -28,7 +28,7 @@ export const registerUser = async ({
   password,
   name,
   accountType,
-  orgName,
+  organizationName,
   CIN
 }: RegisterUserParams): Promise<User> => {
   try {
@@ -50,7 +50,7 @@ export const registerUser = async ({
       {
         name,
         accountType,
-        ...(accountType === 'organization' ? { orgName, CIN } : {})
+        ...(accountType === 'organization' ? { organizationName, CIN } : {})
       },
       {
         headers: {
@@ -58,6 +58,8 @@ export const registerUser = async ({
         }
       }
     );
+
+    console.log('response',organizationName,CIN)
     
     if (!response.data.success) {
       // If backend registration fails, delete the Firebase Auth user to maintain consistency
@@ -99,10 +101,13 @@ export const registerUser = async ({
  */
 export const loginUser = async (email: string, password: string): Promise<User> => {
   try {
-    await signInWithEmailAndPassword(auth, email, password);
-    
-    // Get user profile from backend
-    const response = await api.post('/auth/profile');
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const idToken = await userCredential.user.getIdToken();
+    const response = await api.get('/auth/profile', {
+      headers: {
+        Authorization: `Bearer ${idToken}`
+      }
+    });
     return response.data.user;
   } catch (error) {
     console.error('Login error:', error);

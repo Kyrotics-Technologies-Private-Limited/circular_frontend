@@ -1,23 +1,28 @@
 // src/components/files/FolderCreate.tsx
 import React, { useState } from 'react';
 import { createFolder } from '../../services/file.service';
+import { useOrganization } from '../../contexts/OrganizationContext';
 
 interface FolderCreateProps {
-  organizationId: string;
+  organizationId?: string;
   parentFolderId?: string | null;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
 const FolderCreate: React.FC<FolderCreateProps> = ({
-  organizationId,
+  organizationId: propOrgId,
   parentFolderId,
   onSuccess,
   onCancel
 }) => {
+  const { userType, currentOrganization } = useOrganization();
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Determine organization ID based on context and props
+  const organizationId = propOrgId || (userType === 'organization' ? currentOrganization?.id : undefined);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,15 +32,11 @@ const FolderCreate: React.FC<FolderCreateProps> = ({
       return;
     }
     
-    if (!organizationId) {
-      setError('Organization ID is required');
-      return;
-    }
-    
     try {
       setLoading(true);
       setError(null);
       
+      // Create folder - organizationId is now optional
       await createFolder(name, organizationId, parentFolderId || undefined);
       
       setName('');
@@ -58,7 +59,9 @@ const FolderCreate: React.FC<FolderCreateProps> = ({
           Create New Folder
         </h3>
         <p className="mt-1 text-sm text-gray-500">
-          Enter a name for your new folder.
+          {userType === 'organization' && currentOrganization 
+            ? `Create a new folder in ${currentOrganization.name}` 
+            : 'Create a new folder in your personal space'}
         </p>
       </div>
       
@@ -72,7 +75,7 @@ const FolderCreate: React.FC<FolderCreateProps> = ({
         </div>
       )}
       
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="bg-white p-4 rounded-md shadow-sm">
         <div className="mb-4">
           <label htmlFor="folder-name" className="block text-sm font-medium text-gray-700">
             Folder Name
@@ -86,6 +89,7 @@ const FolderCreate: React.FC<FolderCreateProps> = ({
             className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
             placeholder="Enter folder name"
             required
+            autoFocus
           />
         </div>
         

@@ -4,17 +4,24 @@ import { FileItem, Folder } from '../types/File';
 
 /**
  * Upload a file
+ * @param file File to upload
+ * @param organizationId Optional organization ID (for org users)
+ * @param folderId Optional folder ID
  */
 export const uploadFile = async (
   file: File,
-  organizationId: string,
+  organizationId?: string,
   folderId?: string
 ): Promise<FileItem> => {
   try {
     // Create form data
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('organizationId', organizationId);
+    
+    // Only append organizationId if it exists
+    if (organizationId) {
+      formData.append('organizationId', organizationId);
+    }
     
     if (folderId) {
       formData.append('folderId', folderId);
@@ -34,38 +41,19 @@ export const uploadFile = async (
 };
 
 /**
- * Get all files for an organization or folder
+ * Get all files for current user or organization
+ * @param organizationId Optional organization ID (for org users)
  */
-// export const getFiles = async (
-//   organizationId: string,
-//   folderId?: string
-// ): Promise<FileItem[]> => {
-//   try {
-//     const params: Record<string, string> = { organizationId };
-    
-//     if (folderId) {
-//       params.folderId = folderId;
-//     }
-    
-//     const response = await api.get('/files', { params });
-//     return response.data.files;
-//   } catch (error) {
-//     console.error('Error getting files:', error);
-//     throw error;
-//   }
-// };
-
-// Update getFiles function in file.service.ts
 export const getFiles = async (
-  organizationId: string,
-
+  organizationId?: string
 ): Promise<FileItem[]> => {
   try {
-    if (!organizationId) {
-      return [];
-    }
+    const params: Record<string, string> = {};
     
-    const params: Record<string, string> = { organizationId };
+    // Only include organizationId in params if it exists
+    if (organizationId) {
+      params.organizationId = organizationId;
+    }
     
     const response = await api.get('/files', { params });
     return response.data.files;
@@ -75,16 +63,22 @@ export const getFiles = async (
   }
 };
 
+/**
+ * Get files by folder ID
+ * @param organizationId Optional organization ID (for org users)
+ * @param folderId Optional folder ID (null for root folder)
+ */
 export const getFilesByFolderId = async (
-  organizationId: string,
+  organizationId?: string,
   folderId?: string
 ): Promise<FileItem[]> => {
   try {
-    if (!organizationId) {
-      return [];
-    }
+    const params: Record<string, string> = {};
     
-    const params: Record<string, string> = { organizationId };
+    // Only include organizationId in params if it exists
+    if (organizationId) {
+      params.organizationId = organizationId;
+    }
     
     if (folderId) {
       params.folderId = folderId;
@@ -98,7 +92,6 @@ export const getFilesByFolderId = async (
   }
 };
 
-
 /**
  * Get a specific file by ID
  */
@@ -108,6 +101,20 @@ export const getFileById = async (fileId: string): Promise<FileItem> => {
     return response.data.file;
   } catch (error) {
     console.error('Error getting file:', error);
+    throw error;
+  }
+};
+
+/**
+ * Share a file with other users
+ * @param fileId File ID to share
+ * @param userIds Array of user IDs to share with
+ */
+export const shareFile = async (fileId: string, userIds: string[]): Promise<void> => {
+  try {
+    await api.post(`/files/${fileId}/share`, { userIds });
+  } catch (error) {
+    console.error('Error sharing file:', error);
     throw error;
   }
 };
@@ -126,21 +133,28 @@ export const deleteFile = async (fileId: string): Promise<void> => {
 
 /**
  * Create a new folder
+ * @param name Folder name
+ * @param organizationId Optional organization ID (for org users)
+ * @param parentFolderId Optional parent folder ID
  */
 export const createFolder = async (
   name: string,
-  organizationId: string,
+  organizationId?: string,
   parentFolderId?: string
 ): Promise<Folder> => {
   try {
     const data: {
       name: string;
-      organizationId: string;
+      organizationId?: string;
       parentFolderId?: string;
     } = {
-      name,
-      organizationId
+      name
     };
+    
+    // Only include organizationId if it exists
+    if (organizationId) {
+      data.organizationId = organizationId;
+    }
     
     if (parentFolderId) {
       data.parentFolderId = parentFolderId;
@@ -155,14 +169,21 @@ export const createFolder = async (
 };
 
 /**
- * Get all folders for an organization or parent folder
+ * Get all folders for current user or organization
+ * @param organizationId Optional organization ID (for org users)
+ * @param parentFolderId Optional parent folder ID
  */
 export const getFolders = async (
-  organizationId: string,
+  organizationId?: string,
   parentFolderId?: string
 ): Promise<Folder[]> => {
   try {
-    const params: Record<string, string> = { organizationId };
+    const params: Record<string, string> = {};
+    
+    // Only include organizationId in params if it exists
+    if (organizationId) {
+      params.organizationId = organizationId;
+    }
     
     if (parentFolderId) {
       params.parentFolderId = parentFolderId;
@@ -172,6 +193,20 @@ export const getFolders = async (
     return response.data.folders;
   } catch (error) {
     console.error('Error getting folders:', error);
+    throw error;
+  }
+};
+
+/**
+ * Share a folder with other users
+ * @param folderId Folder ID to share
+ * @param userIds Array of user IDs to share with
+ */
+export const shareFolder = async (folderId: string, userIds: string[]): Promise<void> => {
+  try {
+    await api.post(`/files/folders/${folderId}/share`, { userIds });
+  } catch (error) {
+    console.error('Error sharing folder:', error);
     throw error;
   }
 };

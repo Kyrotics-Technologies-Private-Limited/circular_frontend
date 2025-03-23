@@ -175,7 +175,7 @@ const Register: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [accountType, setAccountType] = useState('individual');
+  const [accountType, setAccountType] = useState<'individual' | 'organization'>('individual');
   const [organizationName, setOrganizationName] = useState('');
   const [cin, setCin] = useState('');
   const [organizationAddress, setOrganizationAddress] = useState('');
@@ -216,24 +216,25 @@ const Register: React.FC = () => {
       // Add organization details if applicable
       const userData = {
         email,
+        name: displayName,
         password,
-        displayName,
         accountType,
         ...(accountType === 'organization' && {
           organizationName,
-          cin,
-          organizationAddress
+          CIN: cin,
+          // organizationAddress
         })
       };
       
-      // const user = await registerUser(userData);
+      console.log('Registration data:', userData);
+      const user = await registerUser(userData);
       
       // Show success message instead of immediate navigation
       setRegistrationSuccess(true);
       
       // Only set current user and navigate if not an organization (which requires approval)
       if (accountType !== 'organization') {
-        // setCurrentUser(user);
+        setCurrentUser(user);
         // Wait 3 seconds before redirecting individual users
         setTimeout(() => {
           navigate('/dashboard');

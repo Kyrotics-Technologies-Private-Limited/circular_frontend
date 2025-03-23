@@ -12,7 +12,7 @@
 
 
 export interface Organization {
-  orgId: string;
+  id: string;
   description: string;
   name: string;
   CIN: string;  // Company Identification Number

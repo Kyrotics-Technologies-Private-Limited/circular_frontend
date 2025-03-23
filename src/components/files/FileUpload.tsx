@@ -1,25 +1,30 @@
 // src/components/files/FileUpload.tsx
 import React, { useState, useRef } from 'react';
 import { uploadFile } from '../../services/file.service';
+import { useOrganization } from '../../contexts/OrganizationContext';
 
 interface FileUploadProps {
-  organizationId: string;
+  organizationId?: string;
   folderId?: string | null;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
-  organizationId,
+  organizationId: propOrgId,
   folderId,
   onSuccess,
   onCancel
 }) => {
+  const { userType, currentOrganization } = useOrganization();
   const [file, setFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  
+  // Determine organization ID based on context and props
+  const organizationId = propOrgId || (userType === 'organization' ? currentOrganization?.id : undefined);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -86,11 +91,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
       return;
     }
     
-    if (!organizationId) {
-      setError('Organization ID is required');
-      return;
-    }
-    
     try {
       setError(null);
       setLoading(true);
@@ -129,7 +129,9 @@ const FileUpload: React.FC<FileUploadProps> = ({
           Upload File
         </h3>
         <p className="mt-1 text-sm text-gray-500">
-          Upload a PDF or Word document for translation.
+          {userType === 'organization' && currentOrganization 
+            ? `Upload a PDF or Word document to ${currentOrganization.name}` 
+            : 'Upload a PDF or Word document to your personal space'}
         </p>
       </div>
       
@@ -146,7 +148,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
       <div 
         className={`border-2 border-dashed rounded-md p-6 text-center ${
           dragActive ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300'
-        }`}
+        } hover:bg-gray-50 transition-colors duration-200 cursor-pointer`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleFileDrop}
@@ -165,7 +167,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
           <svg className="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
           </svg>
-          <div className="flex text-sm text-gray-600">
+          <div className="flex text-sm text-gray-600 justify-center">
             <label
               className="relative cursor-pointer rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none"
             >
@@ -180,7 +182,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
       </div>
       
       {file && (
-        <div className="bg-gray-50 rounded-md p-4">
+        <div className="bg-gray-50 rounded-md p-4 border border-gray-200">
           <div className="flex items-center">
             <svg className="h-6 w-6 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
