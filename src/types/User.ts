@@ -9,9 +9,10 @@ export interface User {
   uid: string;
   displayName: string;
   email: string;
-  organizations?: string[];  // Optional - may not exist for individual users
-  userType: UserType;        // Identifies whether user is individual or org-based
+  organizations?: string[]; 
+  userType: UserType;        
   role: UserRole;
+  orgId?: string;            
   status: UserStatus;
   createdAt: Date;
   lastLogin: Date;

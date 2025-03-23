@@ -1,7 +1,7 @@
 // src/services/organization.service.ts
 import api from './api';
 import { Organization } from '../types/Organization';
-import { User } from '../types/User';
+import { User, UserRole } from '../types/User';
 
 /**
  * Create a new organization
@@ -88,7 +88,7 @@ export const getOrganizationUsers = async (orgId: string): Promise<User[]> => {
  */
 export const addOrganizationUser = async (
   orgId: string,
-  data: { email: string; role: 'user' | 'admin' }
+  data: { email: string; role: 'user' | UserRole }
 ): Promise<void> => {
   try {
     await api.post(`/organizations/${orgId}/users`, data);
@@ -116,7 +116,7 @@ export const removeOrganizationUser = async (orgId: string, userId: string): Pro
 export const updateUserRole = async (
   orgId: string,
   userId: string,
-  data: { role: 'user' | 'admin' }
+  data: { role: 'user' | UserRole }
 ): Promise<void> => {
   try {
     await api.put(`/organizations/${orgId}/users/${userId}/role`, data);
