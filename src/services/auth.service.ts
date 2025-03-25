@@ -107,6 +107,37 @@ export const loginUser = async (
     return response.data.user;
   } catch (error) {
     console.error("Login error:", error);
+    let message = "An error occurred. Please try again.";
+    if (error && typeof error === "object" && "code" in error) {
+      const errorCode = (error as any).code;
+      switch (errorCode) {
+        case "auth/invalid-credential":
+          message = "Invalid email or password.";
+          break;
+        case "auth/invalid-email":
+          message = "Email not found.";
+          break;
+        case "auth/too-many-requests":
+          message = "Too many login attempts. Please try again later.";
+          break;
+        case "auth/user-not-found":
+          message = "No user found with this email.";
+          break;
+        case "auth/wrong-password":
+          message = "Invalid email or password.";
+          break;
+        case "auth/network-request-failed":
+          message = "Check your Internet Connection.";
+          break;
+        default:
+          message = (error as any).message || message;
+      }
+    } else {
+      message = (error as any).message || message;
+    }
+
+    // toast.error(message);
+    console.log("message",message);
     throw error;
   }
 };

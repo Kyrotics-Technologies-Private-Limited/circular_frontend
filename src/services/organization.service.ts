@@ -45,7 +45,7 @@ export const getUserOrganization = async (): Promise<Organization> => {
 /**
  * Get organization details
  */
-export const getOrganization = async (orgId: string): Promise<Organization> => {
+export const getOrganizationbyId = async (orgId: string): Promise<Organization> => {
   try {
     const response = await api.get(`/organizations/${orgId}`);
     return response.data.organization;

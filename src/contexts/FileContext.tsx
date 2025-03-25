@@ -51,7 +51,7 @@ interface FileProviderProps {
 export const FileProvider = ({
   children,
 }: FileProviderProps): React.ReactElement => {
-  const { currentOrganization } = useOrganization();
+  const { currentOrganizationId } = useOrganization();
   const [files, setFiles] = useState<FileItem[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [currentFolder, setCurrentFolder] = useState<Folder | null>(null);
