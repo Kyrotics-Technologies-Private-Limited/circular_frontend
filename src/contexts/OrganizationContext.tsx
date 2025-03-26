@@ -1,16 +1,18 @@
-// // src/contexts/OrganizationContext.tsx
+// // // src/contexts/OrganizationContext.tsx
+
 // import {
 //   createContext,
 //   useContext,
 //   useState,
 //   useEffect,
 //   ReactNode,
+//   useCallback,
+//   useRef,
 // } from "react";
 // import { Organization } from "../types/Organization";
 // import { useAuth } from "./AuthContext";
 // import { UserType } from "../types/User";
 // import { getOrganizationbyId } from "../services/organization.service";
-// // Define UserType as a union type
 
 // interface OrganizationContextType {
 //   currentOrganization: Organization | null;
@@ -42,25 +44,36 @@
 //   children,
 // }: OrganizationProviderProps): React.ReactElement => {
 //   const { currentUser } = useAuth();
-//   const [userType, setUserType] = useState<UserType>("individual");
+//   const [userType, setUserType] = useState<UserType>(
+//     (localStorage.getItem("userType") as UserType) || "individual"
+//   );
 //   const [loading, setLoading] = useState<boolean>(false);
 //   const [error, setError] = useState<string | null>(null);
-//   const [organization, setOrganization] = useState<Organization>();
-//   setUserType(currentUser?.userType || "individual");
-
-//   console.log("User:", userType);
+//   const [organization, setOrganization] = useState<Organization | null>(null);
+  
+//   // Ref to track the last fetched orgId
+//   const lastFetchedOrgId = useRef<string | null>(null);
 
 //   useEffect(() => {
-//     console.log("useEffect triggered regardless of currentUser:", currentUser);
-//     // This will attempt to fetch even if currentUser is null, so be cautious!
+//     if (!currentUser?.orgId) {
+//       console.log("currentUser or orgId not found, skipping fetch.");
+//       return;
+//     }
+
+//     // If we've already fetched this organization, don't fetch again
+//     if (lastFetchedOrgId.current === currentUser.orgId) {
+//       // console.log("Organization already fetched for this orgId, skipping fetch.");
+//       return;
+//     }
+
 //     const getOrganization = async () => {
 //       try {
 //         setLoading(true);
-//         // Directly log the orgId; it may be undefined
-//         console.log("Attempting fetch with orgId:", currentUser?.orgId);
-//         const organization = await getOrganizationbyId(currentUser?.orgId!);
-//         console.log("Organization fetched:", organization);
-//         setOrganization(organization);
+//         // console.log("Fetching organization for orgId:", currentUser.orgId);
+//         const org = await getOrganizationbyId(currentUser?.orgId!);
+//         // console.log("Organization fetched:", org);
+//         setOrganization(org);
+//         lastFetchedOrgId.current = currentUser?.orgId!;
 //       } catch (error) {
 //         console.error("Error getting organization:", error);
 //         setError("Failed to load organization data.");
@@ -70,21 +83,24 @@
 //     };
 
 //     getOrganization();
-//   }, []);
+//   }, [currentUser]);
 
-//   // Get organization directly from currentUser if available
 //   const currentOrganization: Organization | null =
-//     userType === "organization" && organization
-//       ? organization
-//       : null;
+//     userType === "organization" && organization ? organization : null;
 
-//   console.log("Current Organization:", currentOrganization);
+//     console.log("Current Organization:", currentOrganization);
+
+//   const handleSetUserType = (type: UserType) => {
+//     localStorage.setItem("userType", type);
+//     setUserType(type);
+//   };
 
 //   const value = {
 //     currentOrganization,
 //     userType,
 //     loading,
 //     error,
+//     setUserType: handleSetUserType,
 //     clearError: () => setError(null),
 //   };
 
@@ -94,6 +110,9 @@
 //     </OrganizationContext.Provider>
 //   );
 // };
+
+
+
 import {
   createContext,
   useContext,
@@ -113,6 +132,7 @@ interface OrganizationContextType {
   userType: UserType;
   loading: boolean;
   error: string | null;
+  setUserType: (type: UserType) => void;
   clearError: () => void;
 }
 
@@ -156,17 +176,24 @@ export const OrganizationProvider = ({
 
     // If we've already fetched this organization, don't fetch again
     if (lastFetchedOrgId.current === currentUser.orgId) {
-      console.log("Organization already fetched for this orgId, skipping fetch.");
+      // console.log("Organization already fetched for this orgId, skipping fetch.");
       return;
     }
 
     const getOrganization = async () => {
       try {
         setLoading(true);
-        console.log("Fetching organization for orgId:", currentUser.orgId);
+        // console.log("Fetching organization for orgId:", currentUser.orgId);
         const org = await getOrganizationbyId(currentUser?.orgId!);
-        console.log("Organization fetched:", org);
+        // console.log("Organization fetched:", org);
         setOrganization(org);
+        
+        // If we're in an organization context, make sure userType is set correctly
+        if (org && userType !== "organization") {
+          // console.log("Setting userType to organization");
+          handleSetUserType("organization");
+        }
+        
         lastFetchedOrgId.current = currentUser?.orgId!;
       } catch (error) {
         console.error("Error getting organization:", error);
@@ -179,8 +206,12 @@ export const OrganizationProvider = ({
     getOrganization();
   }, [currentUser]);
 
-  const currentOrganization: Organization | null =
-    userType === "organization" && organization ? organization : null;
+  // Make organization available regardless of userType
+  // This is the key change - we're not conditioning on userType anymore
+  const currentOrganization: Organization | null = organization;
+  
+  // console.log("Current Organization:", currentOrganization);
+  // console.log("Current userType:", userType);
 
   const handleSetUserType = (type: UserType) => {
     localStorage.setItem("userType", type);

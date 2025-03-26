@@ -8,9 +8,7 @@ import {
 } from "react";
 import { FileItem, Folder } from "../types/File";
 import { useOrganization } from "./OrganizationContext";
-// import { useAuth } from "./AuthContext"; // Assuming you have an auth context
 import { 
-  // getFiles, 
   getFilesByFolderId, 
   getFolders, 
   shareFile, 
@@ -51,7 +49,7 @@ interface FileProviderProps {
 export const FileProvider = ({
   children,
 }: FileProviderProps): React.ReactElement => {
-  const { currentOrganizationId } = useOrganization();
+  const { currentOrganization } = useOrganization();
   const [files, setFiles] = useState<FileItem[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [currentFolder, setCurrentFolder] = useState<Folder | null>(null);

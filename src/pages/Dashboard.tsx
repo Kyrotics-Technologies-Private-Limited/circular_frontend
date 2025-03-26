@@ -10,8 +10,7 @@ import OrganizationForm from "../components/organizations/OrganizationForm";
 const Dashboard: React.FC = () => {
   const { currentUser } = useAuth();
   const {
-    organizations,
-    currentOrganization,
+     currentOrganization,
     userType,
     setUserType,
     loading: orgLoading,
@@ -99,28 +98,12 @@ const Dashboard: React.FC = () => {
             </label>
           </div>
           
-          {userType === 'organization' && organizations.length > 0 && (
-            <select
-              className="pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
-              value={currentOrganization?.id || ''}
-              onChange={(e) => {
-                const selectedOrg = organizations.find(org => org.id === e.target.value);
-                if (selectedOrg) {
-                  const { setCurrentOrganization } = useOrganization();
-                  setCurrentOrganization(selectedOrg);
-                }
-              }}
-            >
-              {organizations.map((org) => (
-                <option key={org.id} value={org.id}>{org.name}</option>
-              ))}
-            </select>
-          )}
+      
         </div>
       </div>
 
       {/* Create Organization Section for org users with no orgs */}
-      {userType === 'organization' && organizations.length === 0 && !orgLoading ? (
+      {userType === 'organization' && !orgLoading ? (
         <div className="bg-white shadow overflow-hidden sm:rounded-lg">
           <div className="px-4 py-5 sm:px-6">
             <h3 className="text-lg leading-6 font-medium text-gray-900">

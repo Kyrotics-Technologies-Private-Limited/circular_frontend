@@ -75,6 +75,7 @@ export const updateOrganization = async (
  */
 export const getOrganizationUsers = async (orgId: string): Promise<User[]> => {
   try {
+    console.log('service org id',orgId)
     const response = await api.get(`/organizations/${orgId}/users`);
     return response.data.users;
   } catch (error) {
