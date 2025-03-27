@@ -167,12 +167,14 @@ export const OrganizationProvider = ({
   
   // Ref to track the last fetched orgId
   const lastFetchedOrgId = useRef<string | null>(null);
+  
 
   useEffect(() => {
     if (!currentUser?.orgId) {
       console.log("currentUser or orgId not found, skipping fetch.");
       return;
     }
+
 
     // If we've already fetched this organization, don't fetch again
     if (lastFetchedOrgId.current === currentUser.orgId) {

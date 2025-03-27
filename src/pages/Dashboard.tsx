@@ -69,14 +69,14 @@ const Dashboard: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">
-            Welcome, {currentUser?.displayName || "User"}!
+            Welcome, {currentUser?.name || "User"} 👋
           </h1>
           <p className="mt-1 text-sm text-gray-500">
             Manage your files and translations
           </p>
         </div>
         
-        <div className="flex items-center space-x-4">
+        {/* <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2 bg-white p-2 rounded shadow">
             <label className="inline-flex items-center">
               <input
@@ -99,28 +99,11 @@ const Dashboard: React.FC = () => {
           </div>
           
       
-        </div>
+        </div> */}
       </div>
 
       {/* Create Organization Section for org users with no orgs */}
-      {userType === 'organization' && !orgLoading ? (
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-          <div className="px-4 py-5 sm:px-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900">
-              Get Started with Organizations
-            </h3>
-            <p className="mt-1 max-w-2xl text-sm text-gray-500">
-              Create your first organization to start managing files and translations with team members.
-            </p>
-          </div>
-          <div className="border-t border-gray-200">
-            <div className="px-4 py-5 sm:p-6">
-              <OrganizationForm />
-            </div>
-          </div>
-        </div>
-      ) : (
-        <>
+       
           {/* Stats Cards Section */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {/* Files Stats Card */}
@@ -260,8 +243,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div> */}
           </div>
-        </>
-      )}
+       
 
       {/* Quick Actions Section */}
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">

@@ -7,8 +7,9 @@ export type UserType = 'individual' | 'organization';
 export interface User {
   id: string;
   uid: string;
-  displayName: string;
+  name: string;
   email: string;
+  photoURL?: string;
   organizations?: string[]; 
   userType: UserType;        
   role: UserRole;

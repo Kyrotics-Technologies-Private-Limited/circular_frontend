@@ -1,93 +1,49 @@
 // src/pages/admin/AdminDashboard.tsx
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { getAllOrganizations } from "../../services/organization.service";
 import { getFiles } from "../../services/file.service";
 import { useOrganization } from "../../contexts/OrganizationContext";
 import { FileItem } from "../../types/File";
-
-// Import the Request interface from the service
-import { 
-  Request, 
-  getAllRequests,
-  approveRequest,
-  rejectRequest
-} from "../../services/request.service";
+import { getOrganizationUsers } from "../../services/organization.service";
 
 const AdminDashboard: React.FC = () => {
   const { currentUser } = useAuth();
   const isSuperAdmin = currentUser?.role === "super_admin";
-  const {
-    organizations,
-    currentOrganization,
-    loading: orgLoading,
-  } = useOrganization();
+  const { currentOrganization, loading: orgLoading } = useOrganization();
   const [totalUsers, setTotalUsers] = useState<number>(0);
   const [totalFiles, setTotalFiles] = useState<FileItem[]>([]);
   const [recentFiles, setRecentFiles] = useState<FileItem[]>([]);
   const [totalTranslations, setTotalTranslations] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  // State for pending requests
-  const [pendingRequests, setPendingRequests] = useState<Request[]>([]);
-  const [recentRequests, setRecentRequests] = useState<Request[]>([]);
-
-  // Function to fetch all requests using the request service
-  const fetchAllRequests = async () => {
-    try {
-      const allRequests = await getAllRequests();
-      
-      // Filter for pending requests only
-      const pending = allRequests.filter(req => req.status === "pending");
-      setPendingRequests(pending);
-      
-      // Sort recent requests by creation date (newest first)
-      const recent = [...allRequests]
-        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-        .slice(0, 5); // Only take the 5 most recent
-      
-      setRecentRequests(recent);
-    } catch (err: any) {
-      console.error("Error fetching requests:", err);
-      setError(err.message || "Failed to load request data");
-    }
-  };
 
   useEffect(() => {
     const fetchData = async () => {
       if (!currentOrganization) return;
       try {
         setLoading(true);
-        
+
         // Fetch files and set recent files (for regular admins)
-        if (!isSuperAdmin) {
-          const files = await getFiles(currentOrganization.id);
 
-          // Sort by upload date and take the latest 5
-          const sorted = [...files]
-            .sort((a, b) => {
-              return (
-                new Date(b.uploadedAt).getTime() -
-                new Date(a.uploadedAt).getTime()
-              );
-            })
-            .slice(0, 5);
+        const files = await getFiles(currentOrganization.id);
+        console.log("files", files);
 
-          setRecentFiles(sorted);
-          setTotalFiles(files);
-          setTotalTranslations(files.filter((f) => f.translatedContent).length);
-        }
-        
-        // Fetch organizations and pending requests (for super admin)
-        if (isSuperAdmin) {
-          const orgs = await getAllOrganizations();
-          // Sum total users from all organizations
-          // const total = orgs.reduce((acc, org) => acc + org.members.length, 0);
-          // setTotalUsers(total);
-          
-          // Fetch all requests using the service
-          await fetchAllRequests();
-        }
+        // Sort by upload date and take the latest 5
+        const sorted = [...files]
+          .sort((a, b) => {
+            return (
+              new Date(b.uploadedAt).getTime() -
+              new Date(a.uploadedAt).getTime()
+            );
+          })
+          .slice(0, 5);
+
+        setRecentFiles(sorted);
+        setTotalFiles(files);
+        setTotalTranslations(files.filter((f) => f.translatedContent).length);
+
+        const users = await getOrganizationUsers(currentOrganization.id);
+        setTotalUsers(users.length);
 
         setError(null);
       } catch (err: any) {
@@ -99,7 +55,7 @@ const AdminDashboard: React.FC = () => {
     };
 
     fetchData();
-  }, [isSuperAdmin, currentOrganization]);
+  }, [currentOrganization]);
 
   if (loading) {
     return (
@@ -169,11 +125,6 @@ const AdminDashboard: React.FC = () => {
                     <dt className="text-sm font-medium text-gray-500 truncate">
                       Organizations
                     </dt>
-                    <dd>
-                      <div className="text-lg font-medium text-gray-900">
-                        {organizations.length}
-                      </div>
-                    </dd>
                   </dl>
                 </div>
               </div>
@@ -238,18 +189,6 @@ const AdminDashboard: React.FC = () => {
                     />
                   </svg>
                 </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Pending Requests
-                    </dt>
-                    <dd>
-                      <div className="text-lg font-medium text-gray-900">
-                        {pendingRequests.length}
-                      </div>
-                    </dd>
-                  </dl>
-                </div>
               </div>
             </div>
           </div>
@@ -283,7 +222,7 @@ const AdminDashboard: React.FC = () => {
                     </dt>
                     <dd>
                       <div className="text-lg font-medium text-gray-900">
-                        {loading ? '...' : totalFiles.length}
+                        {loading ? "..." : totalFiles.length}
                       </div>
                     </dd>
                   </dl>
@@ -339,76 +278,13 @@ const AdminDashboard: React.FC = () => {
             {isSuperAdmin ? "Recent Requests" : "Recent Activity"}
           </h3>
           <p className="mt-1 max-w-2xl text-sm text-gray-500">
-            {isSuperAdmin 
+            {isSuperAdmin
               ? "Latest requests requiring your attention"
               : "Latest actions and events in the system"}
           </p>
         </div>
         <div className="border-t border-gray-200">
           <ul className="divide-y divide-gray-200">
-            {/* Super Admin: Show Recent Requests */}
-            {isSuperAdmin && recentRequests.map((request) => (
-              <li key={request.id} className="px-4 py-4 sm:px-6">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-indigo-600 truncate">
-                    Organization Registration Request
-                  </p>
-                  <div className="ml-2 flex-shrink-0 flex">
-                    <p className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                      ${request.status === 'pending' 
-                        ? 'bg-yellow-100 text-yellow-800' 
-                        : request.status === 'approved' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'}`}>
-                      {request.status === 'pending' 
-                        ? formatTimeAgo(request.createdAt) 
-                        : request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-2 sm:flex sm:justify-between">
-                  <div className="sm:flex">
-                    <p className="flex items-center text-sm text-gray-500 mr-6">
-                      <svg
-                        className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      Owner ID: {request.ownerUid}
-                    </p>
-                    <p className="flex items-center text-sm text-gray-500">
-                      <svg
-                        className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm3 1h6v4H7V5zm8 8v2h1v1H4v-1h1v-2H4v-1h16v1h-1z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      {request.organizationName}
-                    </p>
-                  </div>
-                </div>
-                {request.CIN && (
-                  <div className="mt-1">
-                    <p className="text-xs text-gray-500">CIN: {request.CIN}</p>
-                  </div>
-                )}
-              </li>
-            ))}
-
-            {/* Regular Admin: Show Original Activity List */}
             {!isSuperAdmin && (
               <>
                 <li className="px-4 py-4 sm:px-6">

@@ -28,26 +28,26 @@ const FileManager: React.FC = () => {
     );
   }
 
-  if (userType === 'organization') {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">
-            File Manager
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            You don't have access to any organizations.
-          </p>
-          <button
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-            onClick={() => handleUserTypeChange('individual')}
-          >
-            Switch to Personal Files
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // if (userType === 'organization') {
+  //   return (
+  //     <div className="space-y-6">
+  //       <div>
+  //         <h1 className="text-2xl font-semibold text-gray-900">
+  //           File Manager
+  //         </h1>
+  //         <p className="mt-1 text-sm text-gray-500">
+  //           You don't have access to any organizations.
+  //         </p>
+  //         <button
+  //           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+  //           onClick={() => handleUserTypeChange('individual')}
+  //         >
+  //           Switch to Personal Files
+  //         </button>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
 
 

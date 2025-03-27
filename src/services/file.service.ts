@@ -50,6 +50,8 @@ export const getFiles = async (
   try {
     const params: Record<string, string> = {};
     
+    console.log('organizationId:', organizationId);
+    
     // Only include organizationId in params if it exists
     if (organizationId) {
       params.organizationId = organizationId;
@@ -74,6 +76,9 @@ export const getFilesByFolderId = async (
 ): Promise<FileItem[]> => {
   try {
     const params: Record<string, string> = {};
+
+    console.log('organizationId:', organizationId);
+    console.log('folderId:', folderId);
     
     // Only include organizationId in params if it exists
     if (organizationId) {

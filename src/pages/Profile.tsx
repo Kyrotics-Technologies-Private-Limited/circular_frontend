@@ -3,12 +3,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { logoutUser, updateUserProfile } from '../services/auth.service';
+import DateFormatter from '../utils/dateFormatter';
 
 const Profile: React.FC = () => {
   const { currentUser, setCurrentUser } = useAuth();
   const navigate = useNavigate();
-  
-  const [displayName, setDisplayName] = useState(currentUser?.displayName || '');
+  console.log('currentUser', currentUser);
+  const [name, setname] = useState(currentUser?.name || '');
   const [photoURL, setPhotoURL] = useState(currentUser?.photoURL || '');
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -20,7 +21,7 @@ const Profile: React.FC = () => {
   };
   
   const handleCancel = () => {
-    setDisplayName(currentUser?.displayName || '');
+    setname(currentUser?.name || '');
     setPhotoURL(currentUser?.photoURL || '');
     setEditing(false);
     setError(null);
@@ -34,10 +35,10 @@ const Profile: React.FC = () => {
       setError(null);
       setSuccessMessage(null);
       
-      const updateData: { displayName?: string; photoURL?: string } = {};
+      const updateData: { name?: string; photoURL?: string } = {};
       
-      if (displayName !== currentUser?.displayName) {
-        updateData.displayName = displayName;
+      if (name !== currentUser?.name) {
+        updateData.name = name;
       }
       
       if (photoURL !== currentUser?.photoURL) {
@@ -157,15 +158,15 @@ const Profile: React.FC = () => {
                 </div>
                 
                 <div>
-                  <label htmlFor="displayName" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                     Display Name
                   </label>
                   <input
                     type="text"
-                    name="displayName"
-                    id="displayName"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
+                    name="name"
+                    id="name"
+                    value={name}
+                    onChange={(e) => setname(e.target.value)}
                     className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                   />
                 </div>
@@ -212,7 +213,7 @@ const Profile: React.FC = () => {
               <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt className="text-sm font-medium text-gray-500">Display name</dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {currentUser?.displayName || 'Not set'}
+                  {currentUser?.name || 'Not set'}
                 </dd>
               </div>
               <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -236,7 +237,7 @@ const Profile: React.FC = () => {
               <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt className="text-sm font-medium text-gray-500">Last login</dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {currentUser?.lastLogin ? new Date(currentUser.lastLogin).toLocaleDateString() : 'N/A'}
+                {new Date(Number(currentUser?.lastLogin)).toLocaleDateString()}
                 </dd>
               </div>
             </dl>

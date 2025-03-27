@@ -66,6 +66,8 @@ export const FileProvider = ({
     try {
       setLoading(true);
 
+      // console.log('currentOrganization:', currentOrganization);
+
       // Get files and folders for current organization and folder
       const [filesData, foldersData] = await Promise.all([
         getFilesByFolderId(currentOrganization?.id, currentFolder?.id),
@@ -82,6 +84,8 @@ export const FileProvider = ({
       setLoading(false);
     }
   };
+
+  // console.log('folders:', folders);
 
   // Build the current path
   const buildPath = async (folder: Folder | null): Promise<Folder[]> => {

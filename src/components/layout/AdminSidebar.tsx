@@ -43,15 +43,15 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
 
     ...(isAdmin
       ? [
+        {
+          name: "Directory",
+          path: "/admin/files",
+          icon: "M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2",
+        },
           {
             name: "User Management",
             path: "/admin/user-management",
             icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
-          },
-          {
-            name: "Files Overview",
-            path: "/admin/files",
-            icon: "M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2",
           },
         ]
       : []),
@@ -149,13 +149,13 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
         <div className="flex-shrink-0 w-full group block">
           <div className="flex items-center">
             <div className="h-10 w-10 rounded-full bg-purple-600 flex items-center justify-center text-white">
-              {currentUser?.displayName?.charAt(0)?.toUpperCase() ||
+              {currentUser?.name?.charAt(0)?.toUpperCase() ||
                 currentUser?.email?.charAt(0)?.toUpperCase() ||
                 "?"}
             </div>
             <div className="ml-3">
               <p className="text-sm font-medium text-white">
-                {currentUser?.displayName || "Admin User"}
+                {currentUser?.name || "Admin User"}
               </p>
               <p className="text-xs font-medium text-gray-300">
                 {currentUser?.role === "super_admin" ? "Super Admin" : "Admin"}

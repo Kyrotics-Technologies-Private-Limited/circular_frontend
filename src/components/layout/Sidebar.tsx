@@ -14,7 +14,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, showOrgManagement = false })
   // Define navigation items
   const navigation = [
     { name: 'Dashboard', path: '/dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
-    { name: 'Files', path: '/files', icon: 'M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2' },
+    { name: 'Directory', path: '/files', icon: 'M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2' },
     
     // Only show Organizations to super admins
     ...(showOrgManagement ? [
@@ -85,11 +85,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, showOrgManagement = false })
       <div className="flex-shrink-0 border-t border-gray-200 p-4">
         <div className="flex items-center">
           <div className="h-10 w-10 rounded-full bg-indigo-500 flex items-center justify-center text-white">
-            {currentUser?.displayName?.charAt(0)?.toUpperCase() || currentUser?.email?.charAt(0)?.toUpperCase() || '?'}
+            {currentUser?.name?.charAt(0)?.toUpperCase() || currentUser?.email?.charAt(0)?.toUpperCase() || '?'}
           </div>
           <div className="ml-3">
             <p className="text-sm font-medium text-gray-900 truncate">
-              {currentUser?.displayName || 'User'}
+              {currentUser?.name || 'User'}
             </p>
             <p className="text-xs text-gray-500 truncate">
               {currentUser?.email}

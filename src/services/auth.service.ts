@@ -99,14 +99,16 @@ export const loginUser = async (
       password
     );
     const idToken = await userCredential.user.getIdToken();
+    console.log("idToken", idToken);
     const response = await api.post("/auth/lastlogin", {
       headers: {
         Authorization: `Bearer ${idToken}`,
       },
     });
+    console.log("response", response);
     return response.data.user;
   } catch (error) {
-    console.error("Login error:", error);
+    console.log("Login error:", error);
     let message = "An error occurred. Please try again.";
     if (error && typeof error === "object" && "code" in error) {
       const errorCode = (error as any).code;
