@@ -5,6 +5,7 @@ import { getFiles } from "../../services/file.service";
 import { useOrganization } from "../../contexts/OrganizationContext";
 import { FileItem } from "../../types/File";
 import { getOrganizationUsers } from "../../services/organization.service";
+import { Link } from "react-router-dom";
 
 const AdminDashboard: React.FC = () => {
   const { currentUser } = useAuth();
@@ -72,6 +73,12 @@ const AdminDashboard: React.FC = () => {
     if (diff < 3600000) return `${Math.floor(diff / 60000)} minutes ago`;
     if (diff < 86400000) return `${Math.floor(diff / 3600000)} hours ago`;
     return `${Math.floor(diff / 86400000)} days ago`;
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B';
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    else return (bytes / 1048576).toFixed(2) + ' MB';
   };
 
   return (
@@ -272,7 +279,7 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Recent Activity Section */}
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+      {/* <div className="bg-white shadow overflow-hidden sm:rounded-lg">
         <div className="px-4 py-5 sm:px-6">
           <h3 className="text-lg leading-6 font-medium text-gray-900">
             {isSuperAdmin ? "Recent Requests" : "Recent Activity"}
@@ -384,7 +391,213 @@ const AdminDashboard: React.FC = () => {
             )}
           </ul>
         </div>
-      </div>
+      </div> */}
+       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+               <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
+                 <div>
+                   <h3 className="text-lg leading-6 font-medium text-gray-900">
+                     Recent Files
+                   </h3>
+                   <p className="mt-1 max-w-2xl text-sm text-gray-500">
+                     Your most recently uploaded files
+                   </p>
+                 </div>
+                 <Link
+                   to="/files"
+                   className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                 >
+                   Upload New File
+                 </Link>
+               </div>
+       
+               {error && (
+                 <div className="border-t border-gray-200 px-4 py-5 sm:p-6">
+                   <div className="rounded-md bg-red-50 p-4">
+                     <div className="flex">
+                       <div className="ml-3">
+                         <h3 className="text-sm font-medium text-red-800">
+                           {error}
+                         </h3>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+               )}
+       
+               <div className="border-t border-gray-200">
+                 {loading ? (
+                   <div className="px-4 py-5 sm:p-6 text-center">
+                     <div className="spinner">Loading...</div>
+                   </div>
+                 ) : recentFiles.length > 0 ? (
+                   <div className="overflow-x-auto">
+                     <table className="min-w-full divide-y divide-gray-200">
+                       <thead className="bg-gray-50">
+                         <tr>
+                           <th
+                             scope="col"
+                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                           >
+                             Name
+                           </th>
+                           <th
+                             scope="col"
+                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                           >
+                             Size
+                           </th>
+                           <th
+                             scope="col"
+                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                           >
+                             Upload Date
+                           </th>
+                           <th
+                             scope="col"
+                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                           >
+                             Status
+                           </th>
+                           <th
+                             scope="col"
+                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                           >
+                             Actions
+                           </th>
+                         </tr>
+                       </thead>
+                       <tbody className="bg-white divide-y divide-gray-200">
+                         {recentFiles.map((file) => (
+                           <tr key={file.id} className="hover:bg-gray-50">
+                             <td className="px-6 py-4 whitespace-nowrap">
+                               <div className="flex items-center">
+                                 <div className="flex-shrink-0">
+                                   {file.type.includes('pdf') ? (
+                                     <svg
+                                       className="h-6 w-6 text-red-500"
+                                       xmlns="http://www.w3.org/2000/svg"
+                                       fill="none"
+                                       viewBox="0 0 24 24"
+                                       stroke="currentColor"
+                                     >
+                                       <path
+                                         strokeLinecap="round"
+                                         strokeLinejoin="round"
+                                         strokeWidth={2}
+                                         d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                                       />
+                                     </svg>
+                                   ) : file.type.includes('word') ? (
+                                     <svg
+                                       className="h-6 w-6 text-blue-500"
+                                       xmlns="http://www.w3.org/2000/svg"
+                                       fill="none"
+                                       viewBox="0 0 24 24"
+                                       stroke="currentColor"
+                                     >
+                                       <path
+                                         strokeLinecap="round"
+                                         strokeLinejoin="round"
+                                         strokeWidth={2}
+                                         d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                                       />
+                                     </svg>
+                                   ) : (
+                                     <svg
+                                       className="h-6 w-6 text-gray-400"
+                                       xmlns="http://www.w3.org/2000/svg"
+                                       fill="none"
+                                       viewBox="0 0 24 24"
+                                       stroke="currentColor"
+                                     >
+                                       <path
+                                         strokeLinecap="round"
+                                         strokeLinejoin="round"
+                                         strokeWidth={2}
+                                         d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                                       />
+                                     </svg>
+                                   )}
+                                 </div>
+                                 <div className="ml-4">
+                                   <div className="text-sm font-medium text-gray-900">
+                                     {file.name}
+                                   </div>
+                                   {/* {file.isShared && (
+                                     <div className="text-xs text-gray-500">
+                                       Shared with you
+                                     </div>
+                                   )} */}
+                                 </div>
+                               </div>
+                             </td>
+                             <td className="px-6 py-4 whitespace-nowrap">
+                               <div className="text-sm text-gray-500">
+                                 {formatFileSize(file.size)}
+                               </div>
+                             </td>
+                             <td className="px-6 py-4 whitespace-nowrap">
+                               <div className="text-sm text-gray-500">
+                                 {new Date(file.uploadedAt).toLocaleDateString()}
+                               </div>
+                             </td>
+                             <td className="px-6 py-4 whitespace-nowrap">
+                               {file.translatedContent ? (
+                                 <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                   Translated
+                                 </span>
+                               ) : (
+                                 <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                   Not Translated
+                                 </span>
+                               )}
+                             </td>
+                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                               <div className="flex space-x-3">
+                                 <Link
+                                   to={`/translation/${file.id}`}
+                                   className="text-indigo-600 hover:text-indigo-900"
+                                 >
+                                   {file.translatedContent ? "Edit" : "Translate"}
+                                 </Link>
+                                 <a 
+                                   href={file.url} 
+                                   target="_blank" 
+                                   rel="noopener noreferrer"
+                                   className="text-gray-600 hover:text-gray-900"
+                                 >
+                                   View
+                                 </a>
+                                 {!file.isShared && (
+                                   <button
+                                     onClick={() => {
+                                       /* Share file functionality will go here */
+                                     }}
+                                     className="text-indigo-600 hover:text-indigo-900"
+                                   >
+                                     Share
+                                   </button>
+                                 )}
+                               </div>
+                             </td>
+                           </tr>
+                         ))}
+                       </tbody>
+                     </table>
+                   </div>
+                 ) : (
+                   <div className="px-4 py-5 sm:p-6 text-center">
+                     <p className="text-gray-500">No files uploaded yet.</p>
+                     <Link
+                       to="/files"
+                       className="mt-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                     >
+                       Upload Your First File
+                     </Link>
+                   </div>
+                 )}
+               </div>
+             </div>
     </div>
   );
 };

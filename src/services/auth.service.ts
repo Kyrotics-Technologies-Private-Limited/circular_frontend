@@ -10,7 +10,8 @@ import {
 import { auth } from "../utils/firebase";
 import api from "./api";
 import { User } from "../types/User";
-
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 /**
  * Register a new user
  */
@@ -105,10 +106,15 @@ export const loginUser = async (
         Authorization: `Bearer ${idToken}`,
       },
     });
-    console.log("response", response);
+    // console.log("response", response);
+    if (response) {
+      // toast.success("Successfully logged in");
+      toast.success("🎉 Login successful! Welcome back! 🚀");
+
+    }
     return response.data.user;
   } catch (error) {
-    console.log("Login error:", error);
+    // console.log("Login error:", error);
     let message = "An error occurred. Please try again.";
     if (error && typeof error === "object" && "code" in error) {
       const errorCode = (error as any).code;
@@ -131,15 +137,22 @@ export const loginUser = async (
         case "auth/network-request-failed":
           message = "Check your Internet Connection.";
           break;
+        case "auth/user-disabled":
+          message =
+            "Oops! Your account is currently disabled. 🚫 Need help? Reach out to your admin for assistance! 🛠️.";
+
+          break;
         default:
           message = (error as any).message || message;
       }
     } else {
       message = (error as any).message || message;
+      // toast.error(message);
     }
+    toast.error(message);
 
     // toast.error(message);
-    console.log("message",message);
+    // console.log("message", message);
     throw error;
   }
 };
@@ -235,4 +248,27 @@ export const getAllUsers = async (): Promise<User | null> => {
  */
 export const getFirebaseUser = (): FirebaseUser | null => {
   return auth.currentUser;
+};
+
+/**
+ * Disable user
+ */
+export const disableUser = async (uid: string): Promise<void> => {
+  try {
+    await api.post("/auth/disable", { uid });
+  } catch (error) {
+    console.error("Error disabling user:", error);
+    throw error;
+  }
+};
+/**
+ * Enable user
+ */
+export const enableUser = async (uid: string): Promise<void> => {
+  try {
+    await api.post("/auth/enable", { uid });
+  } catch (error) {
+    console.error("Error enabling user:", error);
+    throw error;
+  }
 };

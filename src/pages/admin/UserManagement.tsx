@@ -495,8 +495,6 @@
 
 // export default UserManagement;
 
-
-
 import React, { useState, useEffect } from "react";
 import {
   Search,
@@ -507,6 +505,8 @@ import {
   Save,
   Check,
   Shield,
+  CircleCheckBig,
+  Ban,
 } from "lucide-react";
 // import axios from 'axios';
 
@@ -518,6 +518,7 @@ import {
   updateUserRole,
 } from "../../services/organization.service";
 import { useOrganization } from "../../contexts/OrganizationContext";
+import { disableUser, enableUser } from "../../services/auth.service";
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -536,10 +537,14 @@ const UserManagement: React.FC = () => {
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showStatusConfirm, setShowStatusConfirm] = useState(false);
+  const [statusUserId, setStatusUserId] = useState<string | null>(null);
+  const [isDisabling, setIsDisabling] = useState(false);
   const { currentOrganization } = useOrganization();
+  const [isStatusLoading, setIsStatusLoading] = useState(false);
   const organizationId = currentOrganization?.id || "";
-  console.log(organizationId, "Organization ID from context");
-  console.log(currentOrganization, "Current Organization from context");
+  // console.log(organizationId, "Organization ID from context");
+  // console.log(currentOrganization, "Current Organization from context");
 
   // Fetch organization users
   useEffect(() => {
@@ -547,7 +552,6 @@ const UserManagement: React.FC = () => {
       setIsLoading(true);
       try {
         const users = await getOrganizationUsers(organizationId);
-        // console.log('Fetched users:', users);
         setUsers(users);
         setFilteredUsers(users);
         setError(null);
@@ -561,6 +565,9 @@ const UserManagement: React.FC = () => {
 
     fetchUsers();
   }, [organizationId]);
+
+  console.log('Fetched users:', users);
+
 
   useEffect(() => {
     // Filter and search logic
@@ -692,6 +699,61 @@ const UserManagement: React.FC = () => {
     }
   };
 
+  // Handle user status toggle confirmation dialog
+  const confirmToggleUserStatus = (
+    userId: string,
+    isCurrentlyDisabled: boolean
+  ) => {
+    setStatusUserId(userId);
+    setIsDisabling(!isCurrentlyDisabled); // If currently disabled, we'll enable them
+    setShowStatusConfirm(true);
+  };
+
+  // Handle user enable/disable
+  // Handle user enable/disable
+  const handleToggleUserStatus = async () => {
+    if (!statusUserId) return;
+
+    try {
+      setError(null);
+      setIsStatusLoading(true);
+      
+      if (isDisabling) {
+        await disableUser(statusUserId);
+        // Update local state
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.id === statusUserId ? { ...user, disabled: true } : user
+          )
+        );
+        setSuccess("User disabled successfully");
+      } else {
+        await enableUser(statusUserId);
+        // Update local state
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.id === statusUserId ? { ...user, disabled: false } : user
+          )
+        );
+        setSuccess("User enabled successfully");
+      }
+
+      setShowStatusConfirm(false);
+      setStatusUserId(null);
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message ||
+          `Failed to ${isDisabling ? "disable" : "enable"} user`
+      );
+    } finally {
+      setIsStatusLoading(false);
+      setShowStatusConfirm(false);
+    }
+  };
+
   // Get role badge
   const getRoleBadge = (role: UserRole) => {
     switch (role) {
@@ -722,6 +784,24 @@ const UserManagement: React.FC = () => {
           </span>
         );
     }
+  };
+
+  // Get status badge
+  const getStatusBadge = (disabled: boolean | undefined) => {
+    if (disabled) {
+      return (
+        <span className="flex items-center px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">
+          <CircleCheckBig className="h-3 w-3 mr-1" />
+          Disabled
+        </span>
+      );
+    }
+    return (
+      <span className="flex items-center px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
+        <CircleCheckBig className="h-3 w-3 mr-1" />
+        Active
+      </span>
+    );
   };
 
   // Format date
@@ -809,7 +889,12 @@ const UserManagement: React.FC = () => {
                 >
                   Role
                 </th>
-
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Status
+                </th>
                 <th
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -832,7 +917,7 @@ const UserManagement: React.FC = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredUsers.map((user) => (
-                <tr key={user.id}>
+                <tr key={user.id} className={user.disabled ? "bg-gray-50" : ""}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div>
@@ -848,7 +933,9 @@ const UserManagement: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     {getRoleBadge(user.role)}
                   </td>
-
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {getStatusBadge(user.disabled)}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {formatDate(user.createdAt)}
                   </td>
@@ -857,6 +944,26 @@ const UserManagement: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end space-x-2">
+                      <button
+                        onClick={() =>
+                          confirmToggleUserStatus(
+                            user.id,
+                            Boolean(user.disabled)
+                          )
+                        }
+                        className={`${
+                          user.disabled
+                            ? "bg-green-100 hover:bg-green-200 text-green-700"
+                            : "bg-yellow-100 hover:bg-yellow-200 text-yellow-700"
+                        } p-2 rounded`}
+                        title={user.disabled ? "Enable User" : "Disable User"}
+                      >
+                        {user.disabled ? (
+                          <CircleCheckBig className="h-4 w-4" />
+                        ) : (
+                          <Ban className="h-4 w-4" />
+                        )}
+                      </button>
                       <button
                         onClick={() => openEditModal(user)}
                         className="bg-blue-100 hover:bg-blue-200 text-blue-700 p-2 rounded"
@@ -887,8 +994,8 @@ const UserManagement: React.FC = () => {
 
       {/* Add/Edit User Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-gray-500/40 backdrop-blur-[3px] flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md z-100">
+        <div className="fixed inset-0  backdrop-blur-[3px] flex items-center justify-center z-50">
+          <div className=" rounded-lg bg-slate-100 shadow-lg shadow-gray-600 p-6 w-full max-w-md z-100">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-800">
                 {modalMode === "add"
@@ -945,7 +1052,7 @@ const UserManagement: React.FC = () => {
                   name="role"
                   value={formData.role}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="user">User</option>
                   <option value="admin">Admin</option>
@@ -976,8 +1083,8 @@ const UserManagement: React.FC = () => {
 
       {/* Remove User Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <div className="fixed inset-0  bg-opacity-50 backdrop-blur-[3px] bg-shadow-md flex items-center justify-center z-50">
+          <div className="bg-slate-100 shadow-lg shadow-gray-600 rounded-lg p-6 w-full max-w-md">
             <div className="mb-4">
               <h2 className="text-xl font-semibold text-gray-800">
                 Confirm Removal
@@ -1001,6 +1108,58 @@ const UserManagement: React.FC = () => {
               >
                 <Trash2 className="h-4 w-4 mr-1" />
                 Remove User
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toggle User Status Confirmation Modal */}
+      {showStatusConfirm && (
+        <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-slate-100 shadow-lg shadow-gray-600 rounded-lg p-6 w-full max-w-md">
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Confirm {isDisabling ? "Disable" : "Enable"} User
+              </h2>
+              <p className="text-gray-600 mt-2">
+                {isDisabling
+                  ? "Are you sure you want to disable this user? They will not be able to access the organization until re-enabled."
+                  : "Are you sure you want to enable this user? They will regain access to the organization."}
+              </p>
+            </div>
+
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowStatusConfirm(false)}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleToggleUserStatus}
+                disabled={isStatusLoading}
+                className={`px-4 py-2 ${
+                  isDisabling
+                    ? "bg-yellow-600 hover:bg-yellow-700"
+                    : "bg-green-600 hover:bg-green-700"
+                } text-white rounded-md flex items-center`}
+              >
+                {isStatusLoading ? (
+                  <>
+                    <div className="h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    {isDisabling ? "Disabling..." : "Enabling..."}
+                  </>
+                ) : (
+                  <>
+                    {isDisabling ? (
+                      <Ban className="h-4 w-4 mr-1" />
+                    ) : (
+                      <CircleCheckBig className="h-4 w-4 mr-1" />
+                    )}
+                    {isDisabling ? "Disable User" : "Enable User"}
+                  </>
+                )}
               </button>
             </div>
           </div>

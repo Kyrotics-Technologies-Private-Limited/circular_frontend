@@ -17,6 +17,7 @@ export interface User {
   status: UserStatus;
   createdAt: Date;
   lastLogin: Date;
+  disabled: boolean;
 }
 
 // Define organization membership and roles
