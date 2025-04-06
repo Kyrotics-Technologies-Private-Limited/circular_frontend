@@ -291,7 +291,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
                     >
                       Manage Access
                     </button>
-                    <button
+                    {/* <button
                       onClick={() => setActiveTab("link")}
                       className={`py-4 px-1 border-b-2 font-medium text-sm ${
                         activeTab === "link"
@@ -300,7 +300,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
                       }`}
                     >
                       Get Link
-                    </button>
+                    </button> */}
                   </nav>
                 </div>
                 

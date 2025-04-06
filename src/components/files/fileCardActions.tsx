@@ -1,8 +1,10 @@
 // src/components/files/FileCardActions.tsx
 import React, { useState } from 'react';
 import { FileItem, Folder } from '../../types/File';
-import ShareModal from '../shared/ShareModal';
+import ShareModal from '../shared/shareModal';
+import RenameModal from './RenameModal';
 import { useOrganization } from '../../contexts/OrganizationContext';
+import { deleteFile } from '../../services/file.service';
 
 interface FileCardActionsProps {
   item: FileItem | Folder;
@@ -20,6 +22,8 @@ const FileCardActions: React.FC<FileCardActionsProps> = ({
   const { currentOrganization } = useOrganization();
   const [actionsOpen, setActionsOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [renameModalOpen, setRenameModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleActionToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -32,10 +36,36 @@ const FileCardActions: React.FC<FileCardActionsProps> = ({
     setShareModalOpen(true);
   };
 
-  const handleDeleteClick = (e: React.MouseEvent) => {
+  const handleRenameClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onDelete) {
-      onDelete();
+    setActionsOpen(false);
+    setRenameModalOpen(true);
+  };
+
+  const handleDeleteClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setActionsOpen(false);
+    
+    if (confirm(`Are you sure you want to delete this ${type}?`)) {
+      if (onDelete) {
+        onDelete();
+      } else {
+        // If no onDelete prop is provided, handle deletion here
+        setIsDeleting(true);
+        try {
+          if (type === 'file') {
+            await deleteFile(item.id);
+          } else {
+            // If needed, implement deleteFolder here
+          }
+          onSuccess();
+        } catch (error) {
+          console.error(`Error deleting ${type}:`, error);
+          alert(`Failed to delete ${type}. Please try again.`);
+        } finally {
+          setIsDeleting(false);
+        }
+      }
     }
   };
 
@@ -45,6 +75,7 @@ const FileCardActions: React.FC<FileCardActionsProps> = ({
         <button
           onClick={handleActionToggle}
           className="text-gray-400 hover:text-gray-500 focus:outline-none"
+          disabled={isDeleting}
         >
           <svg 
             className="h-5 w-5" 
@@ -67,15 +98,23 @@ const FileCardActions: React.FC<FileCardActionsProps> = ({
                 Share
               </button>
               
-              {onDelete && (
+              {type === 'file' && (
                 <button
-                  onClick={handleDeleteClick}
-                  className="text-left block w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                  onClick={handleRenameClick}
+                  className="text-left block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   role="menuitem"
                 >
-                  Delete
+                  Rename
                 </button>
               )}
+              
+              <button
+                onClick={handleDeleteClick}
+                className="text-left block w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                role="menuitem"
+              >
+                Delete
+              </button>
             </div>
           </div>
         )}
@@ -88,6 +127,15 @@ const FileCardActions: React.FC<FileCardActionsProps> = ({
           type={type}
           item={item}
           organizationId={currentOrganization?.id}
+          onSuccess={onSuccess}
+        />
+      )}
+
+      {renameModalOpen && type === 'file' && (
+        <RenameModal
+          isOpen={renameModalOpen}
+          onClose={() => setRenameModalOpen(false)}
+          file={item as FileItem}
           onSuccess={onSuccess}
         />
       )}

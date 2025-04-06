@@ -125,6 +125,21 @@ export const shareFile = async (fileId: string, userIds: string[]): Promise<void
 };
 
 /**
+ * Rename a file
+ * @param fileId File ID to rename
+ * @param newName New file name
+ */
+export const renameFile = async (fileId: string, newName: string): Promise<FileItem> => {
+  try {
+    const response = await api.post(`/files/${fileId}/renameFile`, { newName });
+    return response.data.file;
+  } catch (error) {
+    console.error('Error renaming file:', error);
+    throw error;
+  }
+};
+
+/**
  * Delete a file
  */
 export const deleteFile = async (fileId: string): Promise<void> => {

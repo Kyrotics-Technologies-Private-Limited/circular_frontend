@@ -179,7 +179,7 @@ const FileCard: React.FC<FileCardProps> = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <div className="flex-shrink-0">{getFileIcon()}</div>
-          <div className="ml-3 flex-1">
+          <div className="ml-3 flex-1 text-wrap">
             <h3 className="text-sm font-medium text-gray-900 truncate max-w-full">
               {file.name}
             </h3>
