@@ -2,9 +2,10 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { XCircle } from 'lucide-react';
+import { logoutUser } from '../services/auth.service';
 
 const RejectedPage: React.FC = () => {
-  const { currentUser, logout } = useAuth();
+  const { currentUser } = useAuth();
 
   const handleContactSupport = () => {
     window.location.href = 'mailto:support@example.com?subject=Organization%20Rejection%20Inquiry';
@@ -18,7 +19,7 @@ const RejectedPage: React.FC = () => {
           <span className="font-medium text-red-700">Your organization registration has been rejected</span>
         </div>
         <button 
-          onClick={logout}
+          onClick={logoutUser}
           className="text-gray-500 hover:text-gray-700 text-sm font-medium"
         >
           Sign Out

@@ -27,7 +27,7 @@ const AdminDashboard: React.FC = () => {
         // Fetch files and set recent files (for regular admins)
 
         const files = await getFiles(currentOrganization.id);
-        console.log("files", files);
+        // console.log("files", files);
 
         // Sort by upload date and take the latest 5
         const sorted = [...files]

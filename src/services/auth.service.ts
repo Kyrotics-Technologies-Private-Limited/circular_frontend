@@ -100,7 +100,7 @@ export const loginUser = async (
       password
     );
     const idToken = await userCredential.user.getIdToken();
-    console.log("idToken", idToken);
+    // console.log("idToken", idToken);
     const response = await api.post("/auth/lastlogin", {
       headers: {
         Authorization: `Bearer ${idToken}`,
@@ -197,13 +197,50 @@ export const resetPassword = async (email: string): Promise<void> => {
 export const getCurrentUser = async (): Promise<User | null> => {
   try {
     const response = await api.get("/auth/profile");
-    console.log("response", response.data.user.role);
     return response.data.user;
   } catch (error) {
     console.error("Error getting current user:", error);
     return null;
   }
 };
+
+
+// export const getCurrentUser = async (): Promise<User | null> => {
+//   try {
+//     const response = await api.get("/auth/profile");
+//     return response.data.user;
+//   } catch (error: any) {
+//     // Check if error has a response with data
+//     if (error.response && error.response.data) {
+//       const errorMessage = error.response.data.message || 'Failed to fetch user profile';
+//       const statusCode = error.response.status;
+      
+//       // Display error using toast
+//       toast.error(`${errorMessage} (${statusCode})`, {
+//         position: "top-center",
+//         autoClose: 5000,
+//         hideProgressBar: false,
+//         closeOnClick: true,
+//         pauseOnHover: true,
+//         draggable: true,
+//       });
+      
+//       console.error("Profile fetch error:", {
+//         status: statusCode,
+//         message: errorMessage
+//       });
+//     } else {
+//       // For network errors or other issues
+//       toast.error('Network error or server unavailable', {
+//         position: "top-center",
+//         autoClose: 5000,
+//       });
+//       console.error("Error getting current user:", error);
+//     }
+    
+//     return null;
+//   }
+// };
 
 /**
  * Update user profile

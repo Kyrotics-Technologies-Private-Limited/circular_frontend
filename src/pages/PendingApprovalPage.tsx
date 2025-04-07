@@ -1,62 +1,69 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Clock, CheckCircle, AlertCircle, Mail, FileText, Phone } from 'lucide-react';
-
-// Mock data - in a real app, you would get this from Firebase
-const mockUserData = {
-  name: "John Smith",
-  email: "john@example.org",
-  createdAt: new Date(new Date().setDate(new Date().getDate() - 1)), // 1 day ago
-  status: "pending",
-  userType: "organization"
-};
-
-const mockOrgData = {
-  name: "Acme Corporation",
-  CIN: "U74999DL2021PTC123456",
-  status: "pending"
-};
+import { useAuth } from '../contexts/AuthContext';
+import { getOrganizationbyId } from '../services/organization.service';
+import { User } from '../types/User';
+import { Organization } from '../types/Organization';
+import { logoutUser } from '../services/auth.service';
 
 const PendingApprovalPage = () => {
-  const [userData, setUserData] = useState(null);
-  const [orgData, setOrgData] = useState(null);
+  const [userData, setUserData] = useState<User | null>(null);
+  const [orgData, setOrgData] = useState<Organization | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeRemaining, setTimeRemaining] = useState('');
+  const { currentUser } = useAuth(); 
 
-    // Fetch organization data
-    useEffect(() => {
-        const fetchOrgData = async () => {
-          if (currentUser?.orgId) {
-            const orgDoc = await getDoc(doc(db, 'organizations', currentUser.orgId));
-            if (orgDoc.exists()) {
-              setOrgData(orgDoc.data());
-            }
-          }
-        };
-        
-        fetchOrgData();
-      }, [currentUser?.orgId]);
-
-  // Simulate fetching data from Firebase
+  // Fix 1: Combined useEffect to properly handle data fetching
   useEffect(() => {
-    // In a real implementation, you would fetch from Firebase here
-    setTimeout(() => {
-      setUserData(mockUserData);
-      setOrgData(mockOrgData);
-      setLoading(false);
-    }, 1000);
-  }, []);
-  
-  // Calculate estimated time remaining
-  useEffect(() => {
-    if (userData?.createdAt) {
-      const submissionDate = userData.createdAt;
-      const estimatedCompletionDate = new Date(submissionDate);
-      estimatedCompletionDate.setDate(estimatedCompletionDate.getDate() + 2); // Assuming 2 days for approval
+    const initialize = async () => {
+      // Set loading state
+      setLoading(true);
       
+      // Set user data from currentUser
+      if (currentUser) {
+        setUserData(currentUser);
+        
+        // Fetch organization data if orgId exists
+        if (currentUser.orgId) {
+          try {
+            const orgDoc = await getOrganizationbyId(currentUser.orgId);
+            if (orgDoc) {
+              // console.log("Organization fetched successfully:", orgDoc.name);
+              setOrgData(orgDoc);
+            } else {
+              console.log("Organization not found");
+            }
+          } catch (error) {
+            console.error("Error fetching organization:", error);
+          }
+        } else {
+          console.log("No orgId available");
+        }
+      }
+      
+      // Set loading to false after all data is fetched
+      setLoading(false);
+    };
+
+    initialize();
+  }, [currentUser]); // Only re-run if currentUser changes
+
+  // Fix 2: Separated the time calculation into its own effect
+  useEffect(() => {
+    if (!userData?.createdAt) return;
+    
+    try {
+      const submissionDate = userData.createdAt instanceof Date 
+        ? userData.createdAt 
+        : new Date(userData.createdAt);
+        
+      const estimatedCompletionDate = new Date(submissionDate);
+      estimatedCompletionDate.setDate(estimatedCompletionDate.getDate() + 2);
+
       const updateTimeRemaining = () => {
         const now = new Date();
-        const diffTime = estimatedCompletionDate - now;
-        
+        const diffTime = estimatedCompletionDate.getTime() - now.getTime();
+
         if (diffTime <= 0) {
           setTimeRemaining('Review may take longer than expected');
         } else {
@@ -65,24 +72,31 @@ const PendingApprovalPage = () => {
           setTimeRemaining(`~${diffDays}d ${diffHours}h remaining`);
         }
       };
-      
+
       updateTimeRemaining();
-      const interval = setInterval(updateTimeRemaining, 60000); // Update every minute
-      
+      const interval = setInterval(updateTimeRemaining, 60000);
+
       return () => clearInterval(interval);
+    } catch (error) {
+      console.error("Error calculating time remaining:", error);
+      setTimeRemaining('Unable to calculate time remaining');
     }
-  }, [userData]);
-  
-  const handleLogout = () => {
-    alert("In a real app, this would sign out the user");
-    // In a real implementation:
-    // await signOut(auth);
-    // navigate('/login');
+  }, [userData?.createdAt]);
+
+  // Fix 3: Updated logout to use actual auth logout functionality
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
   };
 
   const handleContactSupport = () => {
     window.location.href = 'mailto:support@example.com?subject=Organization%20Approval%20Inquiry';
   };
+
 
   if (loading) {
     return (
@@ -95,6 +109,7 @@ const PendingApprovalPage = () => {
     );
   }
 
+  // Rest of the component remains the same
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Status banner */}
@@ -103,14 +118,15 @@ const PendingApprovalPage = () => {
           <Clock className="text-yellow-500" size={20} />
           <span className="font-medium text-yellow-700">Your organization account is pending approval</span>
         </div>
-        <button 
+        <button
           onClick={handleLogout}
           className="text-gray-500 hover:text-gray-700 text-sm font-medium"
         >
           Sign Out
         </button>
       </div>
-      
+
+      {/* Rest of your component JSX... */}
       <div className="max-w-4xl mx-auto p-6">
         <div className="bg-white shadow-sm rounded-lg overflow-hidden">
           {/* Header */}
@@ -120,7 +136,7 @@ const PendingApprovalPage = () => {
               We're currently reviewing your organization details. This typically takes 1-2 business days.
             </p>
           </div>
-          
+
           {/* Main content */}
           <div className="p-6">
             {/* Progress tracker */}
@@ -152,7 +168,7 @@ const PendingApprovalPage = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Organization details */}
             <div className="mb-8">
               <h2 className="text-lg font-medium text-gray-700 mb-4">Organization Details Submitted</h2>
@@ -177,7 +193,7 @@ const PendingApprovalPage = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* What happens next */}
             <div className="mb-8">
               <h2 className="text-lg font-medium text-gray-700 mb-4">What happens next?</h2>
@@ -211,7 +227,7 @@ const PendingApprovalPage = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Need help? */}
             <div className="bg-blue-50 rounded-lg p-6 border border-blue-100">
               <div className="flex items-start">
@@ -219,7 +235,7 @@ const PendingApprovalPage = () => {
                 <div>
                   <h3 className="font-medium text-gray-800">Need help with your application?</h3>
                   <p className="text-gray-600 mt-1">If you have questions about your application or want to provide additional information:</p>
-                  <button 
+                  <button
                     onClick={handleContactSupport}
                     className="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
@@ -228,24 +244,6 @@ const PendingApprovalPage = () => {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-        
-        {/* Suggested actions */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
-            <h3 className="font-medium text-gray-800 mb-2">Explore our documentation</h3>
-            <p className="text-gray-600 text-sm mb-4">Learn more about our platform and how to make the most of your account after approval.</p>
-            <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-              Browse Documentation →
-            </button>
-          </div>
-          <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
-            <h3 className="font-medium text-gray-800 mb-2">Watch platform tutorials</h3>
-            <p className="text-gray-600 text-sm mb-4">Prepare for your approved account by watching our video tutorials.</p>
-            <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-              Watch Tutorials →
-            </button>
           </div>
         </div>
       </div>

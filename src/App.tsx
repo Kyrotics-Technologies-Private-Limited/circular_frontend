@@ -38,6 +38,7 @@ import { ToastContainer } from "react-toastify";
 import StatusGuard from "./components/auth/StatusGuard";
 import PendingApprovalPage from "./pages/PendingApprovalPage";
 import RejectedPage from "./pages/RejectedPage";
+import OrganizationSettings from "./pages/admin/OrganizationSettings";
 
 const App: React.FC = () => {
   return (
@@ -119,6 +120,7 @@ const App: React.FC = () => {
                   path="/admin/user-management"
                   element={<UserManagement />}
                 />
+                <Route path="/admin/organization-settings" element={<OrganizationSettings />} />
                 <Route path="/admin/files" element={<FileManager />} />
                 {/* Add Shared Directory route for admins */}
                 <Route path="/admin/shared" element={<SharedDirectory />} />
