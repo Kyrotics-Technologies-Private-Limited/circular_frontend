@@ -116,6 +116,12 @@ const App: React.FC = () => {
                 }
               >
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/files" element={<FileManager />} />
+              <Route path="/admin/shared" element={<SharedDirectory />} />
+              <Route
+                path="/admin/translation/:fileId"
+                element={<TranslationPage />}
+              />
                 <Route
                   path="/admin/user-management"
                   element={<UserManagement />}

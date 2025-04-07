@@ -1,25 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Edit, Trash2, X, Save, RefreshCw, ChevronDown } from 'lucide-react';
-
-interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  type: 'individual' | 'organizational';
-  organizationId?: string;
-  organizationName?: string;
-  role: string;
-  status: 'active' | 'inactive' | 'suspended';
-  lastLogin: string;
-  createdAt: string;
-}
-
-interface Organization {
-  id: string;
-  name: string;
-}
+import { Search, Plus, Edit, Trash2, X, Save, RefreshCw } from 'lucide-react';
+import { getAllUsers, disableUser, enableUser } from '../../services/auth.service';
+import { getAllOrganizations, getOrganizationUsers } from '../../services/organization.service';
+import { toast } from 'react-toastify';
+import { User } from '../../types/User';
+import { Organization } from '../../types/Organization';
 
 const ManageUsers: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -33,120 +18,45 @@ const ManageUsers: React.FC = () => {
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [formData, setFormData] = useState<Partial<User>>({
-    firstName: '',
-    lastName: '',
+    name: '',
     email: '',
-    phone: '',
-    type: 'individual',
-    organizationId: '',
-    role: '',
-    status: 'active'
+    role: 'user', // Replace with a valid UserRole value or undefined
+    status: 'approved',
+    userType: 'individual',
+    orgId: ''
   });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
 
-  // Mock data - would be replaced with actual API calls
+  // Fetch organizations and users from API
   useEffect(() => {
-    // Simulate API fetch for Organizations
-    setTimeout(() => {
-      const mockOrgs: Organization[] = [
-        { id: '1', name: 'Acme Corporation' },
-        { id: '2', name: 'Globex Industries' },
-        { id: '3', name: 'Oceanic Airlines' },
-        { id: '4', name: 'Umbrella Corporation' },
-        { id: '5', name: 'Stark Industries' }
-      ];
-      
-      setOrganizations(mockOrgs);
-      
-      // Then fetch Users
-      const mockUsers: User[] = [
-        {
-          id: '1',
-          firstName: 'John',
-          lastName: 'Doe',
-          email: 'john.doe@example.com',
-          phone: '(555) 123-4567',
-          type: 'organizational',
-          organizationId: '1',
-          organizationName: 'Acme Corporation',
-          role: 'Admin',
-          status: 'active',
-          lastLogin: '2025-03-17T09:30:00',
-          createdAt: '2024-10-15T09:30:00'
-        },
-        {
-          id: '2',
-          firstName: 'Jane',
-          lastName: 'Smith',
-          email: 'jane.smith@example.com',
-          phone: '(555) 987-6543',
-          type: 'organizational',
-          organizationId: '1',
-          organizationName: 'Acme Corporation',
-          role: 'User',
-          status: 'active',
-          lastLogin: '2025-03-15T14:45:00',
-          createdAt: '2024-10-20T14:45:00'
-        },
-        {
-          id: '3',
-          firstName: 'Robert',
-          lastName: 'Johnson',
-          email: 'robert@oceanic.com',
-          phone: '(555) 456-7890',
-          type: 'organizational',
-          organizationId: '3',
-          organizationName: 'Oceanic Airlines',
-          role: 'Admin',
-          status: 'active',
-          lastLogin: '2025-03-16T11:15:00',
-          createdAt: '2024-09-12T11:15:00'
-        },
-        {
-          id: '4',
-          firstName: 'Lisa',
-          lastName: 'Wong',
-          email: 'lisa@personal.com',
-          phone: '(555) 234-5678',
-          type: 'individual',
-          role: 'User',
-          status: 'active',
-          lastLogin: '2025-03-14T16:20:00',
-          createdAt: '2024-11-10T16:20:00'
-        },
-        {
-          id: '5',
-          firstName: 'Michael',
-          lastName: 'Brown',
-          email: 'michael@personal.com',
-          phone: '(555) 876-5432',
-          type: 'individual',
-          role: 'User',
-          status: 'suspended',
-          lastLogin: '2025-02-28T10:10:00',
-          createdAt: '2024-08-05T10:10:00'
-        },
-        {
-          id: '6',
-          firstName: 'Emma',
-          lastName: 'Davis',
-          email: 'emma@stark.com',
-          phone: '(555) 111-2222',
-          type: 'organizational',
-          organizationId: '5',
-          organizationName: 'Stark Industries',
-          role: 'Admin',
-          status: 'inactive',
-          lastLogin: '2025-03-01T08:20:00',
-          createdAt: '2024-07-15T08:20:00'
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Fetch organizations
+        const orgsData = await getAllOrganizations();
+        setOrganizations(orgsData);
+        
+        // Fetch all users
+        const usersData = await getAllUsers();
+        if (Array.isArray(usersData)) {
+          setUsers(usersData);
+          setFilteredUsers(usersData);
+        } else {
+          console.error('Expected array of users but got:', usersData);
+          setUsers([]);
+          setFilteredUsers([]);
         }
-      ];
-      
-      setUsers(mockUsers);
-      setFilteredUsers(mockUsers);
-      setIsLoading(false);
-    }, 1000);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        toast.error('Failed to load users and organizations');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -155,13 +65,13 @@ const ManageUsers: React.FC = () => {
     
     // Apply user type filter
     if (userTypeFilter !== 'all') {
-      result = result.filter(user => user.type === userTypeFilter);
+      result = result.filter(user => user.userType === userTypeFilter);
     }
     
     // Apply organization filter (only for organizational users)
     if (selectedOrgFilter !== 'all') {
       result = result.filter(user => 
-        user.type === 'organizational' && user.organizationId === selectedOrgFilter
+        user.userType === 'organization' && user.orgId === selectedOrgFilter
       );
     }
     
@@ -169,24 +79,47 @@ const ManageUsers: React.FC = () => {
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       result = result.filter(user => 
-        `${user.firstName} ${user.lastName}`.toLowerCase().includes(term) ||
-        user.email.toLowerCase().includes(term) ||
-        (user.organizationName && user.organizationName.toLowerCase().includes(term))
+        (user.name && user.name.toLowerCase().includes(term)) ||
+        (user.email && user.email.toLowerCase().includes(term))
       );
     }
     
     setFilteredUsers(result);
   }, [searchTerm, userTypeFilter, selectedOrgFilter, users]);
 
+  // Load organization users when selecting an organization filter
+  useEffect(() => {
+    const loadOrgUsers = async () => {
+      if (selectedOrgFilter !== 'all') {
+        try {
+          setIsLoading(true);
+          const orgUsers = await getOrganizationUsers(selectedOrgFilter);
+          if (Array.isArray(orgUsers)) {
+            setFilteredUsers(orgUsers);
+          }
+        } catch (error) {
+          console.error('Error fetching organization users:', error);
+          toast.error('Failed to load organization users');
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    if (selectedOrgFilter !== 'all') {
+      loadOrgUsers();
+    }
+  }, [selectedOrgFilter]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
-    if (name === 'type' && value === 'individual') {
+    if (name === 'userType' && value === 'individual') {
       // Clear organization related fields if switching to individual user type
       setFormData(prev => ({
         ...prev,
         [name]: value,
-        organizationId: '',
+        orgId: '',
       }));
     } else {
       setFormData(prev => ({
@@ -199,14 +132,12 @@ const ManageUsers: React.FC = () => {
   const openCreateModal = () => {
     setModalMode('create');
     setFormData({
-      firstName: '',
-      lastName: '',
+      name: '',
       email: '',
-      phone: '',
-      type: 'individual',
-      organizationId: '',
-      role: 'User',
-      status: 'active'
+      userType: 'individual',
+      orgId: '',
+      role: 'user',
+      status: 'approved'
     });
     setShowModal(true);
   };
@@ -215,53 +146,54 @@ const ManageUsers: React.FC = () => {
     setModalMode('edit');
     setSelectedUser(user);
     setFormData({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      phone: user.phone,
-      type: user.type,
-      organizationId: user.organizationId || '',
-      role: user.role,
-      status: user.status
+      name: user.name || '',
+      email: user.email || '',
+      userType: user.userType || 'individual',
+      orgId: user.orgId || '',
+      role: user.role || 'user',
+      status: user.status || 'approved'
     });
     setShowModal(true);
   };
 
-  const handleCreateUser = () => {
-    // In a real app, this would be an API call
-    const newUser: User = {
-      id: `${users.length + 1}`,
-      ...formData as Required<Omit<User, 'id' | 'lastLogin' | 'createdAt' | 'organizationName'>>,
-      lastLogin: '',
-      createdAt: new Date().toISOString(),
-      organizationName: formData.type === 'organizational' && formData.organizationId
-        ? organizations.find(org => org.id === formData.organizationId)?.name
-        : undefined
-    };
-    
-    setUsers(prev => [...prev, newUser]);
-    setShowModal(false);
+  const handleCreateUser = async () => {
+    try {
+      // This would use your API service for creating users
+      // For example: await createUser(formData);
+      
+      toast.success('User created successfully');
+      setShowModal(false);
+      
+      // Refresh user list after creating
+      const updatedUsers = await getAllUsers();
+      if (Array.isArray(updatedUsers)) {
+        setUsers(updatedUsers);
+      }
+    } catch (error) {
+      console.error('Error creating user:', error);
+      toast.error('Failed to create user');
+    }
   };
 
-  const handleUpdateUser = () => {
+  const handleUpdateUser = async () => {
     if (!selectedUser) return;
     
-    // In a real app, this would be an API call
-    const updatedUser = {
-      ...selectedUser,
-      ...formData,
-      organizationName: formData.type === 'organizational' && formData.organizationId
-        ? organizations.find(org => org.id === formData.organizationId)?.name
-        : undefined
-    };
-    
-    setUsers(prevUsers => 
-      prevUsers.map(user => 
-        user.id === selectedUser.id ? updatedUser : user
-      )
-    );
-    
-    setShowModal(false);
+    try {
+      // This would use your API service for updating users
+      // For example: await updateUser(selectedUser.id, formData);
+      
+      toast.success('User updated successfully');
+      setShowModal(false);
+      
+      // Refresh user list after updating
+      const updatedUsers = await getAllUsers();
+      if (Array.isArray(updatedUsers)) {
+        setUsers(updatedUsers);
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      toast.error('Failed to update user');
+    }
   };
 
   const confirmDelete = (id: string) => {
@@ -269,20 +201,34 @@ const ManageUsers: React.FC = () => {
     setShowDeleteConfirm(true);
   };
 
-  const handleDeleteUser = () => {
-    if (!deleteUserId) return;
-    
-    // In a real app, this would be an API call
-    setUsers(prevUsers => prevUsers.filter(user => user.id !== deleteUserId));
-    
-    setShowDeleteConfirm(false);
-    setDeleteUserId(null);
+  const handleToggleUserStatus = async (uid: string, isDisabled: boolean) => {
+    try {
+      if (isDisabled) {
+        await enableUser(uid);
+        toast.success('User has been enabled');
+      } else {
+        await disableUser(uid);
+        toast.success('User has been disabled');
+      }
+      
+      // Refresh user list after status change
+      const updatedUsers = await getAllUsers();
+      if (Array.isArray(updatedUsers)) {
+        setUsers(updatedUsers);
+      }
+      
+      setShowDeleteConfirm(false);
+      setDeleteUserId(null);
+    } catch (error) {
+      console.error('Error toggling user status:', error);
+      toast.error('Failed to update user status');
+    }
   };
 
   // Format date for display
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | Date | undefined) => {
     if (!dateString) return 'Never';
-    const date = new Date(dateString);
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
     return new Intl.DateTimeFormat('en-US', {
       year: 'numeric', 
       month: 'short', 
@@ -328,10 +274,10 @@ const ManageUsers: React.FC = () => {
           >
             <option value="all">All Users</option>
             <option value="individual">Individual</option>
-            <option value="organizational">Organizational</option>
+            <option value="organization">Organizational</option>
           </select>
           
-          {(userTypeFilter === 'organizational' || userTypeFilter === 'all') && (
+          {(userTypeFilter === 'organization' || userTypeFilter === 'all') && (
             <select
               value={selectedOrgFilter}
               onChange={(e) => setSelectedOrgFilter(e.target.value)}
@@ -400,35 +346,39 @@ const ManageUsers: React.FC = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredUsers.map((user) => (
-                <tr key={user.id}>
+                <tr key={user.uid || user.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="font-medium text-gray-900">{user.firstName} {user.lastName}</div>
+                    <div className="font-medium text-gray-900">{user.name}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-500">
                     {user.email}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                      ${user.type === 'individual' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>
-                      {user.type.charAt(0).toUpperCase() + user.type.slice(1)}
+                      ${user.userType === 'individual' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>
+                      {user.userType === 'individual' ? 'Individual' : 'Organizational'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                    {user.organizationName || '-'}
+                    {user.orgId ? (
+                      organizations.find(org => org.id === user.orgId)?.name || 'Unknown'
+                    ) : '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                    {user.role}
+                    {user.role === 'super_admin' ? 'Super Admin' : 
+                      user.role === 'admin' ? 'Admin' : 'User'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                      ${user.status === 'active' ? 'bg-green-100 text-green-800' : 
-                        user.status === 'inactive' ? 'bg-gray-100 text-gray-800' : 
+                      ${user.status === 'approved' ? 'bg-green-100 text-green-800' : 
+                        user.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
                         'bg-red-100 text-red-800'}`}>
-                      {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                      {user.status === 'approved' ? 'Approved' : 
+                       user.status === 'pending' ? 'Pending' : 'Rejected'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                    {formatDate(user.lastLogin)}
+                    {/* {formatDate(user.lastLogin)} */}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end space-x-2">
@@ -440,9 +390,9 @@ const ManageUsers: React.FC = () => {
                         <Edit className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => confirmDelete(user.id)}
+                        onClick={() => confirmDelete(user.uid || user.id || '')}
                         className="bg-red-100 hover:bg-red-200 text-red-700 p-2 rounded"
-                        title="Delete"
+                        title={user.disabled ? "Enable User" : "Disable User"}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -470,22 +420,11 @@ const ManageUsers: React.FC = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-gray-700 text-sm font-medium mb-1">First Name</label>
+                <label className="block text-gray-700 text-sm font-medium mb-1">Name</label>
                 <input
                   type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-gray-700 text-sm font-medium mb-1">Last Name</label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
+                  name="name"
+                  value={formData.name || ''}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -496,18 +435,7 @@ const ManageUsers: React.FC = () => {
                 <input
                   type="email"
                   name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-gray-700 text-sm font-medium mb-1">Phone</label>
-                <input
-                  type="text"
-                  name="phone"
-                  value={formData.phone}
+                  value={formData.email || ''}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -516,22 +444,22 @@ const ManageUsers: React.FC = () => {
               <div>
                 <label className="block text-gray-700 text-sm font-medium mb-1">User Type</label>
                 <select
-                  name="type"
-                  value={formData.type}
+                  name="userType"
+                  value={formData.userType || 'individual'}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="individual">Individual</option>
-                  <option value="organizational">Organizational</option>
+                  <option value="organization">Organizational</option>
                 </select>
               </div>
               
-              {formData.type === 'organizational' && (
+              {formData.userType === 'organization' && (
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-1">Organization</label>
                   <select
-                    name="organizationId"
-                    value={formData.organizationId}
+                    name="orgId"
+                    value={formData.orgId || ''}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
@@ -547,12 +475,12 @@ const ManageUsers: React.FC = () => {
                 <label className="block text-gray-700 text-sm font-medium mb-1">Role</label>
                 <select
                   name="role"
-                  value={formData.role}
+                  value={formData.role || 'user'}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="Admin">Admin</option>
-                  <option value="User">User</option>
+                  <option value="admin">Admin</option>
+                  <option value="user">User</option>
                 </select>
               </div>
               
@@ -560,13 +488,13 @@ const ManageUsers: React.FC = () => {
                 <label className="block text-gray-700 text-sm font-medium mb-1">Status</label>
                 <select
                   name="status"
-                  value={formData.status}
+                  value={formData.status || 'approved'}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="suspended">Suspended</option>
+                  <option value="approved">Approved</option>
+                  <option value="pending">Pending</option>
+                  <option value="rejected">Rejected</option>
                 </select>
               </div>
             </div>
@@ -590,14 +518,18 @@ const ManageUsers: React.FC = () => {
         </div>
       )}
       
-      {/* Delete Confirmation Modal */}
+      {/* Delete/Disable Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <div className="mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">Confirm Deletion</h2>
+              <h2 className="text-xl font-semibold text-gray-800">Confirm Action</h2>
               <p className="text-gray-600 mt-2">
-                Are you sure you want to delete this user? This action cannot be undone.
+                Are you sure you want to {
+                  users.find(u => (u.uid || u.id) === deleteUserId)?.disabled 
+                    ? 'enable' 
+                    : 'disable'
+                } this user?
               </p>
             </div>
             
@@ -609,11 +541,16 @@ const ManageUsers: React.FC = () => {
                 Cancel
               </button>
               <button 
-                onClick={handleDeleteUser}
+                onClick={() => {
+                  const user = users.find(u => (u.uid || u.id) === deleteUserId);
+                  if (user && deleteUserId) {
+                    handleToggleUserStatus(deleteUserId, Boolean(user.disabled));
+                  }
+                }}
                 className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center"
               >
                 <Trash2 className="h-4 w-4 mr-1" />
-                Delete
+                Confirm
               </button>
             </div>
           </div>

@@ -12,6 +12,9 @@ const RoleGuard: React.FC<RoleGuardProps> = ({ allowedRoles }) => {
   const { currentUser, loading } = useAuth();
   const location = useLocation();
 
+  // console.log('RoleGuard:', { currentUser, loading });
+  // console.log('Allowed Roles:', allowedRoles);
+
   if (loading) {
     return (
       <div className="flex h-screen justify-center items-center">

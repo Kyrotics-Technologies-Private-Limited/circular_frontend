@@ -8,6 +8,8 @@ import FileUpload from "./FileUpload";
 import FolderCreate from "./FolderCreate";
 import BreadcrumbNav from "./BreadcrumbNav";
 import FileCard from "./FileCard";
+import { getCurrentUser } from "../../services/auth.service";
+import { useAuth } from "../../contexts/AuthContext";
 
 const FileExplorer: React.FC = () => {
   const navigate = useNavigate();
@@ -31,6 +33,7 @@ const FileExplorer: React.FC = () => {
     [key: string]: "file" | "folder";
   }>({});
   const [isDeleting, setIsDeleting] = useState(false);
+  const {currentUser} = useAuth();
 
   const handleFolderClick = async (folder: Folder) => {
     try {
@@ -46,7 +49,18 @@ const FileExplorer: React.FC = () => {
   };
 
   const handleFileClick = (file: FileItem) => {
-    navigate(`/translation/${file.id}`);
+    if(currentUser?.role === "admin") {
+      navigate(`/admin/translation/${file.id}`);
+      return;
+    }
+    else if(currentUser?.role === "super_admin") {
+      navigate(`/super-admin/translation/${file.id}`);
+      return;
+    }
+    else{
+      navigate(`/translation/${file.id}`);
+      return; 
+    }
   };
 
   const handleBackClick = async () => {

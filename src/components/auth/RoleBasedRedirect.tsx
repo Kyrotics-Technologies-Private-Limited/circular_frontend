@@ -14,6 +14,7 @@ const RoleBasedRedirect: React.FC<RoleBasedRedirectProps> = ({
   superAdminRedirect
 }) => {
   const { currentUser, loading } = useAuth();
+  // console.log('RoleBasedRedirect:', currentUser);
   
   if (loading) {
     return <div>Loading...</div>;
