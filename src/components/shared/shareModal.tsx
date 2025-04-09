@@ -82,8 +82,8 @@ const ShareModal: React.FC<ShareModalProps> = ({
       setLoading(true);
       setError(null);
       const response = await getUsersForSharing(currentOrganization?.id);
-      if (response.success) {
-        setUsers(response.users || []);
+      if (response) {
+        setUsers(response || []);
       } else {
         setError(response.message || "Failed to load users");
       }
@@ -332,7 +332,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
                           type="text"
                           name="search"
                           id="search"
-                          className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-3 pr-12 sm:text-sm border-gray-300 rounded-md"
+                          className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-3 pr-12 sm:text-sm border-gray-300 rounded-md py-2"
                           placeholder="Search by name or email"
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}

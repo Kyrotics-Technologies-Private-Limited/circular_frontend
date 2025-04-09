@@ -76,7 +76,9 @@ export const getUsersForSharing = async (organizationId?: string) => {
     const response = await api.get('/share/users', {
       params: { organizationId }
     });
-    return response.data;
+    console.log(organizationId)
+    console.log(response.data)
+    return response.data.users;
   } catch (error: any) {
     console.error('Error fetching users for sharing:', error);
     throw new Error(error.response?.data?.message || 'Failed to fetch users');

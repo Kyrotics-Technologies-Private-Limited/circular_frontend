@@ -95,7 +95,7 @@ const RenameModal: React.FC<RenameModalProps> = ({
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
                         autoFocus
-                        className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300"
+                        className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300 px-3 py-2"
                         placeholder="Enter new file name"
                       />
                       <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">

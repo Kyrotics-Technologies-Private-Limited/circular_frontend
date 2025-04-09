@@ -163,7 +163,7 @@ const OrganizationSettings: React.FC = () => {
                           value={formData.name}
                           onChange={handleInputChange}
                           disabled={!editMode}
-                          className={`shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md ${
+                          className={`shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md px-3 py-2 ${
                             !editMode ? 'bg-gray-50' : ''
                           }`}
                         />
@@ -182,7 +182,7 @@ const OrganizationSettings: React.FC = () => {
                           value={formData.CIN}
                           onChange={handleInputChange}
                           disabled={!editMode}
-                          className={`shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md ${
+                          className={`shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md px-3 py-2 ${
                             !editMode ? 'bg-gray-50' : ''
                           }`}
                         />

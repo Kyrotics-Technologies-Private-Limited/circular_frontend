@@ -1,7 +1,8 @@
 // src/components/layout/AdminSidebar.tsx
-import React from "react";
-import { NavLink } from "react-router-dom";
+import React, { useEffect } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { useNavigation } from "../../contexts/NavigationContext";
 
 interface AdminSidebarProps {
   onClose: () => void;
@@ -9,6 +10,9 @@ interface AdminSidebarProps {
 
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
   const { currentUser } = useAuth();
+  const { setActiveItem } = useNavigation();
+  const location = useLocation();
+  
   const isSuperAdmin = currentUser?.role === "super_admin";
   const isAdmin = currentUser?.role === "admin";
 
@@ -19,7 +23,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
       path: "/admin/dashboard",
       icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6",
     },
-    
 
     // Super Admin only
     ...(isSuperAdmin
@@ -77,16 +80,28 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
     // { name: 'Logs', path: '/admin/logs', icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' }
   ];
 
+  // Update active item when route changes
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const activeNav = navigation.find(item => 
+      currentPath === item.path || currentPath.startsWith(item.path + '/')
+    );
+    
+    if (activeNav) {
+      setActiveItem(activeNav.name);
+    }
+  }, [location.pathname, navigation, setActiveItem]);
+
   return (
-    <div className="h-full flex flex-col bg-gray-800">
-      <div className="flex items-center justify-between h-16 flex-shrink-0 px-4 bg-gray-900">
+    <div className="h-full flex flex-col bg-[#4B5BCA]">
+      <div className="flex items-center justify-between h-16 flex-shrink-0 px-4">
         <div className="flex items-center">
           <svg
-            className="h-8 w-8 text-purple-500"
+            className="h-8 w-8 text-white-200"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
-            stroke="currentColor"
+            stroke="white"
           >
             <path
               strokeLinecap="round"
@@ -101,16 +116,16 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
         </div>
         <button
           type="button"
-          className="md:hidden p-1 rounded-md text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
+          className="md:hidden p-1 rounded-md text-blue-200 hover:text-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
           onClick={onClose}
         >
           <span className="sr-only">Close sidebar</span>
           <svg
-            className="h-6 w-6"
+            className="h-6 w-6 text-white"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
-            stroke="currentColor"
+            stroke="white"
           >
             <path
               strokeLinecap="round"
@@ -128,48 +143,59 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
             <NavLink
               key={item.name}
               to={item.path}
+              onClick={() => {
+                setActiveItem(item.name);
+                onClose();
+              }}
               className={({ isActive }) =>
                 `group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
                   isActive
-                    ? "bg-gray-900 text-white"
-                    : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                    ? "bg-indigo-500 text-blue-100"
+                    : "text-white hover:bg-indigo-400 hover:text-white"
                 }`
               }
-              onClick={onClose}
             >
-              <svg
-                className="mr-3 flex-shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-300"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d={item.icon}
-                />
-              </svg>
-              {item.name}
+              {({ isActive }) => (
+                <>
+                  <svg
+                    className={`mr-3 flex-shrink-0 h-6 w-6 ${
+                      isActive
+                        ? "text-white"
+                        : "text-gray-100 group-hover:text-gray-200"
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="white"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d={item.icon}
+                    />
+                  </svg>
+                  {item.name}
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
       </div>
 
-      <div className="flex-shrink-0 flex border-t border-gray-700 p-4">
+      <div className="flex-shrink-0 flex  bg-indigo-500 p-4">
         <div className="flex-shrink-0 w-full group block">
           <div className="flex items-center">
-            <div className="h-10 w-10 rounded-full bg-purple-600 flex items-center justify-center text-white">
+            <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center font-bold text-blue-900">
               {currentUser?.name?.charAt(0)?.toUpperCase() ||
                 currentUser?.email?.charAt(0)?.toUpperCase() ||
                 "?"}
             </div>
             <div className="ml-3">
-              <p className="text-sm font-medium text-white">
+              <p className="text-sm font-medium text-indigo-100">
                 {currentUser?.name || "Admin User"}
               </p>
-              <p className="text-xs font-medium text-gray-300">
+              <p className="text-xs font-medium text-indigo-100">
                 {currentUser?.role === "super_admin" ? "Super Admin" : "Admin"}
               </p>
             </div>
