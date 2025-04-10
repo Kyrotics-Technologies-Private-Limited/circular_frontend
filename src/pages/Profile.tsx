@@ -127,13 +127,13 @@
 //             </p>
 //           </div>
 //           {!editing && (
-//             <button
-//               type="button"
+//             <Button
+//               type="Button"
 //               onClick={handleEdit}
 //               className="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
 //             >
 //               Edit Profile
-//             </button>
+//             </Button>
 //           )}
 //         </div>
 
@@ -199,20 +199,20 @@
 //                 </div>
 
 //                 <div className="flex justify-end space-x-3">
-//                   <button
-//                     type="button"
+//                   <Button
+//                     type="Button"
 //                     onClick={handleCancel}
 //                     className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
 //                   >
 //                     Cancel
-//                   </button>
-//                   <button
+//                   </Button>
+//                   <Button
 //                     type="submit"
 //                     disabled={loading}
 //                     className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400"
 //                   >
 //                     {loading ? "Saving..." : "Save Changes"}
-//                   </button>
+//                   </Button>
 //                 </div>
 //               </div>
 //             </form>
@@ -258,13 +258,13 @@
 //       </div>
 
 //       <div className="flex justify-end">
-//         <button
-//           type="button"
+//         <Button
+//           type="Button"
 //           onClick={handleLogout}
 //           className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
 //         >
 //           Log Out
-//         </button>
+//         </Button>
 //       </div>
 //     </div>
 //   );
@@ -290,6 +290,7 @@ import {
   CheckCircle,
   Image,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Profile: React.FC = () => {
   const { currentUser, setCurrentUser } = useAuth();
@@ -446,14 +447,13 @@ const Profile: React.FC = () => {
               </p>
             </div>
             {!editing && (
-              <button
-                type="button"
+              <Button
                 onClick={handleEdit}
                 className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 <Pencil className="mr-2 -ml-1 h-4 w-4" />
                 Edit Profile
-              </button>
+              </Button>
             )}
           </div>
 
@@ -536,14 +536,13 @@ const Profile: React.FC = () => {
                   </div>
 
                   <div className="flex justify-end space-x-3 pt-4">
-                    <button
-                      type="button"
+                    <Button
                       onClick={handleCancel}
                       className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
                       Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="submit"
                       disabled={loading}
                       className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400"
@@ -556,7 +555,7 @@ const Profile: React.FC = () => {
                       ) : (
                         "Save Changes"
                       )}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </form>
@@ -609,14 +608,13 @@ const Profile: React.FC = () => {
         </div>
 
         <div className="flex justify-end">
-          <button
-            type="button"
+          <Button
             onClick={handleLogout}
             className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
           >
             <LogOut className="mr-2 -ml-1 h-4 w-4" />
             Log Out
-          </button>
+          </Button>
         </div>
       </div>
     </div>

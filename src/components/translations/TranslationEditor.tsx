@@ -14,6 +14,8 @@ import { FileItem } from "../../types/File";
 import { LanguageOption } from "../../types/Translation";
 import SplitView from "./SplitView";
 import TranslationOptions from "./TranslationOptions";
+import { Button } from "../ui/button";
+import { CornerUpLeft } from "lucide-react";
 
 const TranslationEditor: React.FC = () => {
   const { fileId } = useParams<{ fileId: string }>();
@@ -147,7 +149,7 @@ const TranslationEditor: React.FC = () => {
     }
   };
 
-  // Handle back button
+  // Handle back Button
   const handleBack = () => {
     navigate(-1);
   };
@@ -200,32 +202,34 @@ const TranslationEditor: React.FC = () => {
   return (
     <div className="h-full flex flex-col space-y-4">
       <div className="flex justify-between items-center">
-        <button
+        <Button
           onClick={handleBack}
           className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
+          <CornerUpLeft />
+
           Back
-        </button>
+        </Button>
 
         <h1 className="text-xl font-semibold text-gray-900 truncate">
           {file?.name}
         </h1>
 
         <div className="flex space-x-3">
-          <button
+          <Button
             onClick={() => handleDownload("docx")}
             disabled={downloading || !translatedContent}
             className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
           >
             {downloading ? "Downloading..." : "Download DOCX"}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => handleDownload("pdf")}
             disabled={downloading || !translatedContent}
             className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
           >
             {downloading ? "Downloading..." : "Download PDF"}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -272,13 +276,13 @@ const TranslationEditor: React.FC = () => {
       </div>
 
       <div className="flex justify-end">
-        <button
+        <Button
           onClick={handleSaveChanges}
           disabled={saving || !translatedContent}
           className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400"
         >
           {saving ? "Saving..." : "Save Changes"}
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 // src/components/translation/TranslationOptions.tsx
 import React from 'react';
 import { LanguageOption } from '../../types/Translation';
+import { Button } from '../ui/button';
 
 interface TranslationOptionsProps {
   languages: LanguageOption[];
@@ -58,8 +59,7 @@ const TranslationOptions: React.FC<TranslationOptionsProps> = ({
         </div>
         
         <div className="flex-1 flex justify-end">
-          <button
-            type="button"
+          <Button
             onClick={onTranslate}
             disabled={translating || !hasOriginalContent}
             className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400"
@@ -75,7 +75,7 @@ const TranslationOptions: React.FC<TranslationOptionsProps> = ({
             ) : (
               'Translate'
             )}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

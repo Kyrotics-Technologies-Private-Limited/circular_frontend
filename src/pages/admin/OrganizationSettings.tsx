@@ -5,6 +5,7 @@ import { useOrganization } from '../../contexts/OrganizationContext';
 import { Organization } from '../../types/Organization';
 import { Building, AlertCircle, CheckCircle, Edit, Calendar, User } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { Button } from '@/components/ui/button';
 
 const OrganizationSettings: React.FC = () => {
   const { currentUser } = useAuth();
@@ -117,18 +118,16 @@ const OrganizationSettings: React.FC = () => {
                   <div className="flex justify-between items-center mb-6">
                     <h3 className="text-lg font-medium leading-6 text-gray-900">Organization Information</h3>
                     {!editMode ? (
-                      <button
-                        type="button"
+                      <Button
                         onClick={() => setEditMode(true)}
                         className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                       >
                         <Edit size={16} className="mr-2" />
                         Edit
-                      </button>
+                      </Button>
                     ) : (
                       <div className="flex space-x-3">
-                        <button
-                          type="button"
+                        <Button
                           onClick={() => {
                             setEditMode(false);
                             setFormData({
@@ -139,13 +138,13 @@ const OrganizationSettings: React.FC = () => {
                           className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         >
                           Cancel
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           type="submit"
                           className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         >
                           Save Changes
-                        </button>
+                        </Button>
                       </div>
                     )}
                   </div>

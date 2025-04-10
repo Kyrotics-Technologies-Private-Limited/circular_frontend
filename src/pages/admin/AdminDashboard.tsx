@@ -9,6 +9,8 @@ import { Link } from "react-router-dom";
 // Import the missing services needed for super_admin functionality
 import { getAllOrganizations,  } from "../../services/organization.service";
 import { getAllRequests } from "../../services/request.service"; // Assuming this service exists
+import { Button } from "@/components/ui/button"
+
 
 const AdminDashboard: React.FC = () => {
   const { currentUser } = useAuth();
@@ -176,7 +178,7 @@ const AdminDashboard: React.FC = () => {
         )}
 
         {/* Users Card */}
-        <div className="bg-white overflow-hidden shadow rounded-lg">
+        <Link to ='/admin/user-management' className="bg-white overflow-hidden shadow rounded-lg">
           <div className="px-4 py-5 sm:p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0 bg-indigo-500 rounded-md p-3">
@@ -209,8 +211,7 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
-
+        </Link>
         {/* Pending Requests Card - Super Admin Only */}
         {isSuperAdmin && (
           <div className="bg-white overflow-hidden shadow rounded-lg">
@@ -251,7 +252,7 @@ const AdminDashboard: React.FC = () => {
 
         {/* Files Card - Regular Admin Only */}
         {!isSuperAdmin && (
-          <div className="bg-white overflow-hidden shadow rounded-lg">
+          <Link to ='/admin/files' className="bg-white overflow-hidden shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0 bg-green-500 rounded-md p-3">
@@ -284,7 +285,7 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         )}
 
         {/* Translations Card - Regular Admin Only */}
@@ -371,18 +372,18 @@ const AdminDashboard: React.FC = () => {
                         </p>
                       </div>
                       <div className="mt-2 flex sm:mt-0">
-                        <button
-                          type="button"
+                        <Button
+                          
                           className="mr-2 inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                         >
                           Approve
-                        </button>
-                        <button
-                          type="button"
+                        </Button>
+                        <Button
+                          
                           className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                         >
                           Reject
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   </li>
@@ -410,7 +411,7 @@ const AdminDashboard: React.FC = () => {
               </p>
             </div>
             <Link
-              to="/files"
+              to="/admin/files"
               className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Upload New File
@@ -557,7 +558,7 @@ const AdminDashboard: React.FC = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-3">
                             <Link
-                              to={`/translation/${file.id}`}
+                              to={`/admin/translation/${file.id}`}
                               className="text-indigo-600 hover:text-indigo-900"
                             >
                               {file.translatedContent ? "Edit" : "Translate"}
@@ -570,16 +571,7 @@ const AdminDashboard: React.FC = () => {
                             >
                               View
                             </a>
-                            {!file.isShared && (
-                              <button
-                                onClick={() => {
-                                  /* Share file functionality will go here */
-                                }}
-                                className="text-indigo-600 hover:text-indigo-900"
-                              >
-                                Share
-                              </button>
-                            )}
+                           
                           </div>
                         </td>
                       </tr>

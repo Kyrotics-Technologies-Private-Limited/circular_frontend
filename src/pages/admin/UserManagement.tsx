@@ -239,22 +239,22 @@
 //         <h1 className="text-2xl font-bold text-gray-800">
 //           Manage Organization Users
 //         </h1>
-//         <button
+//         <Button
 //           onClick={openAddModal}
 //           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center"
 //         >
 //           <UserPlus className="h-5 w-5 mr-1" />
 //           Add User
-//         </button>
+//         </Button>
 //       </div>
 
 //       {/* Error message */}
 //       {error && (
 //         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex justify-between items-center">
 //           <span>{error}</span>
-//           <button onClick={() => setError(null)}>
+//           <Button onClick={() => setError(null)}>
 //             <X className="h-5 w-5" />
-//           </button>
+//           </Button>
 //         </div>
 //       )}
 
@@ -265,9 +265,9 @@
 //             <Check className="h-5 w-5 mr-1" />
 //             {success}
 //           </span>
-//           <button onClick={() => setSuccess(null)}>
+//           <Button onClick={() => setSuccess(null)}>
 //             <X className="h-5 w-5" />
-//           </button>
+//           </Button>
 //         </div>
 //       )}
 
@@ -357,14 +357,14 @@
 //                   </td>
 //                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
 //                     <div className="flex justify-end space-x-2">
-//                       <button
+//                       <Button
 //                         onClick={() => openEditModal(user)}
 //                         className="bg-blue-100 hover:bg-blue-200 text-blue-700 p-2 rounded"
 //                         title="Edit Role"
 //                       >
 //                         <Edit className="h-4 w-4" />
-//                       </button>
-//                       <button
+//                       </Button>
+//                       <Button
 //                         onClick={() => confirmRemoveUser(user.id)}
 //                         className="bg-red-100 hover:bg-red-200 text-red-700 p-2 rounded"
 //                         title="Remove from Organization"
@@ -375,7 +375,7 @@
 //                         }
 //                       >
 //                         <Trash2 className="h-4 w-4" />
-//                       </button>
+//                       </Button>
 //                     </div>
 //                   </td>
 //                 </tr>
@@ -395,12 +395,12 @@
 //                   ? "Add User to Organization"
 //                   : "Edit User Role"}
 //               </h2>
-//               <button
+//               <Button
 //                 onClick={() => setShowModal(false)}
 //                 className="text-gray-400 hover:text-gray-600"
 //               >
 //                 <X className="h-6 w-6" />
-//               </button>
+//               </Button>
 //             </div>
 
 //             <div className="space-y-4">
@@ -437,13 +437,13 @@
 //             </div>
 
 //             <div className="mt-6 flex justify-end space-x-3">
-//               <button
+//               <Button
 //                 onClick={() => setShowModal(false)}
 //                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
 //               >
 //                 Cancel
-//               </button>
-//               <button
+//               </Button>
+//               <Button
 //                 onClick={
 //                   modalMode === "add" ? handleAddUser : handleUpdateUserRole
 //                 }
@@ -451,7 +451,7 @@
 //               >
 //                 <Save className="h-4 w-4 mr-1" />
 //                 {modalMode === "add" ? "Add User" : "Update Role"}
-//               </button>
+//               </Button>
 //             </div>
 //           </div>
 //         </div>
@@ -472,19 +472,19 @@
 //             </div>
 
 //             <div className="flex justify-end space-x-3">
-//               <button
+//               <Button
 //                 onClick={() => setShowDeleteConfirm(false)}
 //                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
 //               >
 //                 Cancel
-//               </button>
-//               <button
+//               </Button>
+//               <Button
 //                 onClick={handleRemoveUser}
 //                 className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center"
 //               >
 //                 <Trash2 className="h-4 w-4 mr-1" />
 //                 Remove User
-//               </button>
+//               </Button>
 //             </div>
 //           </div>
 //         </div>
@@ -519,6 +519,8 @@ import {
 } from "../../services/organization.service";
 import { useOrganization } from "../../contexts/OrganizationContext";
 import { disableUser, enableUser } from "../../services/auth.service";
+import { Button } from "@/components/ui/button"
+
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -819,22 +821,22 @@ const UserManagement: React.FC = () => {
         <h1 className="text-2xl font-bold text-gray-800">
           Manage Organization Users
         </h1>
-        <button
+        <Button
           onClick={openAddModal}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center"
         >
           <UserPlus className="h-5 w-5 mr-1" />
           Add User
-        </button>
+        </Button>
       </div>
 
       {/* Error message */}
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex justify-between items-center">
           <span>{error}</span>
-          <button onClick={() => setError(null)}>
+          <Button onClick={() => setError(null)}>
             <X className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
       )}
 
@@ -845,9 +847,9 @@ const UserManagement: React.FC = () => {
             <Check className="h-5 w-5 mr-1" />
             {success}
           </span>
-          <button onClick={() => setSuccess(null)}>
+          <Button onClick={() => setSuccess(null)}>
             <X className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
       )}
 
@@ -944,7 +946,7 @@ const UserManagement: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end space-x-2">
-                      <button
+                      <Button
                         onClick={() =>
                           confirmToggleUserStatus(
                             user.id,
@@ -963,15 +965,15 @@ const UserManagement: React.FC = () => {
                         ) : (
                           <Ban className="h-4 w-4" />
                         )}
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => openEditModal(user)}
                         className="bg-blue-100 hover:bg-blue-200 text-blue-700 p-2 rounded"
                         title="Edit Role"
                       >
                         <Edit className="h-4 w-4" />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => confirmRemoveUser(user.id)}
                         className="bg-red-100 hover:bg-red-200 text-red-700 p-2 rounded"
                         title="Remove from Organization"
@@ -982,7 +984,7 @@ const UserManagement: React.FC = () => {
                         }
                       >
                         <Trash2 className="h-4 w-4" />
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -1002,12 +1004,12 @@ const UserManagement: React.FC = () => {
                   ? "Add User to Organization"
                   : "Edit User Role"}
               </h2>
-              <button
+              <Button
                 onClick={() => setShowModal(false)}
                 className="text-gray-400 hover:text-gray-600"
               >
                 <X className="h-6 w-6" />
-              </button>
+              </Button>
             </div>
 
             <div className="space-y-4">
@@ -1061,13 +1063,13 @@ const UserManagement: React.FC = () => {
             </div>
 
             <div className="mt-6 flex justify-end space-x-3">
-              <button
+              <Button
                 onClick={() => setShowModal(false)}
                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={
                   modalMode === "add" ? handleAddUser : handleUpdateUserRole
                 }
@@ -1075,7 +1077,7 @@ const UserManagement: React.FC = () => {
               >
                 <Save className="h-4 w-4 mr-1" />
                 {modalMode === "add" ? "Add User" : "Update Role"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -1096,19 +1098,19 @@ const UserManagement: React.FC = () => {
             </div>
 
             <div className="flex justify-end space-x-3">
-              <button
+              <Button
                 onClick={() => setShowDeleteConfirm(false)}
                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleRemoveUser}
                 className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center"
               >
                 <Trash2 className="h-4 w-4 mr-1" />
                 Remove User
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -1130,13 +1132,13 @@ const UserManagement: React.FC = () => {
             </div>
 
             <div className="flex justify-end space-x-3">
-              <button
+              <Button
                 onClick={() => setShowStatusConfirm(false)}
                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleToggleUserStatus}
                 disabled={isStatusLoading}
                 className={`px-4 py-2 ${
@@ -1160,7 +1162,7 @@ const UserManagement: React.FC = () => {
                     {isDisabling ? "Disable User" : "Enable User"}
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

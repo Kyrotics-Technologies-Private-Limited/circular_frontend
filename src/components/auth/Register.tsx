@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "../../services/auth.service";
 import { useAuth } from "../../contexts/AuthContext";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Register: React.FC = () => {
   const [displayName, setDisplayName] = useState("");
@@ -28,7 +29,7 @@ const Register: React.FC = () => {
       return;
     }
 
-    if (accountType === "organization" && (!organizationName )) {
+    if (accountType === "organization" && !organizationName) {
       setError("Please fill out all organization details");
       return;
     }
@@ -176,42 +177,17 @@ const Register: React.FC = () => {
           </div>
         )}
 
-        <div className="flex justify-center space-x-4">
-          <div className="flex items-center">
-            <input
-              id="individual"
-              name="accountType"
-              type="radio"
-              value="individual"
-              checked={accountType === "individual"}
-              onChange={() => setAccountType("individual")}
-              className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
-            />
-            <label
-              htmlFor="individual"
-              className="ml-2 block text-sm text-gray-700"
-            >
-              Individual
-            </label>
-          </div>
-          <div className="flex items-center">
-            <input
-              id="organization"
-              name="accountType"
-              type="radio"
-              value="organization"
-              checked={accountType === "organization"}
-              onChange={() => setAccountType("organization")}
-              className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
-            />
-            <label
-              htmlFor="organization"
-              className="ml-2 block text-sm text-gray-700"
-            >
-              Organization
-            </label>
-          </div>
-        </div>
+        <Tabs
+          defaultValue={accountType}
+          onValueChange={(val) =>
+            setAccountType(val as "individual" | "organization")
+          }
+        >
+          <TabsList className="grid grid-cols-2 w-full">
+            <TabsTrigger value="individual">Individual</TabsTrigger>
+            <TabsTrigger value="organization">Organization</TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">

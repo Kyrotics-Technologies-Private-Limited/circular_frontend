@@ -10,6 +10,8 @@ import BreadcrumbNav from "./BreadcrumbNav";
 import FileCard from "./FileCard";
 import { getCurrentUser } from "../../services/auth.service";
 import { useAuth } from "../../contexts/AuthContext";
+import { Button } from "@/components/ui/button"
+
 
 const FileExplorer: React.FC = () => {
   const navigate = useNavigate();
@@ -116,27 +118,27 @@ const FileExplorer: React.FC = () => {
         <h1 className="text-2xl font-semibold text-gray-900">File Manager</h1>
 
         <div className="flex space-x-3">
-          <button
+          <Button
             onClick={() => setShowUploadModal(true)}
             className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             Upload File
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setShowCreateFolderModal(true)}
             className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             New Folder
-          </button>
+          </Button>
 
           {hasSelected && (
-            <button
+            <Button
               onClick={handleDeleteSelected}
               disabled={isDeleting}
               className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:bg-red-400"
             >
               {isDeleting ? "Deleting..." : "Delete Selected"}
-            </button>
+            </Button>
           )}
         </div>
       </div>

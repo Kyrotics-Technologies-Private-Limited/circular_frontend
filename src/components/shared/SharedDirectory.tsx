@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useShare } from "../../contexts/ShareContext";
 import { FileItem, Folder } from "../../types/File";
 import FileCard from "../files/FileCard";
+import { Button } from "../ui/button";
 
 const SharedDirectory: React.FC = () => {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ const SharedDirectory: React.FC = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold text-gray-900">Shared with Me</h1>
 
-        <button
+        <Button
           onClick={handleRefresh}
           className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
@@ -55,7 +56,7 @@ const SharedDirectory: React.FC = () => {
             />
           </svg>
           Refresh
-        </button>
+        </Button>
       </div>
 
       {errorShared && (
@@ -72,7 +73,7 @@ const SharedDirectory: React.FC = () => {
       {(hasFiles || hasFolders) && (
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8">
-            <button
+            <Button
               onClick={() => setShowFilesTab(true)}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 showFilesTab
@@ -81,8 +82,8 @@ const SharedDirectory: React.FC = () => {
               }`}
             >
               Files ({sharedFiles.length})
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setShowFilesTab(false)}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 !showFilesTab
@@ -91,7 +92,7 @@ const SharedDirectory: React.FC = () => {
               }`}
             >
               Folders ({sharedFolders.length})
-            </button>
+            </Button>
           </nav>
         </div>
       )}
