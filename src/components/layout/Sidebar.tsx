@@ -1,7 +1,8 @@
 // src/components/layout/Sidebar.tsx
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNavigation } from '../../contexts/NavigationContext';
 
 interface SidebarProps {
   onClose: () => void;
@@ -10,6 +11,8 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ onClose, showOrgManagement = false }) => {
   const { currentUser } = useAuth();
+  const { setActiveItem } = useNavigation();
+  const location = useLocation();
   
   // Define navigation items
   const navigation = [
@@ -32,6 +35,18 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, showOrgManagement = false })
       icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' 
     });
   }
+
+  // Update active item when route changes
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const activeNav = navigation.find(item => 
+      currentPath === item.path || currentPath.startsWith(item.path + '/')
+    );
+    
+    if (activeNav) {
+      setActiveItem(activeNav.name);
+    }
+  }, [location.pathname, navigation, setActiveItem]);
   
   return (
     <div className="h-full flex flex-col border-r border-gray-200 bg-white">
@@ -65,7 +80,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, showOrgManagement = false })
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`
             }
-            onClick={onClose}
+            onClick={() => {
+              setActiveItem(item.name);
+              onClose();
+            }}
           >
             <svg
               className="mr-3 flex-shrink-0 h-6 w-6"

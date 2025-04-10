@@ -116,7 +116,7 @@ const PendingApprovalPage = () => {
       <div className="bg-yellow-50 border-b border-yellow-100 p-4 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Clock className="text-yellow-500" size={20} />
-          <span className="font-medium text-yellow-700">Your organization account is pending approval</span>
+          <span className="font-medium text-yellow-700">Your organization account is pending for approval</span>
         </div>
         <button
           onClick={handleLogout}
@@ -200,6 +200,15 @@ const PendingApprovalPage = () => {
               <div className="space-y-4">
                 <div className="flex">
                   <div className="mt-1 mr-4">
+                    <AlertCircle size={20} className="text-blue-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-gray-800">We may contact you for verification</h3>
+                    <p className="text-gray-600 text-sm">In some cases, we might need additional information to verify your organization</p>
+                  </div>
+                </div>
+                <div className="flex">
+                  <div className="mt-1 mr-4">
                     <Mail size={20} className="text-blue-500" />
                   </div>
                   <div>
@@ -216,15 +225,6 @@ const PendingApprovalPage = () => {
                     <p className="text-gray-600 text-sm">After approval, you'll need to complete your profile and invite team members</p>
                   </div>
                 </div>
-                <div className="flex">
-                  <div className="mt-1 mr-4">
-                    <AlertCircle size={20} className="text-blue-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-800">We may contact you for verification</h3>
-                    <p className="text-gray-600 text-sm">In some cases, we might need additional information to verify your organization</p>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -233,7 +233,7 @@ const PendingApprovalPage = () => {
               <div className="flex items-start">
                 <Phone className="text-blue-500 mt-1 mr-4" size={20} />
                 <div>
-                  <h3 className="font-medium text-gray-800">Need help with your application?</h3>
+                  <h3 className="font-medium text-gray-800">Need assistance?</h3>
                   <p className="text-gray-600 mt-1">If you have questions about your application or want to provide additional information:</p>
                   <button
                     onClick={handleContactSupport}

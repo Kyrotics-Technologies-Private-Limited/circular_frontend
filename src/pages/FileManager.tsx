@@ -3,6 +3,7 @@ import React from 'react';
 import { useOrganization } from '../contexts/OrganizationContext';
 import FileExplorer from '../components/files/FileExplorer';
 import { UserType } from '../types/User';
+import { Loader } from 'lucide-react';
 
 
 
@@ -23,7 +24,7 @@ const FileManager: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-full">
-        <div className="spinner">Loading...</div>
+        <Loader />
       </div>
     );
   }

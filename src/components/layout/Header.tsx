@@ -5,6 +5,7 @@ import { User } from '../../types/User';
 import { Organization } from '../../types/Organization';
 import { logoutUser } from '../../services/auth.service';
 import { useOrganization } from '../../contexts/OrganizationContext';
+import { useNavigation } from '../../contexts/NavigationContext';
 
 interface HeaderProps {
   onSidebarToggle: () => void;
@@ -22,6 +23,7 @@ const Header: React.FC<HeaderProps> = ({
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showOrgMenu, setShowOrgMenu] = useState(false);
   const { currentOrganization } = useOrganization();
+  const { activeItem } = useNavigation();
   
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
@@ -42,8 +44,6 @@ const Header: React.FC<HeaderProps> = ({
     }
   };
   
-
-  
   return (
     <header className="flex-shrink-0 z-1 relative h-16 bg-white shadow">
       <div className="flex items-center justify-between h-full px-4 sm:px-6">
@@ -59,7 +59,9 @@ const Header: React.FC<HeaderProps> = ({
           </button>
           
           <div className="ml-4 md:ml-0">
-            <h1 className="text-lg font-semibold text-gray-900">File Translation System</h1>
+            <h1 className="text-lg font-semibold text-gray-900">
+              <span>{activeItem}</span>
+            </h1>
           </div>
         </div>
         
@@ -72,12 +74,7 @@ const Header: React.FC<HeaderProps> = ({
               onClick={toggleOrgMenu}
             >
               <span className="font-medium ">{currentOrganization?.name || ''}</span>
-              {/* <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg> */}
             </button>
-            
-           
           </div>
           
           {/* Admin Link (if user is admin or super admin) */}

@@ -16,6 +16,7 @@ import SplitView from "./SplitView";
 import TranslationOptions from "./TranslationOptions";
 import { Button } from "../ui/button";
 import { CornerUpLeft } from "lucide-react";
+import { set } from "date-fns";
 
 const TranslationEditor: React.FC = () => {
   const { fileId } = useParams<{ fileId: string }>();
@@ -54,9 +55,10 @@ const TranslationEditor: React.FC = () => {
         setOriginalContent(fileData.url || "");
         setTranslatedContent(fileData.translatedContent || "");
 
-        if (fileData.targetLanguage) {
-          setTargetLanguage(fileData.targetLanguage);
-        }
+        // if (fileData.targetLanguage) {
+        //   setTargetLanguage(fileData.targetLanguage);
+        // }
+        setTargetLanguage(languagesData[0].name || "Hindi"); // Default to Spanish if not set
 
         setLanguages(languagesData);
       } catch (err: any) {
@@ -259,6 +261,8 @@ const TranslationEditor: React.FC = () => {
         languages={languages}
         selectedLanguage={targetLanguage}
         onLanguageChange={handleLanguageChange}
+        sourceLanguage="English" // Assuming source language is always English
+        onSourceLanguageChange={() => {}}
         onTranslate={handleTranslate}
         translating={translating}
         hasOriginalContent={!!originalContent}
