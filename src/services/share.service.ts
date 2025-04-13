@@ -1,6 +1,6 @@
 // src/services/share.service.ts
 import api  from './api';
-import { FileItem, Folder } from '../types/File';
+// import { FileItem, Folder } from '../types/File';
 
 // Updated type definitions
 export interface UserForSharing {

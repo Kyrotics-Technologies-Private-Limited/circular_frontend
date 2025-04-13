@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { FileItem, Folder } from '../types/File';
 import {
-  getFiles,
+  // getFiles,
   getFilesByFolderId,
   getFolders,
   uploadFile,

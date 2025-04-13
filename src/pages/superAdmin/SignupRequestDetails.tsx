@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Check, X, FileText, Building, User, Mail, Phone, Calendar, Clock, Info } from 'lucide-react';
+import { ArrowLeft, Check, X, FileText, Building, User,Calendar, Clock, Info } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 interface SignupRequest {

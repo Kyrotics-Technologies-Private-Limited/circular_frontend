@@ -29,7 +29,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ onSidebarToggle, user }) => {
   };
 
   // Determine if user is super admin
-  const isSuperAdmin = user?.role === "super_admin";
+  // const isSuperAdmin = user?.role === "super_admin";
 
   return (
     <header className="flex-shrink-0 relative h-16  shadow">

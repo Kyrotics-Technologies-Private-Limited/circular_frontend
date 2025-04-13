@@ -1,6 +1,6 @@
 // src/services/auth.service.ts
 import {
-  createUserWithEmailAndPassword,
+  // createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
@@ -101,7 +101,7 @@ export const loginUser = async (
     );
     const idToken = await userCredential.user.getIdToken();
     // console.log("idToken", idToken);
-    const response = await api.post("/auth/lastlogin", {
+    const response = await api.post("/auth/lastLogin", {
       headers: {
         Authorization: `Bearer ${idToken}`,
       },

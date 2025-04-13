@@ -10,12 +10,13 @@ import { Link } from "react-router-dom";
 import { getAllOrganizations,  } from "../../services/organization.service";
 import { getAllRequests } from "../../services/request.service"; // Assuming this service exists
 import { Button } from "@/components/ui/button"
+import { Loader, Loader2 } from "lucide-react";
 
 
 const AdminDashboard: React.FC = () => {
   const { currentUser } = useAuth();
   const isSuperAdmin = currentUser?.role === "super_admin";
-  const { currentOrganization, loading: orgLoading } = useOrganization();
+  const { currentOrganization} = useOrganization();
   const [totalUsers, setTotalUsers] = useState<number>(0);
   const [totalFiles, setTotalFiles] = useState<FileItem[]>([]);
   const [recentFiles, setRecentFiles] = useState<FileItem[]>([]);
@@ -94,7 +95,7 @@ const AdminDashboard: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="spinner">Loading...</div>
+        <Loader/>
       </div>
     );
   }
@@ -141,7 +142,7 @@ const AdminDashboard: React.FC = () => {
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {/* Organizations Card - Super Admin Only */}
         {isSuperAdmin && (
-          <div className="bg-white overflow-hidden shadow rounded-lg">
+          <Link to='/super-admin/organizations' className="bg-white overflow-hidden shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0 bg-purple-500 rounded-md p-3">
@@ -174,11 +175,11 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         )}
 
         {/* Users Card */}
-        <Link to ='/admin/user-management' className="bg-white overflow-hidden shadow rounded-lg">
+        <Link to ={`${isSuperAdmin? '/super-admin/users' : '/admin/user-management'}`} className="bg-white overflow-hidden shadow rounded-lg">
           <div className="px-4 py-5 sm:p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0 bg-indigo-500 rounded-md p-3">
@@ -214,7 +215,7 @@ const AdminDashboard: React.FC = () => {
         </Link>
         {/* Pending Requests Card - Super Admin Only */}
         {isSuperAdmin && (
-          <div className="bg-white overflow-hidden shadow rounded-lg">
+          <Link to='/super-admin/requests' className="bg-white overflow-hidden shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0 bg-yellow-500 rounded-md p-3">
@@ -247,7 +248,7 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         )}
 
         {/* Files Card - Regular Admin Only */}
@@ -435,7 +436,7 @@ const AdminDashboard: React.FC = () => {
           <div className="border-t border-gray-200">
             {loading ? (
               <div className="px-4 py-5 sm:p-6 text-center">
-                <div className="spinner">Loading...</div>
+                < Loader2/>
               </div>
             ) : recentFiles.length > 0 ? (
               <div className="overflow-x-auto">

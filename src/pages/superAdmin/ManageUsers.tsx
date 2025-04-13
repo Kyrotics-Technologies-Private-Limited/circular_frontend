@@ -226,17 +226,17 @@ const ManageUsers: React.FC = () => {
   };
 
   // Format date for display
-  const formatDate = (dateString: string | Date | undefined) => {
-    if (!dateString) return 'Never';
-    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
-  };
+  // const formatDate = (dateString: string | Date | undefined) => {
+  //   if (!dateString) return 'Never';
+  //   const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+  //   return new Intl.DateTimeFormat('en-US', {
+  //     year: 'numeric', 
+  //     month: 'short', 
+  //     day: 'numeric',
+  //     hour: '2-digit',
+  //     minute: '2-digit'
+  //   }).format(date);
+  // };
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">

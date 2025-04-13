@@ -155,13 +155,13 @@ const ManageOrganizations: React.FC = () => {
   };
 
   // Format date for display
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    }).format(new Date(date));
-  };
+  // const formatDate = (date: Date) => {
+  //   return new Intl.DateTimeFormat('en-US', {
+  //     year: 'numeric',
+  //     month: 'short',
+  //     day: 'numeric'
+  //   }).format(new Date(date));
+  // };
 
   // Get status badge color
   const getStatusBadgeClass = (status: string) => {

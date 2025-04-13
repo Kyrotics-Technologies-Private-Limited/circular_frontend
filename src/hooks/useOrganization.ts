@@ -3,14 +3,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { Organization } from '../types/Organization';
 import { useAuth } from '../contexts/AuthContext';
 import {
-  getUserOrganizations,
-  getOrganization,
+  getAllOrganizations,
+  getOrganizationbyId,
   createOrganization,
   updateOrganization,
-  addOrganizationMember,
-  removeOrganizationMember,
+  addOrganizationUser,
+  removeOrganizationUser,
   deleteOrganization
 } from '../services/organization.service';
+import { UserRole } from '@/types/User';
 
 interface UseOrganizationReturn {
   organizations: Organization[];
@@ -20,9 +21,9 @@ interface UseOrganizationReturn {
   successMessage: string | null;
   fetchOrganizations: () => Promise<void>;
   fetchOrganization: (id: string) => Promise<Organization>;
-  createNewOrganization: (data: { name: string; description?: string }) => Promise<Organization>;
+  createNewOrganization: (data: { name: string; CIN: string }) => Promise<Organization>;
   updateOrganizationDetails: (id: string, data: { name?: string; description?: string }) => Promise<void>;
-  addMember: (id: string, email: string, role: 'member' | 'admin') => Promise<void>;
+  addMember: (id: string, email: string, role: UserRole) => Promise<void>;
   removeMember: (id: string, userId: string) => Promise<void>;
   deleteSelectedOrganization: (id: string) => Promise<void>;
   setCurrentOrganization: (organization: Organization | null) => void;
@@ -53,7 +54,7 @@ const useOrganization = (): UseOrganizationReturn => {
       setLoading(true);
       setError(null);
       
-      const userOrganizations = await getUserOrganizations();
+      const userOrganizations = await getAllOrganizations();
       setOrganizations(userOrganizations);
       
       // Set current organization to the first one if not set
@@ -86,7 +87,7 @@ const useOrganization = (): UseOrganizationReturn => {
       setLoading(true);
       setError(null);
       
-      const organization = await getOrganization(id);
+      const organization = await getOrganizationbyId(id);
       return organization;
     } catch (err: any) {
       console.error('Error fetching organization:', err);
@@ -98,7 +99,7 @@ const useOrganization = (): UseOrganizationReturn => {
   };
   
   // Create a new organization
-  const createNewOrganization = async (data: { name: string; description?: string }): Promise<Organization> => {
+  const createNewOrganization = async (data: { name: string; CIN: string }): Promise<Organization> => {
     try {
       setLoading(true);
       setError(null);
@@ -147,17 +148,17 @@ const useOrganization = (): UseOrganizationReturn => {
   };
   
   // Add a member to an organization
-  const addMember = async (id: string, email: string, role: 'member' | 'admin'): Promise<void> => {
+  const addMember = async (id: string, email: string, role: UserRole): Promise<void> => {
     try {
       setLoading(true);
       setError(null);
       setSuccessMessage(null);
       
-      await addOrganizationMember(id, { email, role });
+      await addOrganizationUser(id, { email, role });
       
       // Refresh the organization
       if (currentOrganization && currentOrganization.id === id) {
-        const updatedOrg = await getOrganization(id);
+        const updatedOrg = await getOrganizationbyId(id);
         setCurrentOrganization(updatedOrg);
       }
       
@@ -178,11 +179,11 @@ const useOrganization = (): UseOrganizationReturn => {
       setError(null);
       setSuccessMessage(null);
       
-      await removeOrganizationMember(id, userId);
+      await removeOrganizationUser(id, userId);
       
       // Refresh the organization
       if (currentOrganization && currentOrganization.id === id) {
-        const updatedOrg = await getOrganization(id);
+        const updatedOrg = await getOrganizationbyId(id);
         setCurrentOrganization(updatedOrg);
       }
       

@@ -117,16 +117,16 @@ const ManageRequests: React.FC = () => {
   };
 
   // Format date
-  const formatDate = (date: Date | null) => {
-    if (!date) return 'N/A';
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
-  };
+  // const formatDate = (date: Date | null) => {
+  //   if (!date) return 'N/A';
+  //   return new Intl.DateTimeFormat('en-US', {
+  //     year: 'numeric',
+  //     month: 'short',
+  //     day: 'numeric',
+  //     hour: '2-digit',
+  //     minute: '2-digit'
+  //   }).format(date);
+  // };
 
   // Get status badge
   const getStatusBadge = (status: string) => {

@@ -4,8 +4,10 @@ import { auth } from '../utils/firebase';
 
 // Create axios instance
 const api = axios.create({
-  // baseURL: import.meta.env.REACT_APP_API_URL || 'http://192.168.1.34:5566/api',
-  baseURL: import.meta.env.REACT_APP_API_URL || 'http://localhost:5566/api' ,
+  // Use a relative URL for the API base URL
+  // baseURL: import.meta.env.REACT_APP_API_URL || 'http://192.168.1.44:5566/api',
+  // baseURL: import.meta.env.REACT_APP_API_URL || 'http://localhost:5566/api' ,
+  baseURL: '/api',
   headers: {
     'Content-Type': 'application/json'
   }
@@ -48,15 +50,13 @@ api.interceptors.response.use(
           await user.getIdToken(true);
           
           // Retry the original request with new token
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${await user.getIdToken()}`;
+          }
           return api(originalRequest);
         }
       } catch (refreshError) {
-        // Token refresh failed
-        console.error('Token refresh failed:', refreshError);
-        
-        // Force logout if refresh fails
-        await auth.signOut();
-        window.location.href = '/login';
+        console.error('Error refreshing token:', refreshError);
       }
     }
     

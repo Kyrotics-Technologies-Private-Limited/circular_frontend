@@ -1,7 +1,7 @@
 // src/pages/admin/SuperAdminDashboard.tsx
 import React, { useState, useEffect } from "react";
-import { getAllOrganizations } from "../../services/organization.service";
-import { useOrganization } from "../../contexts/OrganizationContext";
+// import { getAllOrganizations } from "../../services/organization.service";
+// import { useOrganization } from "../../contexts/OrganizationContext";
 import { 
   Request, 
   getAllRequests,
@@ -11,7 +11,7 @@ import {
 
 const SuperAdminDashboard: React.FC = () => {
 //   const { organizations } = useOrganization();
-  const [totalUsers, setTotalUsers] = useState<number>(0);
+  // const [totalUsers, setTotalUsers] = useState<number>(0);
   const [pendingRequests, setPendingRequests] = useState<Request[]>([]);
   const [recentRequests, setRecentRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -44,7 +44,7 @@ const SuperAdminDashboard: React.FC = () => {
         setLoading(true);
         
         // Fetch organizations
-        const orgs = await getAllOrganizations();
+        // const orgs = await getAllOrganizations();
         
         // Calculate total users across all organizations
         // const total = orgs.reduce((acc, org) => {
@@ -190,7 +190,7 @@ const SuperAdminDashboard: React.FC = () => {
                   </dt>
                   <dd>
                     <div className="text-lg font-medium text-gray-900">
-                      {totalUsers}
+                      {/* {totalUsers} */} 0
                     </div>
                   </dd>
                 </dl>

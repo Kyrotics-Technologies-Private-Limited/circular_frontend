@@ -1,15 +1,15 @@
 // src/pages/RejectedPage.tsx
 import React from 'react';
-import { useAuth } from '../contexts/AuthContext';
+// import { useAuth } from '../contexts/AuthContext';
 import { XCircle } from 'lucide-react';
 import { logoutUser } from '../services/auth.service';
 
 const RejectedPage: React.FC = () => {
-  const { currentUser } = useAuth();
+  // const { currentUser } = useAuth();
 
-  const handleContactSupport = () => {
-    window.location.href = 'mailto:support@example.com?subject=Organization%20Rejection%20Inquiry';
-  };
+  // const handleContactSupport = () => {
+  //   window.location.href = 'mailto:support@example.com?subject=Organization%20Rejection%20Inquiry';
+  // };
 
   return (
     <div className="min-h-screen bg-gray-50">

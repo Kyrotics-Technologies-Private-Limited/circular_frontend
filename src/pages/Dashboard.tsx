@@ -5,15 +5,15 @@ import { useAuth } from "../contexts/AuthContext";
 import { useOrganization } from "../contexts/OrganizationContext";
 import { getFiles } from "../services/file.service";
 import { FileItem } from "../types/File";
-import OrganizationForm from "../components/organizations/OrganizationForm";
+// import OrganizationForm from "../components/organizations/OrganizationForm";
 
 const Dashboard: React.FC = () => {
   const { currentUser } = useAuth();
   const {
      currentOrganization,
     userType,
-    setUserType,
-    loading: orgLoading,
+    // setUserType,
+    // loading: orgLoading,
   } = useOrganization();
   const [totalFiles, setTotalFiles] = useState<number>(0);
   const [recentFiles, setRecentFiles] = useState<FileItem[]>([]);
@@ -53,9 +53,9 @@ const Dashboard: React.FC = () => {
     fetchRecentFiles();
   }, [currentOrganization, userType]);
 
-  const handleUserTypeChange = (type: 'individual' | 'organization') => {
-    setUserType(type);
-  };
+  // const handleUserTypeChange = (type: 'individual' | 'organization') => {
+  //   setUserType(type);
+  // };
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B';

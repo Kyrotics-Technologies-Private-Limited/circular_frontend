@@ -27,7 +27,7 @@ const DateFormatter: React.FC<DateFormatterProps> = ({
   formatString = 'PPP', 
   fallback = 'N/A',
   className = '',
-  relative = false
+  // relative = false
 }) => {
   // Handle empty dates
   if (date === null || date === undefined) return <span className={className}>{fallback}</span>;

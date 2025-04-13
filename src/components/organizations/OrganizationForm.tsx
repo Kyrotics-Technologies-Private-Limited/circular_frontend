@@ -1,45 +1,48 @@
 // src/components/organizations/OrganizationForm.tsx
-import React, { useState } from 'react';
-import { createOrganization } from '../../services/organization.service';
-import { useOrganization } from '../../contexts/OrganizationContext';
+import React, { useState } from "react";
+import { createOrganization } from "../../services/organization.service";
+// import { useOrganization } from "../../contexts/OrganizationContext";
 
 interface OrganizationFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-const OrganizationForm: React.FC<OrganizationFormProps> = ({ onSuccess, onCancel }) => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+const OrganizationForm: React.FC<OrganizationFormProps> = ({
+  onSuccess,
+  onCancel,
+}) => {
+  const [name, setName] = useState("");
+  const [CIN, setCIN] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  const { refreshOrganizations } = useOrganization();
+
+  // const { refreshOrganizations } = useOrganization();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!name) {
-      setError('Organization name is required');
+
+    if (!name || !CIN) {
+      setError("Organization name and CIN are required");
       return;
     }
-    
+
     try {
       setError(null);
       setLoading(true);
-      
-      await createOrganization({ name, description });
-      await refreshOrganizations();
-      
-      setName('');
-      setDescription('');
-      
+
+      await createOrganization({ name, CIN });
+      // await refreshOrganizations();
+
+      setName("");
+      setCIN("");
+
       if (onSuccess) {
         onSuccess();
       }
     } catch (err: any) {
-      console.error('Error creating organization:', err);
-      setError(err.message || 'Failed to create organization');
+      console.error("Error creating organization:", err);
+      setError(err.message || "Failed to create organization");
     } finally {
       setLoading(false);
     }
@@ -55,7 +58,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ onSuccess, onCancel
           Create a new organization to manage files and translations.
         </p>
       </div>
-      
+
       {error && (
         <div className="rounded-md bg-red-50 p-4 mx-6">
           <div className="flex">
@@ -65,12 +68,15 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ onSuccess, onCancel
           </div>
         </div>
       )}
-      
+
       <div className="border-t border-gray-200">
         <form onSubmit={handleSubmit} className="px-6 py-4">
           <div className="grid grid-cols-1 gap-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Organization Name *
               </label>
               <input
@@ -84,28 +90,32 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ onSuccess, onCancel
                 required
               />
             </div>
-            
+
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                Description
+              <label
+                htmlFor="cin"
+                className="block text-sm font-medium text-gray-700"
+              >
+                CIN (Company Identification Number) *
               </label>
-              <textarea
-                id="description"
-                name="description"
-                rows={3}
+              <input
+                type="text"
+                id="cin"
+                name="cin"
                 className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                placeholder="Describe your organization (optional)"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              ></textarea>
+                placeholder="Enter company identification number"
+                value={CIN}
+                onChange={(e) => setCIN(e.target.value)}
+                required
+              />
             </div>
-            
+
             <div className="flex justify-end space-x-3">
               {onCancel && (
                 <button
                   type="button"
-                  className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   onClick={onCancel}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                 >
                   Cancel
                 </button>
@@ -113,9 +123,9 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ onSuccess, onCancel
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
               >
-                {loading ? 'Creating...' : 'Create Organization'}
+                {loading ? "Creating..." : "Create Organization"}
               </button>
             </div>
           </div>

@@ -2,24 +2,24 @@
 import React from 'react';
 import { useOrganization } from '../contexts/OrganizationContext';
 import FileExplorer from '../components/files/FileExplorer';
-import { UserType } from '../types/User';
+// import { UserType } from '../types/User';
 import { Loader } from 'lucide-react';
 
 
 
 const FileManager: React.FC = () => {
   const {
-    currentOrganization,
-    userType,
-    setUserType,
+    // currentOrganization,
+    // userType,
+    // setUserType,
     loading
   } = useOrganization();
 
 
 
-  const handleUserTypeChange = (type: UserType) => {
-    setUserType(type);
-  };
+  // const handleUserTypeChange = (type: UserType) => {
+  //   setUserType(type);
+  // };
 
   if (loading) {
     return (

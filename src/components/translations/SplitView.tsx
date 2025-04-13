@@ -14,11 +14,11 @@ interface SplitViewProps {
 
 const SplitView: React.FC<SplitViewProps> = ({
   originalContent,
-  translatedContent,
-  onTranslatedContentChange,
-  quillRef,
-  quillModules,
-  quillFormats
+  // translatedContent,
+  // onTranslatedContentChange,
+  // quillRef,
+  // quillModules,
+  // quillFormats
 }) => {
   const [splitRatio, setSplitRatio] = useState(50); // Default 50/50 split
   const [isDragging, setIsDragging] = useState(false);

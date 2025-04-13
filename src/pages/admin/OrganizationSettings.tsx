@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { updateOrganization } from '../../services/organization.service';
 import { useAuth } from '../../contexts/AuthContext';
 import { useOrganization } from '../../contexts/OrganizationContext';
-import { Organization } from '../../types/Organization';
+// import { Organization } from '../../types/Organization';
 import { Building, AlertCircle, CheckCircle, Edit, Calendar, User } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { Button } from '@/components/ui/button';

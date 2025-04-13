@@ -1,0 +1,61 @@
+http {
+    # Basic configuration inherited from base nginx.conf
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    # Increase buffer sizes for potential large headers/requests
+    proxy_buffer_size   128k;
+    proxy_buffers   4 256k;
+    proxy_busy_buffers_size   256k;
+
+    server {
+        # Nginx will listen on the $PORT environment variable provided by Cloud Run (defaults to 8080)
+        # However, inside the container, Nginx usually listens on 80.
+        # The Dockerfile EXPOSE 80 and the Cloud Run service port mapping handle this.
+        listen 80;
+        server_name _; # Catch all hostnames
+
+        # Root directory for static files
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+
+        # Serve static files directly
+        location / {
+            try_files $uri $uri/ /index.html; # Important for React Router!
+        }
+
+        # Handle static assets with caching headers (optional but good)
+        location ~* \.(?:css|js|jpg|jpeg|gif|png|ico|svg|woff|woff2|ttf|eot)$ {
+            expires 1y;
+            add_header Cache-Control "public";
+            try_files $uri =404;
+        }
+
+        # Proxy API requests to the backend service
+        location /api/ {
+            proxy_pass http://backend:5000;
+
+            # Set standard proxy headers
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+
+            # Increase timeouts if needed for long-running backend requests
+            proxy_connect_timeout 60s;
+            proxy_send_timeout 60s;
+            proxy_read_timeout 60s;
+        }
+
+    
+
+        # Deny access to hidden files
+        location ~ /\. {
+            deny all;
+        }
+    }
+}
+
+events {
+    worker_connections 1024;
+}

@@ -8,7 +8,7 @@ import FileUpload from "./FileUpload";
 import FolderCreate from "./FolderCreate";
 import BreadcrumbNav from "./BreadcrumbNav";
 import FileCard from "./FileCard";
-import { getCurrentUser } from "../../services/auth.service";
+// import { getCurrentUser } from "../../services/auth.service";
 import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "@/components/ui/button"
 
@@ -24,7 +24,7 @@ const FileExplorer: React.FC = () => {
     loading,
     error,
     navigateToFolder,
-    navigateUp,
+    // navigateUp,
     refreshFiles,
   } = useFile();
 
@@ -65,9 +65,9 @@ const FileExplorer: React.FC = () => {
     }
   };
 
-  const handleBackClick = async () => {
-    await navigateUp();
-  };
+  // const handleBackClick = async () => {
+  //   await navigateUp();
+  // };
 
   const toggleItemSelection = (id: string, type: "file" | "folder", event: React.SyntheticEvent) => {
     // Stop propagation to prevent folder navigation when checking the checkbox
