@@ -21,7 +21,7 @@ interface RegisterUserParams {
   name: string;
   accountType: "individual" | "organization";
   organizationName?: string;
-  CIN?: string;
+  state?: string; phoneNumber?: string; country?: string;
 }
 
 export const registerUser = async ({
@@ -30,15 +30,20 @@ export const registerUser = async ({
   name,
   accountType,
   organizationName,
-  CIN,
+  state,
+  phoneNumber,
+  country,
 }: RegisterUserParams): Promise<User> => {
   try {
     const response = await api.post("/auth/createUser", {
       name,
       email,
       password,
+      state,
+      phoneNumber,
+      country,
       accountType,
-      ...(accountType === "organization" ? { organizationName, CIN } : {}),
+      ...(accountType === "organization" ? { organizationName } : {}),
     });
 
     // if (response.data.success) {
@@ -214,7 +219,7 @@ export const getCurrentUser = async (): Promise<User | null> => {
 //     if (error.response && error.response.data) {
 //       const errorMessage = error.response.data.message || 'Failed to fetch user profile';
 //       const statusCode = error.response.status;
-      
+
 //       // Display error using toast
 //       toast.error(`${errorMessage} (${statusCode})`, {
 //         position: "top-center",
@@ -224,7 +229,7 @@ export const getCurrentUser = async (): Promise<User | null> => {
 //         pauseOnHover: true,
 //         draggable: true,
 //       });
-      
+
 //       console.error("Profile fetch error:", {
 //         status: statusCode,
 //         message: errorMessage
@@ -237,7 +242,7 @@ export const getCurrentUser = async (): Promise<User | null> => {
 //       });
 //       console.error("Error getting current user:", error);
 //     }
-    
+
 //     return null;
 //   }
 // };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Check, X, FileText, Building, User,Calendar, Clock, Info } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 
 interface SignupRequest {
   id: string;

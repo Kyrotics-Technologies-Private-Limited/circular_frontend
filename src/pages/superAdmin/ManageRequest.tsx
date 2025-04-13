@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, X, Eye, AlertTriangle, Clock, Search } from 'lucide-react';
 import { Request, getAllRequests, approveRequest, rejectRequest } from '../../services/request.service';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 
 const ManageRequests: React.FC = () => {
   const [requests, setRequests] = useState<Request[]>([]);
@@ -302,7 +302,7 @@ const ManageRequests: React.FC = () => {
 
       {/* Rejection modal */}
       {showRejectModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-gray-900/70 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Reject Organization Request</h2>
             <p className="text-gray-600 mb-4">
@@ -342,11 +342,11 @@ const ManageRequests: React.FC = () => {
 
       {/* View request details modal */}
       {showViewModal && selectedRequest && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-gray-900/70 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-lg">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-800">Organization Request Details</h2>
-              <Button onClick={() => setShowViewModal(false)} className="text-gray-400 hover:text-gray-600">
+              <Button onClick={() => setShowViewModal(false)} className="bg-white hover:bg-white hover:scale-110 text-indigo-400 hover:text-indigo-600">
                 <X className="h-6 w-6" />
               </Button>
             </div>
@@ -402,7 +402,7 @@ const ManageRequests: React.FC = () => {
             <div className="mt-6 flex justify-end">
               <Button 
                 onClick={() => setShowViewModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200"
               >
                 Close
               </Button>

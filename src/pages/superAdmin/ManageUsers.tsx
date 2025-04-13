@@ -408,14 +408,14 @@ const ManageUsers: React.FC = () => {
       
       {/* Create/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-gray-900/70 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-800">
                 {modalMode === 'create' ? 'Add New User' : 'Edit User'}
               </h2>
-              <Button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
-                <X className="h-6 w-6" />
+              <Button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-indigo-600 bg-white hover:bg-gray-50 hover:scale-110">
+                <X className="h-10 w-10" />
               </Button>
             </div>
             
@@ -503,13 +503,13 @@ const ManageUsers: React.FC = () => {
             <div className="mt-6 flex justify-end space-x-3">
               <Button 
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 rounded-md text-white bg-red-600 hover:bg-red-700"
               >
                 Cancel
               </Button>
               <Button 
                 onClick={modalMode === 'create' ? handleCreateUser : handleUpdateUser}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center"
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center"
               >
                 <Save className="h-4 w-4 mr-1" />
                 {modalMode === 'create' ? 'Create' : 'Update'}
@@ -521,7 +521,7 @@ const ManageUsers: React.FC = () => {
       
       {/* Delete/Disable Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-gray-900/70 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <div className="mb-4">
               <h2 className="text-xl font-semibold text-gray-800">Confirm Action</h2>
@@ -537,7 +537,7 @@ const ManageUsers: React.FC = () => {
             <div className="flex justify-end space-x-3">
               <Button 
                 onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200"
               >
                 Cancel
               </Button>

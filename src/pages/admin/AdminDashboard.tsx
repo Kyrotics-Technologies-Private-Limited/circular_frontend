@@ -436,7 +436,7 @@ const AdminDashboard: React.FC = () => {
           <div className="border-t border-gray-200">
             {loading ? (
               <div className="px-4 py-5 sm:p-6 text-center">
-                < Loader2/>
+                < Loader/>
               </div>
             ) : recentFiles.length > 0 ? (
               <div className="overflow-x-auto">
