@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, X, Eye, AlertTriangle, Clock, Search } from 'lucide-react';
 import { Request, getAllRequests, approveRequest, rejectRequest } from '../../services/request.service';
+import { Button } from '@/components/ui/Button';
 
 const ManageRequests: React.FC = () => {
   const [requests, setRequests] = useState<Request[]>([]);
@@ -170,9 +171,9 @@ const ManageRequests: React.FC = () => {
             <AlertTriangle className="h-5 w-5 mr-2" />
             {error}
           </span>
-          <button onClick={() => setError(null)}>
+          <Button onClick={() => setError(null)}>
             <X className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
       )}
 
@@ -182,9 +183,9 @@ const ManageRequests: React.FC = () => {
             <Check className="h-5 w-5 mr-2" />
             {success}
           </span>
-          <button onClick={() => setSuccess(null)}>
+          <Button onClick={() => setSuccess(null)}>
             <X className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
       )}
 
@@ -264,30 +265,30 @@ const ManageRequests: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end space-x-2">
-                      <button
+                      <Button
                         onClick={() => openViewModal(request)}
                         className="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded"
                         title="View Details"
                       >
                         <Eye className="h-4 w-4" />
-                      </button>
+                      </Button>
                       
                       {request.status === 'pending' && (
                         <>
-                          <button
+                          <Button
                             onClick={() => handleApprove(request.id)}
                             className="bg-green-100 hover:bg-green-200 text-green-700 p-2 rounded"
                             title="Approve"
                           >
                             <Check className="h-4 w-4" />
-                          </button>
-                          <button
+                          </Button>
+                          <Button
                             onClick={() => openRejectModal(request.id)}
                             className="bg-red-100 hover:bg-red-200 text-red-700 p-2 rounded"
                             title="Reject"
                           >
                             <X className="h-4 w-4" />
-                          </button>
+                          </Button>
                         </>
                       )}
                     </div>
@@ -320,20 +321,20 @@ const ManageRequests: React.FC = () => {
             </div>
             
             <div className="flex justify-end space-x-3">
-              <button
+              <Button
                 onClick={() => setShowRejectModal(false)}
                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleReject}
                 className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center"
                 disabled={!rejectionReason.trim()}
               >
                 <X className="h-4 w-4 mr-1" />
                 Reject Request
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -345,9 +346,9 @@ const ManageRequests: React.FC = () => {
           <div className="bg-white rounded-lg p-6 w-full max-w-lg">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-800">Organization Request Details</h2>
-              <button onClick={() => setShowViewModal(false)} className="text-gray-400 hover:text-gray-600">
+              <Button onClick={() => setShowViewModal(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="h-6 w-6" />
-              </button>
+              </Button>
             </div>
             
             <div className="space-y-4">
@@ -399,12 +400,12 @@ const ManageRequests: React.FC = () => {
             </div>
             
             <div className="mt-6 flex justify-end">
-              <button 
+              <Button 
                 onClick={() => setShowViewModal(false)}
                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
               >
                 Close
-              </button>
+              </Button>
             </div>
           </div>
         </div>

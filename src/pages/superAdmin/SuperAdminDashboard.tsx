@@ -2,15 +2,16 @@
 import React, { useState, useEffect } from "react";
 // import { getAllOrganizations } from "../../services/organization.service";
 // import { useOrganization } from "../../contexts/OrganizationContext";
-import { 
-  Request, 
+import {
+  Request,
   getAllRequests,
   approveRequest,
-  rejectRequest
+  rejectRequest,
 } from "../../services/request.service";
+import { Button } from "@/components/ui/button";
 
 const SuperAdminDashboard: React.FC = () => {
-//   const { organizations } = useOrganization();
+  //   const { organizations } = useOrganization();
   // const [totalUsers, setTotalUsers] = useState<number>(0);
   const [pendingRequests, setPendingRequests] = useState<Request[]>([]);
   const [recentRequests, setRecentRequests] = useState<Request[]>([]);
@@ -21,16 +22,16 @@ const SuperAdminDashboard: React.FC = () => {
   const fetchAllRequests = async () => {
     try {
       const allRequests = await getAllRequests();
-      
+
       // Filter for pending requests only
-      const pending = allRequests.filter(req => req.status === "pending");
+      const pending = allRequests.filter((req) => req.status === "pending");
       setPendingRequests(pending);
-      
+
       // Sort recent requests by creation date (newest first)
       const recent = [...allRequests]
         .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
         .slice(0, 5); // Only take the 5 most recent
-      
+
       setRecentRequests(recent);
     } catch (err: any) {
       console.error("Error fetching requests:", err);
@@ -42,19 +43,19 @@ const SuperAdminDashboard: React.FC = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch organizations
         // const orgs = await getAllOrganizations();
-        
+
         // Calculate total users across all organizations
         // const total = orgs.reduce((acc, org) => {
         //   return acc + (org.members!.length || 0);
         // }, 0);
         // setTotalUsers(total);
-        
+
         // Fetch all requests
         await fetchAllRequests();
-        
+
         setError(null);
       } catch (err: any) {
         console.error("Error fetching dashboard data:", err);
@@ -79,7 +80,10 @@ const SuperAdminDashboard: React.FC = () => {
   };
 
   // Handle request rejection
-  const handleRejectRequest = async (requestId: string, reason: string = "Request rejected by admin") => {
+  const handleRejectRequest = async (
+    requestId: string,
+    reason: string = "Request rejected by admin"
+  ) => {
     try {
       await rejectRequest(requestId, reason);
       await fetchAllRequests(); // Refresh requests after rejection
@@ -109,7 +113,9 @@ const SuperAdminDashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Super Admin Dashboard</h1>
+        <h1 className="text-2xl font-bold text-gray-900">
+          Super Admin Dashboard
+        </h1>
         <p className="mt-1 text-sm text-gray-500">
           Overview of all organizations and system statistics
         </p>
@@ -256,15 +262,20 @@ const SuperAdminDashboard: React.FC = () => {
                       Organization Registration Request
                     </p>
                     <div className="ml-2 flex-shrink-0 flex">
-                      <p className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                        ${request.status === 'pending' 
-                          ? 'bg-yellow-100 text-yellow-800' 
-                          : request.status === 'approved' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'}`}>
-                        {request.status === 'pending' 
-                          ? formatTimeAgo(request.createdAt) 
-                          : request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                      <p
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                        ${
+                          request.status === "pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : request.status === "approved"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {request.status === "pending"
+                          ? formatTimeAgo(request.createdAt)
+                          : request.status.charAt(0).toUpperCase() +
+                            request.status.slice(1)}
                       </p>
                     </div>
                   </div>
@@ -301,26 +312,28 @@ const SuperAdminDashboard: React.FC = () => {
                         {request.organizationName}
                       </p>
                     </div>
-                    {request.status === 'pending' && (
+                    {request.status === "pending" && (
                       <div className="mt-2 sm:mt-0 sm:flex sm:space-x-2">
-                        <button
+                        <Button
                           onClick={() => handleApproveRequest(request.id)}
                           className="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                         >
                           Approve
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           onClick={() => handleRejectRequest(request.id)}
                           className="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                         >
                           Reject
-                        </button>
+                        </Button>
                       </div>
                     )}
                   </div>
                   {request.CIN && (
                     <div className="mt-1">
-                      <p className="text-xs text-gray-500">CIN: {request.CIN}</p>
+                      <p className="text-xs text-gray-500">
+                        CIN: {request.CIN}
+                      </p>
                     </div>
                   )}
                 </li>

@@ -5,6 +5,7 @@ import { getAllOrganizations, getOrganizationUsers } from '../../services/organi
 import { toast } from 'react-toastify';
 import { User } from '../../types/User';
 import { Organization } from '../../types/Organization';
+import { Button } from '@/components/ui/button';
 
 const ManageUsers: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -242,13 +243,13 @@ const ManageUsers: React.FC = () => {
     <div className="bg-white p-6 rounded-lg shadow-md">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Manage Users</h1>
-        <button
+        <Button
           onClick={openCreateModal}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center"
         >
           <Plus className="h-5 w-5 mr-1" />
           Add User
-        </button>
+        </Button>
       </div>
       
       {/* Filters and search */}
@@ -290,7 +291,7 @@ const ManageUsers: React.FC = () => {
             </select>
           )}
           
-          <button
+          <Button
             onClick={() => {
               setSearchTerm('');
               setUserTypeFilter('all');
@@ -300,7 +301,7 @@ const ManageUsers: React.FC = () => {
             title="Reset Filters"
           >
             <RefreshCw className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
       </div>
       
@@ -382,20 +383,20 @@ const ManageUsers: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end space-x-2">
-                      <button
+                      <Button
                         onClick={() => openEditModal(user)}
                         className="bg-blue-100 hover:bg-blue-200 text-blue-700 p-2 rounded"
                         title="Edit"
                       >
                         <Edit className="h-4 w-4" />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => confirmDelete(user.uid || user.id || '')}
                         className="bg-red-100 hover:bg-red-200 text-red-700 p-2 rounded"
                         title={user.disabled ? "Enable User" : "Disable User"}
                       >
                         <Trash2 className="h-4 w-4" />
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -413,9 +414,9 @@ const ManageUsers: React.FC = () => {
               <h2 className="text-xl font-semibold text-gray-800">
                 {modalMode === 'create' ? 'Add New User' : 'Edit User'}
               </h2>
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
+              <Button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="h-6 w-6" />
-              </button>
+              </Button>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -500,19 +501,19 @@ const ManageUsers: React.FC = () => {
             </div>
             
             <div className="mt-6 flex justify-end space-x-3">
-              <button 
+              <Button 
                 onClick={() => setShowModal(false)}
                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
               >
                 Cancel
-              </button>
-              <button 
+              </Button>
+              <Button 
                 onClick={modalMode === 'create' ? handleCreateUser : handleUpdateUser}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center"
               >
                 <Save className="h-4 w-4 mr-1" />
                 {modalMode === 'create' ? 'Create' : 'Update'}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -534,13 +535,13 @@ const ManageUsers: React.FC = () => {
             </div>
             
             <div className="flex justify-end space-x-3">
-              <button 
+              <Button 
                 onClick={() => setShowDeleteConfirm(false)}
                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
               >
                 Cancel
-              </button>
-              <button 
+              </Button>
+              <Button 
                 onClick={() => {
                   const user = users.find(u => (u.uid || u.id) === deleteUserId);
                   if (user && deleteUserId) {
@@ -551,7 +552,7 @@ const ManageUsers: React.FC = () => {
               >
                 <Trash2 className="h-4 w-4 mr-1" />
                 Confirm
-              </button>
+              </Button>
             </div>
           </div>
         </div>

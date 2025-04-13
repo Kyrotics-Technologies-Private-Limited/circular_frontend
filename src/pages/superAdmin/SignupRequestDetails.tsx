@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Check, X, FileText, Building, User,Calendar, Clock, Info } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/Button';
 
 interface SignupRequest {
   id: string;
@@ -156,12 +157,12 @@ const SignupRequestDetails: React.FC = () => {
     return (
       <div className="bg-white p-6 rounded-lg shadow-md">
         <div className="flex items-center mb-6">
-          <button 
+          <Button 
             onClick={() => navigate(-1)}
             className="mr-3 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft className="h-5 w-5" />
-          </button>
+          </Button>
           <h1 className="text-2xl font-bold text-gray-800">Request Not Found</h1>
         </div>
         <p className="text-gray-600">The requested signup request could not be found.</p>
@@ -171,15 +172,15 @@ const SignupRequestDetails: React.FC = () => {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
-      {/* Header with back button */}
+      {/* Header with back Button */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center">
-          <button 
+          <Button 
             onClick={() => navigate(-1)}
             className="mr-3 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft className="h-5 w-5" />
-          </button>
+          </Button>
           <h1 className="text-2xl font-bold text-gray-800">
             Signup Request: {request.organizationName}
           </h1>
@@ -298,20 +299,20 @@ const SignupRequestDetails: React.FC = () => {
                 <h2 className="text-lg font-medium text-gray-800">Actions</h2>
               </div>
               <div className="p-4 space-y-4">
-                <button
+                <Button
                   onClick={() => setShowApproveConfirm(true)}
                   className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center justify-center"
                 >
                   <Check className="h-5 w-5 mr-2" />
                   Approve Request
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => setShowRejectConfirm(true)}
                   className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center justify-center"
                 >
                   <X className="h-5 w-5 mr-2" />
                   Reject Request
-                </button>
+                </Button>
                 
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-2">Admin Notes</label>
@@ -367,9 +368,9 @@ const SignupRequestDetails: React.FC = () => {
                           <p className="text-xs text-gray-500">{formatDate(doc.uploadDate)}</p>
                         </div>
                       </div>
-                      <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                      <Button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
                         Download
-                      </button>
+                      </Button>
                     </li>
                   ))}
                 </ul>
@@ -393,19 +394,19 @@ const SignupRequestDetails: React.FC = () => {
             </div>
             
             <div className="flex justify-end space-x-3">
-              <button 
+              <Button 
                 onClick={() => setShowApproveConfirm(false)}
                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
               >
                 Cancel
-              </button>
-              <button 
+              </Button>
+              <Button 
                 onClick={handleApprove}
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center"
               >
                 <Check className="h-4 w-4 mr-1" />
                 Approve
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -423,19 +424,19 @@ const SignupRequestDetails: React.FC = () => {
             </div>
             
             <div className="flex justify-end space-x-3">
-              <button 
+              <Button 
                 onClick={() => setShowRejectConfirm(false)}
                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
               >
                 Cancel
-              </button>
-              <button 
+              </Button>
+              <Button 
                 onClick={handleReject}
                 className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center"
               >
                 <X className="h-4 w-4 mr-1" />
                 Reject
-              </button>
+              </Button>
             </div>
           </div>
         </div>
