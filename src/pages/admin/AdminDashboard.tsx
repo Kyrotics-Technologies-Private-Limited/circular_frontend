@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 import { getAllOrganizations,  } from "../../services/organization.service";
 import { getAllRequests } from "../../services/request.service"; // Assuming this service exists
 import { Button } from "@/components/ui/button"
-import { Loader, Loader2 } from "lucide-react";
+import { Loader } from "lucide-react";
 
 
 const AdminDashboard: React.FC = () => {
