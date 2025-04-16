@@ -5,9 +5,12 @@ import { useAuth } from '../../contexts/AuthContext';
 import { NavigationProvider } from '../../contexts/NavigationContext';
 import AdminHeader from './AdminHeader';
 import AdminSidebar from './AdminSidebar';
+import Header from './Header';
+import useOrganization from '@/hooks/useOrganization';
 
 const AdminLayout: React.FC = () => {
   const { currentUser } = useAuth();
+  const {currentOrganization}= useOrganization()
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
   const toggleSidebar = () => {
@@ -52,11 +55,15 @@ const AdminLayout: React.FC = () => {
         
         {/* Main content */}
         <div className="flex flex-col w-0 flex-1 overflow-hidden">
-          <AdminHeader
+          {/* <AdminHeader
             onSidebarToggle={toggleSidebar}
             user={currentUser}
+          /> */}
+           <Header
+            onSidebarToggle={toggleSidebar}
+            user={currentUser}
+            organization={currentOrganization}
           />
-          
           <main className="flex-1 relative overflow-y-auto focus:outline-none">
             <div className="py-6 px-4 sm:px-6 md:px-8">
               <Outlet />
