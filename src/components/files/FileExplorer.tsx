@@ -8,10 +8,9 @@ import FileUpload from "./FileUpload";
 import FolderCreate from "./FolderCreate";
 import BreadcrumbNav from "./BreadcrumbNav";
 import FileCard from "./FileCard";
-// import { getCurrentUser } from "../../services/auth.service";
 import { useAuth } from "../../contexts/AuthContext";
-import { Button } from "@/components/ui/button"
-
+import { Button } from "@/components/ui/button";
+import Loader from "@/components/ui/loader";
 
 const FileExplorer: React.FC = () => {
   const navigate = useNavigate();
@@ -35,13 +34,13 @@ const FileExplorer: React.FC = () => {
     [key: string]: "file" | "folder";
   }>({});
   const [isDeleting, setIsDeleting] = useState(false);
-  const {currentUser} = useAuth();
+  const { currentUser } = useAuth();
 
   const handleFolderClick = async (folder: Folder) => {
     try {
       // Add a debounce protection to prevent double navigation
       if (loading) return;
-      
+
       console.log("Navigating to folder:", folder.id);
       await navigateToFolder(folder);
     } catch (error) {
@@ -51,17 +50,15 @@ const FileExplorer: React.FC = () => {
   };
 
   const handleFileClick = (file: FileItem) => {
-    if(currentUser?.role === "admin") {
+    if (currentUser?.role === "admin") {
       navigate(`/admin/translation/${file.id}`);
       return;
-    }
-    else if(currentUser?.role === "super_admin") {
+    } else if (currentUser?.role === "super_admin") {
       navigate(`/super-admin/translation/${file.id}`);
       return;
-    }
-    else{
+    } else {
       navigate(`/translation/${file.id}`);
-      return; 
+      return;
     }
   };
 
@@ -69,10 +66,14 @@ const FileExplorer: React.FC = () => {
   //   await navigateUp();
   // };
 
-  const toggleItemSelection = (id: string, type: "file" | "folder", event: React.SyntheticEvent) => {
+  const toggleItemSelection = (
+    id: string,
+    type: "file" | "folder",
+    event: React.SyntheticEvent
+  ) => {
     // Stop propagation to prevent folder navigation when checking the checkbox
     event.stopPropagation();
-    
+
     setSelectedItems((prev) => {
       const updated = { ...prev };
       if (updated[id]) {
@@ -163,7 +164,7 @@ const FileExplorer: React.FC = () => {
 
       {loading ? (
         <div className="flex justify-center py-8">
-          <div className="spinner">Loading...</div>
+          <Loader />
         </div>
       ) : (
         <div>
@@ -214,7 +215,9 @@ const FileExplorer: React.FC = () => {
                         type="checkbox"
                         className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                         checked={!!selectedItems[folder.id]}
-                        onChange={(e) => toggleItemSelection(folder.id, "folder", e)}
+                        onChange={(e) =>
+                          toggleItemSelection(folder.id, "folder", e)
+                        }
                       />
                     </div>
                   </div>
@@ -229,7 +232,11 @@ const FileExplorer: React.FC = () => {
                   onSelect={() => {
                     // We're creating a version without the event parameter
                     // since FileCard's onSelect doesn't accept parameters
-                    toggleItemSelection(file.id, "file", new Event('click') as unknown as React.SyntheticEvent);
+                    toggleItemSelection(
+                      file.id,
+                      "file",
+                      new Event("click") as unknown as React.SyntheticEvent
+                    );
                   }}
                   onClick={() => handleFileClick(file)}
                 />

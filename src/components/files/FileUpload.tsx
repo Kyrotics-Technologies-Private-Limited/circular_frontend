@@ -1,7 +1,9 @@
 // src/components/files/FileUpload.tsx
-import React, { useState, useRef } from 'react';
-import { uploadFile } from '../../services/file.service';
-import { useOrganization } from '../../contexts/OrganizationContext';
+import React, { useState, useRef } from "react";
+import { uploadFile } from "../../services/file.service";
+import { useOrganization } from "../../contexts/OrganizationContext";
+import { Button } from "@/components/ui/button";
+import Loader from "@/components/ui/loader";
 
 interface FileUploadProps {
   organizationId?: string;
@@ -14,7 +16,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   organizationId: propOrgId,
   folderId,
   onSuccess,
-  onCancel
+  onCancel,
 }) => {
   const { userType, currentOrganization } = useOrganization();
   const [file, setFile] = useState<File | null>(null);
@@ -22,17 +24,19 @@ const FileUpload: React.FC<FileUploadProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
-  
+
   // Determine organization ID based on context and props
-  const organizationId = propOrgId || (userType === 'organization' ? currentOrganization?.id : undefined);
-  
+  const organizationId =
+    propOrgId ||
+    (userType === "organization" ? currentOrganization?.id : undefined);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const droppedFile = e.dataTransfer.files[0];
       validateAndSetFile(droppedFile);
@@ -48,21 +52,22 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   const validateAndSetFile = (selectedFile: File) => {
     const allowedTypes = [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     ];
-    
+
     if (!allowedTypes.includes(selectedFile.type)) {
-      setError('Only PDF and Word documents are allowed');
+      setError("Only PDF and Word documents are allowed");
       return;
     }
-    
-    if (selectedFile.size > 10 * 1024 * 1024) { // 10MB
-      setError('File size must be less than 10MB');
+
+    if (selectedFile.size > 10 * 1024 * 1024) {
+      // 10MB
+      setError("File size must be less than 10MB");
       return;
     }
-    
+
     setFile(selectedFile);
     setError(null);
   };
@@ -87,17 +92,17 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   const handleUpload = async () => {
     if (!file) {
-      setError('Please select a file');
+      setError("Please select a file");
       return;
     }
-    
+
     try {
       setError(null);
       setLoading(true);
-      
+
       // Simulate upload progress (this would be handled by a real upload progress event in production)
       const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
+        setUploadProgress((prev) => {
           if (prev >= 95) {
             clearInterval(progressInterval);
             return 95;
@@ -105,18 +110,18 @@ const FileUpload: React.FC<FileUploadProps> = ({
           return prev + 5;
         });
       }, 200);
-      
+
       await uploadFile(file, organizationId, folderId || undefined);
-      
+
       clearInterval(progressInterval);
       setUploadProgress(100);
-      
+
       if (onSuccess) {
         onSuccess();
       }
     } catch (err: any) {
-      console.error('Error uploading file:', err);
-      setError(err.message || 'Failed to upload file');
+      console.error("Error uploading file:", err);
+      setError(err.message || "Failed to upload file");
     } finally {
       setLoading(false);
     }
@@ -129,12 +134,12 @@ const FileUpload: React.FC<FileUploadProps> = ({
           Upload File
         </h3>
         <p className="mt-1 text-sm text-gray-500">
-          {userType === 'organization' && currentOrganization 
-            ? `Upload a PDF or Word document to ${currentOrganization.name}` 
-            : 'Upload a PDF or Word document to your personal space'}
+          {userType === "organization" && currentOrganization
+            ? `Upload a PDF or Word document to ${currentOrganization.name}`
+            : "Upload a PDF or Word document to your personal space"}
         </p>
       </div>
-      
+
       {error && (
         <div className="rounded-md bg-red-50 p-4">
           <div className="flex">
@@ -144,10 +149,10 @@ const FileUpload: React.FC<FileUploadProps> = ({
           </div>
         </div>
       )}
-      
-      <div 
+
+      <div
         className={`border-2 border-dashed rounded-md p-6 text-center ${
-          dragActive ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300'
+          dragActive ? "border-indigo-500 bg-indigo-50" : "border-gray-300"
         } hover:bg-gray-50 transition-colors duration-200 cursor-pointer`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -162,30 +167,48 @@ const FileUpload: React.FC<FileUploadProps> = ({
           onChange={handleFileChange}
           disabled={loading}
         />
-        
+
         <div className="space-y-2">
-          <svg className="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          <svg
+            className="mx-auto h-12 w-12 text-gray-400"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+            />
           </svg>
           <div className="flex text-sm text-gray-600 justify-center">
-            <label
-              className="relative cursor-pointer rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none"
-            >
+            <label className="relative cursor-pointer rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none">
               <span>Upload a file</span>
             </label>
             <p className="pl-1">or drag and drop</p>
           </div>
-          <p className="text-xs text-gray-500">
-            PDF or Word up to 10MB
-          </p>
+          <p className="text-xs text-gray-500">PDF or Word up to 10MB</p>
         </div>
       </div>
-      
+
       {file && (
         <div className="bg-gray-50 rounded-md p-4 border border-gray-200">
           <div className="flex items-center">
-            <svg className="h-6 w-6 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <svg
+              className="h-6 w-6 text-indigo-500"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
             </svg>
             <div className="ml-3 flex-1 truncate">
               <p className="text-sm font-medium text-gray-900 truncate">
@@ -196,8 +219,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
               </p>
             </div>
           </div>
-          
-          {loading && (
+
+          {loading ? (
             <div className="mt-2">
               <div className="relative pt-1">
                 <div className="overflow-hidden h-2 text-xs flex rounded bg-indigo-200">
@@ -206,13 +229,18 @@ const FileUpload: React.FC<FileUploadProps> = ({
                     className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500 transition-all duration-300"
                   ></div>
                 </div>
-                <p className="text-xs text-right mt-1 text-gray-500">{uploadProgress}%</p>
+                <div className="flex justify-center mt-2">
+                  <Loader />
+                </div>
+                <p className="text-xs text-right mt-1 text-gray-500">
+                  {uploadProgress}%
+                </p>
               </div>
             </div>
-          )}
+          ) : null}
         </div>
       )}
-      
+
       <div className="flex justify-end space-x-3">
         {onCancel && (
           <button
@@ -230,7 +258,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
           onClick={handleUpload}
           disabled={!file || loading}
         >
-          {loading ? 'Uploading...' : 'Upload File'}
+          {loading ? "Uploading..." : "Upload File"}
         </button>
       </div>
     </div>

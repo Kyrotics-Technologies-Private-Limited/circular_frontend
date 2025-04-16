@@ -5,6 +5,7 @@ import { useShare } from "../../contexts/ShareContext";
 import { FileItem, Folder } from "../../types/File";
 import FileCard from "../files/FileCard";
 import { Button } from "../ui/button";
+import Loader from "@/components/ui/loader";
 
 const SharedDirectory: React.FC = () => {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ const SharedDirectory: React.FC = () => {
     sharedFolders,
     loadingShared,
     errorShared,
-    refreshSharedItems
+    refreshSharedItems,
   } = useShare();
 
   const [showFilesTab, setShowFilesTab] = useState<boolean>(true);
@@ -63,7 +64,9 @@ const SharedDirectory: React.FC = () => {
         <div className="rounded-md bg-red-50 p-4">
           <div className="flex">
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">{errorShared}</h3>
+              <h3 className="text-sm font-medium text-red-800">
+                {errorShared}
+              </h3>
             </div>
           </div>
         </div>
@@ -99,7 +102,7 @@ const SharedDirectory: React.FC = () => {
 
       {loadingShared ? (
         <div className="flex justify-center py-8">
-          <div className="spinner">Loading...</div>
+          <Loader />
         </div>
       ) : (
         <div>
@@ -123,7 +126,8 @@ const SharedDirectory: React.FC = () => {
                 No shared items
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                When someone shares a file or folder with you, it will appear here.
+                When someone shares a file or folder with you, it will appear
+                here.
               </p>
             </div>
           ) : showFilesTab ? (
@@ -183,9 +187,18 @@ const SharedDirectory: React.FC = () => {
                             {folder.name}
                           </h3>
                           <div className="flex items-center mt-1">
-                            <p className="text-xs text-gray-500 mr-2">Shared Folder</p>
+                            <p className="text-xs text-gray-500 mr-2">
+                              Shared Folder
+                            </p>
                             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
-                              {folder.permissions && folder.userId ? ((folder.permissions as unknown) as Record<string, string>)[folder.userId] || 'view' : 'view'}
+                              {folder.permissions && folder.userId
+                                ? (
+                                    folder.permissions as unknown as Record<
+                                      string,
+                                      string
+                                    >
+                                  )[folder.userId] || "view"
+                                : "view"}
                             </span>
                           </div>
                         </div>

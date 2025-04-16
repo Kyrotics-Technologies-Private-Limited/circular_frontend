@@ -1,45 +1,46 @@
 // src/components/auth/Login.tsx
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { loginUser } from '../../services/auth.service';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { loginUser } from "../../services/auth.service";
+import { useAuth } from "../../contexts/AuthContext";
+import Loader from "@/components/ui/loader";
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const { setCurrentUser } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
-      setError('Please enter both email and password');
+      setError("Please enter both email and password");
       return;
     }
-    
+
     try {
       setError(null);
       setLoading(true);
-      
+
       const user = await loginUser(email, password);
       setCurrentUser(user);
-      
+
       // Redirect based on user role
-      if (user.role === 'super_admin') {
-        navigate('/admin/dashboard');
-      } else if (user.role === 'admin') {
-        navigate('/admin/dashboard');
+      if (user.role === "super_admin") {
+        navigate("/admin/dashboard");
+      } else if (user.role === "admin") {
+        navigate("/admin/dashboard");
       } else {
-        navigate('/dashboard');
+        navigate("/dashboard");
       }
     } catch (err: any) {
-      console.error('Login error:', err);
-      console.log(err)
-      setError(err.message || 'Failed to log in');
+      console.error("Login error:", err);
+      console.log(err);
+      setError(err.message || "Failed to log in");
     } finally {
       setLoading(false);
     }
@@ -53,7 +54,7 @@ const Login: React.FC = () => {
             Sign in to your account
           </h2>
         </div>
-        
+
         {error && (
           <div className="rounded-md bg-red-50 p-4">
             <div className="flex">
@@ -63,7 +64,7 @@ const Login: React.FC = () => {
             </div>
           </div>
         )}
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -117,13 +118,19 @@ const Login: React.FC = () => {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? (
+                <div className="flex justify-center">
+                  <Loader />
+                </div>
+              ) : (
+                "Sign in"
+              )}
             </button>
           </div>
-          
+
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              Don't have an account?{" "}
               <Link
                 to="/register"
                 className="font-medium text-indigo-600 hover:text-indigo-500"

@@ -6,24 +6,21 @@ import { useOrganization } from "../../contexts/OrganizationContext";
 import { FileItem } from "../../types/File";
 import { getOrganizationUsers } from "../../services/organization.service";
 import { Link } from "react-router-dom";
-// Import the missing services needed for super_admin functionality
-import { getAllOrganizations,  } from "../../services/organization.service";
-import { getAllRequests } from "../../services/request.service"; // Assuming this service exists
-import { Button } from "@/components/ui/button"
-import { Loader } from "lucide-react";
-
+import { getAllOrganizations } from "../../services/organization.service";
+import { getAllRequests } from "../../services/request.service";
+import { Button } from "@/components/ui/button";
+import Loader from "@/components/ui/loader";
 
 const AdminDashboard: React.FC = () => {
   const { currentUser } = useAuth();
   const isSuperAdmin = currentUser?.role === "super_admin";
-  const { currentOrganization} = useOrganization();
+  const { currentOrganization } = useOrganization();
   const [totalUsers, setTotalUsers] = useState<number>(0);
   const [totalFiles, setTotalFiles] = useState<FileItem[]>([]);
   const [recentFiles, setRecentFiles] = useState<FileItem[]>([]);
   const [totalTranslations, setTotalTranslations] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  // Add states for super_admin functionality
   const [organizationsCount, setOrganizationsCount] = useState<number>(0);
   const [pendingRequests, setPendingRequests] = useState<any[]>([]);
 
@@ -33,36 +30,33 @@ const AdminDashboard: React.FC = () => {
         setLoading(true);
 
         if (isSuperAdmin) {
-          // Fetch data for super admin
           try {
-            // Get all organizations
             const organizations = await getAllOrganizations();
             setOrganizationsCount(organizations.length);
-            
-            // Calculate total users across all organizations
+
             let totalUserCount = 0;
             for (const org of organizations) {
               const users = await getOrganizationUsers(org.id);
               totalUserCount += users.length;
             }
             setTotalUsers(totalUserCount);
-            
-            // Get pending requests
+
             const requests = await getAllRequests();
-            const pendingRequestsOnly = requests.filter(request => request.status === "pending");
+            const pendingRequestsOnly = requests.filter(
+              (request) => request.status === "pending"
+            );
             setPendingRequests(pendingRequestsOnly);
-            
+
             setError(null);
           } catch (err: any) {
             console.error("Error fetching super admin data:", err);
-            setError(err.message || "Failed to load super admin dashboard data");
+            setError(
+              err.message || "Failed to load super admin dashboard data"
+            );
           }
         } else if (currentOrganization) {
-          // Fetch data for regular admin
-          // Fetch files and set recent files
           const files = await getFiles(currentOrganization.id);
-          
-          // Sort by upload date and take the latest 5
+
           const sorted = [...files]
             .sort((a, b) => {
               return (
@@ -94,13 +88,12 @@ const AdminDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Loader/>
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader />
       </div>
     );
   }
 
-  // Helper function to format time
   const formatTimeAgo = (date: Date) => {
     const diff = Date.now() - date.getTime();
     if (diff < 60000) return "Just now";
@@ -110,9 +103,9 @@ const AdminDashboard: React.FC = () => {
   };
 
   const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + ' B';
-    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-    else return (bytes / 1048576).toFixed(2) + ' MB';
+    if (bytes < 1024) return bytes + " B";
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+    else return (bytes / 1048576).toFixed(2) + " MB";
   };
 
   return (
@@ -138,11 +131,12 @@ const AdminDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Organizations Card - Super Admin Only */}
         {isSuperAdmin && (
-          <Link to='/super-admin/organizations' className="bg-white overflow-hidden shadow rounded-lg">
+          <Link
+            to="/super-admin/organizations"
+            className="bg-white overflow-hidden shadow rounded-lg"
+          >
             <div className="px-4 py-5 sm:p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0 bg-purple-500 rounded-md p-3">
@@ -178,8 +172,12 @@ const AdminDashboard: React.FC = () => {
           </Link>
         )}
 
-        {/* Users Card */}
-        <Link to ={`${isSuperAdmin? '/super-admin/users' : '/admin/user-management'}`} className="bg-white overflow-hidden shadow rounded-lg">
+        <Link
+          to={`${
+            isSuperAdmin ? "/super-admin/users" : "/admin/user-management"
+          }`}
+          className="bg-white overflow-hidden shadow rounded-lg"
+        >
           <div className="px-4 py-5 sm:p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0 bg-indigo-500 rounded-md p-3">
@@ -213,9 +211,11 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
         </Link>
-        {/* Pending Requests Card - Super Admin Only */}
         {isSuperAdmin && (
-          <Link to='/super-admin/requests' className="bg-white overflow-hidden shadow rounded-lg">
+          <Link
+            to="/super-admin/requests"
+            className="bg-white overflow-hidden shadow rounded-lg"
+          >
             <div className="px-4 py-5 sm:p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0 bg-yellow-500 rounded-md p-3">
@@ -251,9 +251,11 @@ const AdminDashboard: React.FC = () => {
           </Link>
         )}
 
-        {/* Files Card - Regular Admin Only */}
         {!isSuperAdmin && (
-          <Link to ='/admin/files' className="bg-white overflow-hidden shadow rounded-lg">
+          <Link
+            to="/admin/files"
+            className="bg-white overflow-hidden shadow rounded-lg"
+          >
             <div className="px-4 py-5 sm:p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0 bg-green-500 rounded-md p-3">
@@ -289,7 +291,6 @@ const AdminDashboard: React.FC = () => {
           </Link>
         )}
 
-        {/* Translations Card - Regular Admin Only */}
         {!isSuperAdmin && (
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
@@ -328,7 +329,6 @@ const AdminDashboard: React.FC = () => {
         )}
       </div>
 
-      {/* Recent Activity Section - Super Admin */}
       {isSuperAdmin && (
         <div className="bg-white shadow overflow-hidden sm:rounded-lg">
           <div className="px-4 py-5 sm:px-6">
@@ -346,7 +346,7 @@ const AdminDashboard: React.FC = () => {
                   <li key={request.id} className="px-4 py-4 sm:px-6">
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-medium text-indigo-600 truncate">
-                       {request.organizationName}
+                        {request.organizationName}
                       </p>
                       <div className="ml-2 flex-shrink-0 flex">
                         <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
@@ -373,16 +373,10 @@ const AdminDashboard: React.FC = () => {
                         </p>
                       </div>
                       <div className="mt-2 flex sm:mt-0">
-                        <Button
-                          
-                          className="mr-2 inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                        >
+                        <Button className="mr-2 inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                           Approve
                         </Button>
-                        <Button
-                          
-                          className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        >
+                        <Button className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                           Reject
                         </Button>
                       </div>
@@ -399,7 +393,6 @@ const AdminDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* Recent Files Section - Regular Admin Only */}
       {!isSuperAdmin && (
         <div className="bg-white shadow overflow-hidden sm:rounded-lg">
           <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
@@ -418,7 +411,7 @@ const AdminDashboard: React.FC = () => {
               Upload New File
             </Link>
           </div>
-  
+
           {error && (
             <div className="border-t border-gray-200 px-4 py-5 sm:p-6">
               <div className="rounded-md bg-red-50 p-4">
@@ -432,11 +425,11 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
           )}
-  
+
           <div className="border-t border-gray-200">
             {loading ? (
-              <div className="px-4 py-5 sm:p-6 text-center">
-                < Loader/>
+              <div className="flex justify-center items-center py-8">
+                <Loader />
               </div>
             ) : recentFiles.length > 0 ? (
               <div className="overflow-x-auto">
@@ -481,7 +474,7 @@ const AdminDashboard: React.FC = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="flex-shrink-0">
-                              {file.type.includes('pdf') ? (
+                              {file.type.includes("pdf") ? (
                                 <svg
                                   className="h-6 w-6 text-red-500"
                                   xmlns="http://www.w3.org/2000/svg"
@@ -496,7 +489,7 @@ const AdminDashboard: React.FC = () => {
                                     d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
                                   />
                                 </svg>
-                              ) : file.type.includes('word') ? (
+                              ) : file.type.includes("word") ? (
                                 <svg
                                   className="h-6 w-6 text-blue-500"
                                   xmlns="http://www.w3.org/2000/svg"
@@ -564,15 +557,14 @@ const AdminDashboard: React.FC = () => {
                             >
                               {file.translatedContent ? "Edit" : "Translate"}
                             </Link>
-                            <a 
-                              href={file.url} 
-                              target="_blank" 
+                            <a
+                              href={file.url}
+                              target="_blank"
                               rel="noopener noreferrer"
                               className="text-gray-600 hover:text-gray-900"
                             >
                               View
                             </a>
-                           
                           </div>
                         </td>
                       </tr>
