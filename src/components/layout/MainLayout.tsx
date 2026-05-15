@@ -1,6 +1,6 @@
 // src/components/layout/MainLayout.tsx
 import React, { useState, ReactNode } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { NavigationProvider } from '../../contexts/NavigationContext';
 import Header from './Header';
@@ -13,6 +13,8 @@ interface MainLayoutProps {
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const { currentUser } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+  const isTranslationPage = location.pathname.includes('/translation/');
   
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -54,11 +56,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         </div>
         
         {/* Desktop sidebar */}
-        <div className="hidden md:flex md:flex-shrink-0">
-          <div className="flex flex-col w-64">
-            <Sidebar onClose={() => {}} showOrgManagement={showOrgManagement} />
+        {!isTranslationPage && (
+          <div className="hidden md:flex md:flex-shrink-0">
+            <div className="flex flex-col w-64">
+              <Sidebar onClose={() => {}} showOrgManagement={showOrgManagement} />
+            </div>
           </div>
-        </div>
+        )}
         
         {/* Main content */}
         <div className="flex flex-col w-0 flex-1 overflow-hidden">
@@ -69,8 +73,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             showAdminLink={showAdminLink}
           />
           
-          <main className="flex-1 relative overflow-y-auto focus:outline-none">
-            <div className="py-6 px-4 sm:px-6 md:px-8">
+          <main className="flex-1 relative overflow-y-auto focus:outline-none bg-white">
+            <div className={isTranslationPage ? "h-full p-4" : "py-6 px-4 sm:px-6 md:px-8"}>
               {children ? children : <Outlet />}
             </div>
           </main>

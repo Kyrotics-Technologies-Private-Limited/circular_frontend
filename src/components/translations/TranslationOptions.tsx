@@ -33,14 +33,24 @@ const TranslationOptions: React.FC<TranslationOptionsProps> = ({
 }) => {
   // Default languages if API fails to load
   const defaultLanguages: LanguageOption[] = [
+    { code: "hi", name: "Hindi" },
+    { code: "bn", name: "Bengali" },
+    { code: "ta", name: "Tamil" },
+    { code: "te", name: "Telugu" },
+    { code: "mr", name: "Marathi" },
+    { code: "gu", name: "Gujarati" },
+    { code: "kn", name: "Kannada" },
+    { code: "ml", name: "Malayalam" },
+    { code: "pa", name: "Punjabi" },
+    { code: "or", name: "Odia" },
+    { code: "as", name: "Assamese" },
+    { code: "ur", name: "Urdu" },
     { code: "es", name: "Spanish" },
     { code: "fr", name: "French" },
     { code: "de", name: "German" },
-    { code: "it", name: "Italian" },
-    { code: "pt", name: "Portuguese" },
     { code: "ja", name: "Japanese" },
     { code: "zh", name: "Chinese" },
-    { code: "ru", name: "Russian" },
+    { code: "ar", name: "Arabic" },
   ];
 
   // Use API languages or fall back to defaults
@@ -52,88 +62,80 @@ const TranslationOptions: React.FC<TranslationOptionsProps> = ({
   };
 
   return (
-    <div className="w-full bg-white border border-gray-300 rounded-md p-4">
-      <div className="flex flex-wrap items-center gap-4 w-full">
-        <div className="flex-1 min-w-[200px]">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Source Language
-          </label>
-          <Select
-            value={sourceLanguage}
-            onValueChange={onSourceLanguageChange}
-            disabled={translating}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue>{getLanguageName(sourceLanguage)}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {displayLanguages.map((language) => (
-                <SelectItem key={language.code} value={language.code}>
-                  {language.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex-1 min-w-[200px]">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Target Language
-          </label>
-          <Select
-            value={selectedLanguage}
-            onValueChange={onLanguageChange}
-            disabled={translating}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue>{getLanguageName(selectedLanguage)}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {displayLanguages.map((language) => (
-                <SelectItem key={language.code} value={language.code}>
-                  {language.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-end min-w-[120px] pb-[2px]">
-          <Button
-            onClick={onTranslate}
-            disabled={translating || !hasOriginalContent}
-            className="w-full inline-flex items-center justify-center px-4 py-2 mt-6 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400"
-          >
-            {translating ? (
-              <>
-                <svg
-                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                Translating...
-              </>
-            ) : (
-              "Translate"
-            )}
-          </Button>
-        </div>
+    <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2">
+        <span className="text-xs font-medium text-gray-700 whitespace-nowrap hidden md:inline">Source:</span>
+        <Select
+          value={sourceLanguage}
+          onValueChange={onSourceLanguageChange}
+          disabled={translating}
+        >
+          <SelectTrigger className="w-[110px] h-8 text-xs">
+            <SelectValue>{getLanguageName(sourceLanguage)}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {displayLanguages.map((language) => (
+              <SelectItem key={language.code} value={language.code} className="text-xs">
+                {language.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
+
+      <div className="flex items-center space-x-2">
+        <span className="text-xs font-medium text-gray-700 whitespace-nowrap hidden md:inline">Target:</span>
+        <Select
+          value={selectedLanguage}
+          onValueChange={onLanguageChange}
+          disabled={translating}
+        >
+          <SelectTrigger className="w-[110px] h-8 text-xs">
+            <SelectValue>{getLanguageName(selectedLanguage)}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {displayLanguages.map((language) => (
+              <SelectItem key={language.code} value={language.code} className="text-xs">
+                {language.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Button
+        onClick={onTranslate}
+        disabled={translating || !hasOriginalContent}
+        className="inline-flex items-center justify-center px-3 h-8 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400"
+      >
+        {translating ? (
+          <>
+            <svg
+              className="animate-spin -ml-1 mr-2 h-3 w-3 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            Translating...
+          </>
+        ) : (
+          "Translate"
+        )}
+      </Button>
     </div>
   );
 };

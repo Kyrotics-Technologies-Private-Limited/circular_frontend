@@ -1,7 +1,5 @@
 // src/components/translation/SplitView.tsx
 import React, { useState, useEffect } from 'react';
-// import ReactQuill from 'react-quill';
-// import 'react-quill/dist/quill.snow.css';
 
 interface SplitViewProps {
   originalContent: string;
@@ -14,14 +12,12 @@ interface SplitViewProps {
 
 const SplitView: React.FC<SplitViewProps> = ({
   originalContent,
-  // translatedContent,
-  // onTranslatedContentChange,
-  // quillRef,
-  // quillModules,
-  // quillFormats
+  translatedContent,
+  onTranslatedContentChange,
 }) => {
-  const [splitRatio, setSplitRatio] = useState(50); // Default 50/50 split
+  const [splitRatio, setSplitRatio] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   
   // Handle split view resizing
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -41,7 +37,6 @@ const SplitView: React.FC<SplitViewProps> = ({
       const leftWidth = e.clientX - containerRect.left;
       const containerWidth = containerRect.width;
       
-      // Calculate percentage (constrained between 30% and 70%)
       let percentage = (leftWidth / containerWidth) * 100;
       percentage = Math.max(30, Math.min(70, percentage));
       
@@ -50,29 +45,31 @@ const SplitView: React.FC<SplitViewProps> = ({
     
     const handleMouseUp = () => {
       setIsDragging(false);
+      document.body.style.userSelect = '';
     };
     
     if (isDragging) {
+      document.body.style.userSelect = 'none';
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
     }
     
     return () => {
+      document.body.style.userSelect = '';
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging]);
   
   return (
-    <div id="split-container" className="w-full h-screen flex">
+    <div id="split-container" className="w-full h-full flex">
       {/* Original content pane */}
       <div 
-        className="h-full overflow-auto border border-gray-300 rounded-md bg-gray-50"
-        style={{ width: `${splitRatio}%` }}
+        className="h-full overflow-auto border border-gray-300 rounded-md bg-gray-50 transition-none"
+        style={{ width: `${splitRatio}%`, pointerEvents: isDragging ? 'none' : 'auto' }}
       >
         <div className="p-1 bg-gray-200 text-gray-700 text-sm font-medium">Original Document</div>
-        {/* <div className="p-4 whitespace-pre-wrap">{originalContent}</div> */}
-        <iframe src={originalContent} width="100%" height="100%"></iframe>
+        <iframe src={originalContent || undefined} width="100%" height="100%"></iframe>
       </div>
       
       {/* Resizer */}
@@ -85,22 +82,42 @@ const SplitView: React.FC<SplitViewProps> = ({
         <div className="w-1 h-8 bg-gray-400 rounded"></div>
       </div>
       
-      {/* Translated content pane (editable) */}
+      {/* Translated content pane */}
       <div 
-        className="h-full overflow-auto border border-gray-300 rounded-md"
-        style={{ width: `${100 - splitRatio}%` }}
+        className="h-full overflow-auto border border-gray-300 rounded-md flex flex-col transition-none"
+        style={{ width: `${100 - splitRatio}%`, pointerEvents: isDragging ? 'none' : 'auto' }}
       >
-        <div className="p-1 bg-gray-200 text-gray-700 text-sm font-medium">Translated Document</div>
-        <div className="h-[calc(100%-30px)]">
-          {/* <ReactQuill
-            ref={quillRef}
-            theme="snow"
-            value={translatedContent}
-            onChange={onTranslatedContentChange}
-            modules={quillModules}
-            formats={quillFormats}
-            className="h-full"
-          /> */}
+        <div className="p-1 bg-gray-200 text-gray-700 text-sm font-medium flex items-center justify-between">
+          <span>Translated Document</span>
+          {translatedContent && (
+            <button
+              onClick={() => setIsEditMode(!isEditMode)}
+              className="px-2 py-0.5 text-xs rounded bg-white border border-gray-300 hover:bg-gray-100 transition-colors"
+            >
+              {isEditMode ? '👁 Preview' : '✏️ Edit HTML'}
+            </button>
+          )}
+        </div>
+        <div className="flex-1 overflow-auto">
+          {isEditMode ? (
+            /* Edit mode — raw HTML source editing */
+            <textarea
+              value={translatedContent}
+              onChange={(e) => onTranslatedContentChange(e.target.value)}
+              placeholder="Translated content will appear here..."
+              className="w-full h-full p-4 resize-none border-none outline-none text-sm leading-relaxed font-mono bg-gray-50"
+              style={{ minHeight: '100%' }}
+            />
+          ) : (
+            /* Preview mode — rendered HTML */
+            <div
+              className="p-4 prose prose-sm max-w-none"
+              style={{ minHeight: '100%' }}
+              dangerouslySetInnerHTML={{
+                __html: translatedContent || '<p class="text-gray-400">Translated content will appear here...</p>'
+              }}
+            />
+          )}
         </div>
       </div>
     </div>
