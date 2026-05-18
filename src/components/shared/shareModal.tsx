@@ -18,7 +18,6 @@ import {
 } from "../../services/share.service";
 import { useOrganization } from "../../contexts/OrganizationContext";
 import { FileItem, Folder } from "../../types/File";
-import { Button } from "@/components/ui/button";
 import Loader from "@/components/ui/loader";
 
 interface ShareModalProps {

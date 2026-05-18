@@ -362,7 +362,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "../../services/auth.service";
 import { useAuth } from "../../contexts/AuthContext";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import Loader from "@/components/ui/loader";
 
 const Register: React.FC = () => {

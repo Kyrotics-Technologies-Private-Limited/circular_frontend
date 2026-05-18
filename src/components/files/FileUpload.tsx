@@ -2,7 +2,6 @@
 import React, { useState, useRef } from "react";
 import { uploadFile } from "../../services/file.service";
 import { useOrganization } from "../../contexts/OrganizationContext";
-import { Button } from "@/components/ui/button";
 import Loader from "@/components/ui/loader";
 
 interface FileUploadProps {

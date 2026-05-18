@@ -6,9 +6,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getFileById } from "../../services/file.service";
 import {
   translateFile,
-  updateTranslatedContent,
   getSupportedLanguages,
-  downloadTranslatedFile,
 } from "../../services/translation.service";
 import { FileItem } from "../../types/File";
 import { LanguageOption } from "../../types/Translation";
@@ -31,7 +29,6 @@ const TranslationEditor: React.FC = () => {
   const [languages, setLanguages] = useState<LanguageOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [translating, setTranslating] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -105,34 +102,6 @@ const TranslationEditor: React.FC = () => {
       setError(err.message || "Failed to translate file");
     } finally {
       setTranslating(false);
-    }
-  };
-
-  // Handle save changes
-  const handleSaveChanges = async () => {
-    if (!fileId) return;
-
-    try {
-      setError(null);
-      setSuccessMessage(null);
-      setSaving(true);
-
-      await updateTranslatedContent(fileId, translatedContent);
-
-      setSuccessMessage("Changes saved successfully");
-
-      // Update file data
-      if (file) {
-        setFile({
-          ...file,
-          translatedContent,
-        });
-      }
-    } catch (err: any) {
-      console.error("Error saving changes:", err);
-      setError(err.message || "Failed to save changes");
-    } finally {
-      setSaving(false);
     }
   };
 
