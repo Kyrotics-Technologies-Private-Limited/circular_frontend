@@ -7,6 +7,18 @@ import FileCard from "../files/FileCard";
 import { Button } from "../ui/button";
 import Loader from "@/components/ui/loader";
 
+/** Format an ISO date or Date into a readable string like "May 19, 2026" */
+const formatDate = (value: string | Date | undefined | null): string => {
+  if (!value) return "";
+  const d = typeof value === "string" ? new Date(value) : value;
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
 const SharedDirectory: React.FC = () => {
   const navigate = useNavigate();
   const {
@@ -162,10 +174,10 @@ const SharedDirectory: React.FC = () => {
                   {sharedFolders.map((folder) => (
                     <div
                       key={folder.id}
-                      className="relative rounded-lg border border-gray-300 bg-white p-6 shadow-sm hover:shadow cursor-pointer"
+                      className="relative rounded-lg border border-gray-300 bg-white p-6 shadow-sm hover:shadow cursor-pointer transition-shadow"
                       onClick={() => handleFolderClick(folder)}
                     >
-                      <div className="flex items-center">
+                      <div className="flex items-start">
                         <div className="flex-shrink-0">
                           <svg
                             className="h-10 w-10 text-yellow-500"
@@ -182,22 +194,44 @@ const SharedDirectory: React.FC = () => {
                             />
                           </svg>
                         </div>
-                        <div className="ml-3 flex-1">
+                        <div className="ml-3 flex-1 min-w-0">
                           <h3 className="text-sm font-medium text-gray-900 truncate">
                             {folder.name}
                           </h3>
-                          <div className="flex items-center mt-1">
-                            <p className="text-xs text-gray-500 mr-2">
-                              Shared Folder
-                            </p>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
-                              {folder.permissions && folder.userId
+
+                          <div className="flex flex-col text-[11px] text-gray-500 mt-1">
+                            <div className="flex items-center max-w-full">
+                              <svg className="w-3 h-3 mr-1 text-indigo-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                              </svg>
+                              <span className="truncate font-medium text-indigo-600" title={folder.sharedByName || ""}>
+                                {folder.sharedByName ? folder.sharedByName : "Shared Folder"}
+                              </span>
+                            </div>
+                            {folder.sharedAt && (
+                              <span className="text-gray-400 mt-0.5 ml-4">
+                                {formatDate(folder.sharedAt)}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Permission badge */}
+                          <div className="mt-2 flex items-center">
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-700">
+                              {folder.permissions &&
+                              folder.userId &&
+                              (
+                                folder.permissions as unknown as Record<
+                                  string,
+                                  string
+                                >
+                              )[folder.userId]
                                 ? (
                                     folder.permissions as unknown as Record<
                                       string,
                                       string
                                     >
-                                  )[folder.userId] || "view"
+                                  )[folder.userId]
                                 : "view"}
                             </span>
                           </div>

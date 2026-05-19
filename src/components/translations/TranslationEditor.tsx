@@ -57,7 +57,7 @@ const TranslationEditor: React.FC = () => {
         // if (fileData.targetLanguage) {
         //   setTargetLanguage(fileData.targetLanguage);
         // }
-        setTargetLanguage(languagesData[0].name || "Hindi"); // Default to Spanish if not set
+        setTargetLanguage(languagesData[0].name || "Bengali"); // Default to Spanish if not set
 
         setLanguages(languagesData);
       } catch (err: any) {

@@ -341,21 +341,37 @@ const FileCard: React.FC<FileCardProps> = ({
           <h3 className="text-sm font-medium text-gray-900 truncate max-w-full">
             {file.name}
           </h3>
-          <div className="flex flex-wrap items-center mt-1">
-            <p className="text-xs text-gray-500 mr-2">
-              {file.size ? (file.size / 1024).toFixed(0) + " KB" : ""}
-            </p>
+          <div className="flex flex-col mt-1.5 space-y-1">
+            <div className="flex items-center text-xs text-gray-500">
+              <span>{file.size ? (file.size / 1024).toFixed(0) + " KB" : "0 KB"}</span>
+              
+              {file.isPublic && (
+                <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700 border border-green-200">
+                  Public
+                </span>
+              )}
+            </div>
 
             {(isShared || file.isShared) && (
-              <span className="inline-flex items-center mr-2 px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                Shared
-              </span>
-            )}
-
-            {file.isPublic && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                Public
-              </span>
+              <div className="flex flex-col text-[11px] text-gray-500 mt-0.5">
+                <div className="flex items-center max-w-full">
+                  <svg className="w-3 h-3 mr-1 text-indigo-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                  </svg>
+                  <span className="truncate font-medium text-indigo-600" title={file.sharedByName || ""}>
+                    {file.sharedByName ? file.sharedByName : "Shared"}
+                  </span>
+                </div>
+                {file.sharedAt && (
+                  <span className="text-gray-400 mt-0.5 ml-4">
+                    {new Date(file.sharedAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </span>
+                )}
+              </div>
             )}
           </div>
         </div>

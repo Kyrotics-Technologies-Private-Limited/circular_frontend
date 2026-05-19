@@ -24,6 +24,8 @@ export interface FileItem {
   lastUpdatedAt: Date;
   permissions: Permission[];
   lastUpdatedBy?: string;
+  sharedByName?: string;
+  sharedAt?: string;
 }
 
 export interface Folder {
@@ -39,4 +41,6 @@ export interface Folder {
   createdAt: Date;
   permissions: Permission[];
   lastUpdatedAt: Date;
+  sharedByName?: string;
+  sharedAt?: string;
 }

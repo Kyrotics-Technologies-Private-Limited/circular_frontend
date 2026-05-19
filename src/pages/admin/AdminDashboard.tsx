@@ -10,6 +10,16 @@ import { getAllOrganizations } from "../../services/organization.service";
 import { getAllRequests } from "../../services/request.service";
 import { Button } from "@/components/ui/button";
 import Loader from "@/components/ui/loader";
+const parseDate = (d: any): Date => {
+  if (!d) return new Date();
+  if (d instanceof Date) return d;
+  if (typeof d === "object") {
+    if ("_seconds" in d) return new Date(d._seconds * 1000);
+    if ("seconds" in d) return new Date(d.seconds * 1000);
+  }
+  return new Date(d);
+};
+
 
 const AdminDashboard: React.FC = () => {
   const { currentUser } = useAuth();
@@ -60,8 +70,8 @@ const AdminDashboard: React.FC = () => {
           const sorted = [...files]
             .sort((a, b) => {
               return (
-                new Date(b.uploadedAt).getTime() -
-                new Date(a.uploadedAt).getTime()
+                parseDate(b.uploadedAt).getTime() -
+                parseDate(a.uploadedAt).getTime()
               );
             })
             .slice(0, 5);
@@ -350,7 +360,7 @@ const AdminDashboard: React.FC = () => {
                       </p>
                       <div className="ml-2 flex-shrink-0 flex">
                         <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                          {formatTimeAgo(new Date(request.createdAt))}
+                          {formatTimeAgo(parseDate(request.createdAt))}
                         </p>
                       </div>
                     </div>
@@ -535,7 +545,7 @@ const AdminDashboard: React.FC = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-500">
-                            {new Date(file.uploadedAt).toLocaleDateString()}
+                            {parseDate(file.uploadedAt).toLocaleDateString()}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
