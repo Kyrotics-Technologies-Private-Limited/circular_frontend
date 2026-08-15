@@ -1,8 +1,9 @@
 // src/components/files/BreadcrumbNav.tsx
 import React from "react";
 import { Folder } from "../../types/File";
-import { CornerUpLeft } from "lucide-react";
+import { Home, ChevronRight, CornerUpLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface BreadcrumbNavProps {
   currentPath: Folder[];
@@ -26,62 +27,53 @@ const BreadcrumbNav: React.FC<BreadcrumbNavProps> = ({
   };
 
   return (
-    <nav className="flex items-center" aria-label="Breadcrumb">
+    <nav className="flex items-center gap-1" aria-label="Breadcrumb">
       {currentPath.length > 0 && (
         <Button
-          variant="link"
+          variant="ghost"
+          size="icon"
           onClick={handleBackClick}
-          className="text-gray-400 hover:text-gray-500 mr-2"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground mr-1"
+          aria-label="Go back"
         >
-          <CornerUpLeft />
+          <CornerUpLeft className="h-4 w-4" />
         </Button>
       )}
-      <ol className="flex items-center ">
+      <ol className="flex items-center gap-1 flex-wrap">
         <li>
-          <div>
-            <Button
-              variant="link"
-              onClick={onRootClick}
-              className="text-gray-400 hover:text-gray-500"
-            >
-              <svg
-                className="flex-shrink-0 h-5 w-5"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-              </svg>
-              <span className="sr-only">Home</span>
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            onClick={onRootClick}
+            className={cn(
+              "h-8 px-2 text-muted-foreground hover:text-foreground",
+              currentPath.length === 0 && "text-foreground font-medium"
+            )}
+          >
+            <Home className="h-4 w-4" />
+            <span className="sr-only">Home</span>
+          </Button>
         </li>
 
-        {currentPath.map((folder, index) => (
-          <li key={folder.id}>
-            <div className="flex items-center">
-              <svg
-                className="flex-shrink-0 h-5 w-5 text-gray-300"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
-              </svg>
+        {currentPath.map((folder, index) => {
+          const isLast = index === currentPath.length - 1;
+          return (
+            <li key={folder.id} className="flex items-center gap-1">
+              <ChevronRight className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" />
               <Button
-                variant="link"
+                variant="ghost"
                 onClick={() => onFolderClick(folder)}
-                className={` text-sm font-medium ${
-                  index === currentPath.length - 1
-                    ? "text-indigo-600 hover:text-indigo-700"
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
+                className={cn(
+                  "h-8 px-2 text-sm max-w-[220px] truncate",
+                  isLast
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
               >
-                {folder.name}
+                <span className="truncate">{folder.name}</span>
               </Button>
-            </div>
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ol>
     </nav>
   );

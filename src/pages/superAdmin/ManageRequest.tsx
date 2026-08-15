@@ -1,8 +1,12 @@
 // src/components/admin/ManageRequests.tsx
 import React, { useState, useEffect } from 'react';
-import { Check, X, Eye, AlertTriangle, Clock, Search } from 'lucide-react';
+import { Check, X, Eye, AlertTriangle, Clock, Search, Building2, User as UserIcon, FileText } from 'lucide-react';
 import { Request, getAllRequests, approveRequest, rejectRequest } from '../../services/request.service';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Modal } from '@/components/ui/modal';
+import Loader from '@/components/ui/loader';
 
 const ManageRequests: React.FC = () => {
   const [requests, setRequests] = useState<Request[]>([]);
@@ -17,7 +21,6 @@ const ManageRequests: React.FC = () => {
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  // Fetch requests
   useEffect(() => {
     const fetchRequests = async () => {
       try {
@@ -35,14 +38,11 @@ const ManageRequests: React.FC = () => {
     fetchRequests();
   }, []);
 
-  // Filter and search requests
   const filteredRequests = requests.filter(request => {
-    // Apply status filter
     if (filter !== 'all' && request.status !== filter) {
       return false;
     }
-    
-    // Apply search term
+
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       return (
@@ -50,7 +50,7 @@ const ManageRequests: React.FC = () => {
         request.CIN.toLowerCase().includes(term)
       );
     }
-    
+
     return true;
   });
 
@@ -59,16 +59,14 @@ const ManageRequests: React.FC = () => {
       setError(null);
       await approveRequest(requestId);
 
-      // Update local state
-      setRequests(prevRequests => 
-        prevRequests.map(req => 
+      setRequests(prevRequests =>
+        prevRequests.map(req =>
           req.id === requestId ? { ...req, status: 'approved', processedAt: new Date() } : req
         )
       );
 
       setSuccess('Organization request approved successfully');
-      
-      // Clear success message after 3 seconds
+
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error approving request');
@@ -88,12 +86,11 @@ const ManageRequests: React.FC = () => {
       setError(null);
       await rejectRequest(selectedRequestId, rejectionReason);
 
-      // Update local state
-      setRequests(prevRequests => 
-        prevRequests.map(req => 
-          req.id === selectedRequestId ? { 
-            ...req, 
-            status: 'rejected', 
+      setRequests(prevRequests =>
+        prevRequests.map(req =>
+          req.id === selectedRequestId ? {
+            ...req,
+            status: 'rejected',
             processedAt: new Date(),
             rejectionReason
           } : req
@@ -103,8 +100,7 @@ const ManageRequests: React.FC = () => {
       setShowRejectModal(false);
       setSelectedRequestId(null);
       setSuccess('Organization request rejected successfully');
-      
-      // Clear success message after 3 seconds
+
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error rejecting request');
@@ -117,299 +113,303 @@ const ManageRequests: React.FC = () => {
     setShowViewModal(true);
   };
 
-  // Format date
-  // const formatDate = (date: Date | null) => {
-  //   if (!date) return 'N/A';
-  //   return new Intl.DateTimeFormat('en-US', {
-  //     year: 'numeric',
-  //     month: 'short',
-  //     day: 'numeric',
-  //     hour: '2-digit',
-  //     minute: '2-digit'
-  //   }).format(date);
-  // };
-
-  // Get status badge
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'approved':
         return (
-          <span className="flex items-center px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
-            <Check className="h-3 w-3 mr-1" />
+          <Badge variant="success" className="gap-1.5">
+            <Check className="h-3 w-3" />
             Approved
-          </span>
+          </Badge>
         );
       case 'rejected':
         return (
-          <span className="flex items-center px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">
-            <X className="h-3 w-3 mr-1" />
+          <Badge variant="destructive" className="gap-1.5">
+            <X className="h-3 w-3" />
             Rejected
-          </span>
+          </Badge>
         );
       case 'pending':
       default:
         return (
-          <span className="flex items-center px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">
-            <Clock className="h-3 w-3 mr-1" />
+          <Badge variant="warning" className="gap-1.5">
+            <Clock className="h-3 w-3" />
             Pending
-          </span>
+          </Badge>
         );
     }
   };
 
+  const selectClass =
+    "flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+
+  const actionButtonClass =
+    "h-8 w-8 p-0 rounded-lg inline-flex items-center justify-center";
+
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Manage Organization Requests</h1>
-        <p className="text-gray-600">Review and process organization registration requests</p>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-foreground">Manage Organization Requests</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Review and process organization registration requests</p>
       </div>
 
-      {/* Error and success messages */}
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex justify-between items-center">
-          <span className="flex items-center">
-            <AlertTriangle className="h-5 w-5 mr-2" />
-            {error}
-          </span>
-          <Button onClick={() => setError(null)}>
-            <X className="h-5 w-5" />
-          </Button>
+        <div className="rounded-xl bg-red-50 p-4">
+          <div className="flex items-start">
+            <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+            <h3 className="text-sm font-medium text-red-800 ml-2">{error}</h3>
+            <button
+              onClick={() => setError(null)}
+              className="ml-auto text-red-400 hover:text-red-600"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       )}
 
       {success && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 flex justify-between items-center">
-          <span className="flex items-center">
-            <Check className="h-5 w-5 mr-2" />
-            {success}
-          </span>
-          <Button onClick={() => setSuccess(null)}>
-            <X className="h-5 w-5" />
-          </Button>
+        <div className="rounded-xl bg-green-50 p-4">
+          <div className="flex items-start">
+            <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+            <h3 className="text-sm font-medium text-green-800 ml-2">{success}</h3>
+            <button
+              onClick={() => setSuccess(null)}
+              className="ml-auto text-green-400 hover:text-green-600"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Filters and search */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="relative md:w-1/2">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
+      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-border flex flex-col md:flex-row gap-3">
+          <div className="relative md:w-1/2">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search by organization name or CIN"
+              className="pl-9"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-          <input
-            type="text"
-            placeholder="Search by organization name or CIN"
-            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <div className="md:w-1/4">
+            <select
+              className={selectClass}
+              value={filter}
+              onChange={(e) => setFilter(e.target.value as any)}
+            >
+              <option value="all">All Requests</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
         </div>
-        <div className="md:w-1/4">
-          <select
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value as any)}
-          >
-            <option value="all">All Requests</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-          </select>
-        </div>
+
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader />
+          </div>
+        ) : filteredRequests.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            No organization requests found
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-border">
+              <thead className="bg-muted/40">
+                <tr>
+                  {["Organization", "CIN", "Status", "Requested On", "Actions"].map((h, i) => (
+                    <th
+                      key={h}
+                      scope="col"
+                      className={`px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider ${
+                        i === 4 ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {filteredRequests.map((request) => (
+                  <tr key={request.id} className="hover:bg-muted/40 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary flex-shrink-0">
+                          <Building2 className="h-4 w-4" />
+                        </div>
+                        <div className="ml-3 font-medium text-foreground">{request.organizationName}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-muted-foreground">
+                      {request.CIN}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {getStatusBadge(request.status)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-muted-foreground">
+                      {request.createdAt
+                        ? new Date(request.createdAt).toLocaleDateString()
+                        : '—'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end gap-1.5">
+                        <Button
+                          onClick={() => openViewModal(request)}
+                          variant="outline"
+                          className={actionButtonClass}
+                          title="View Details"
+                        >
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+
+                        {request.status === 'pending' && (
+                          <>
+                            <Button
+                              onClick={() => handleApprove(request.id)}
+                              variant="outline"
+                              className={actionButtonClass}
+                              title="Approve"
+                            >
+                              <Check className="h-4 w-4 text-green-600" />
+                            </Button>
+                            <Button
+                              onClick={() => openRejectModal(request.id)}
+                              variant="outline"
+                              className={actionButtonClass}
+                              title="Reject"
+                            >
+                              <X className="h-4 w-4 text-red-600" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
-      {/* Requests table */}
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <Modal
+        open={showRejectModal}
+        onClose={() => setShowRejectModal(false)}
+        title="Reject Organization Request"
+        description="Please provide a reason for rejecting this organization registration request."
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setShowRejectModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleReject}
+              disabled={!rejectionReason.trim()}
+            >
+              <X className="h-4 w-4 mr-1" />
+              Reject Request
+            </Button>
+          </>
+        }
+      >
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-1.5">Rejection Reason</label>
+          <textarea
+            rows={3}
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            value={rejectionReason}
+            onChange={(e) => setRejectionReason(e.target.value)}
+            placeholder="e.g., Invalid CIN, Incomplete information, etc."
+          />
         </div>
-      ) : filteredRequests.length === 0 ? (
-        <div className="text-center py-10 text-gray-600">
-          No organization requests found
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Organization
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  CIN
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Requested On
-                </th>
-                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredRequests.map((request) => (
-                <tr key={request.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="font-medium text-gray-900">{request.organizationName}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                    {request.CIN}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(request.status)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                    {/* {formatDate(request.createdAt)} */}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex justify-end space-x-2">
-                      <Button
-                        onClick={() => openViewModal(request)}
-                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded"
-                        title="View Details"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      
-                      {request.status === 'pending' && (
-                        <>
-                          <Button
-                            onClick={() => handleApprove(request.id)}
-                            className="bg-green-100 hover:bg-green-200 text-green-700 p-2 rounded"
-                            title="Approve"
-                          >
-                            <Check className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            onClick={() => openRejectModal(request.id)}
-                            className="bg-red-100 hover:bg-red-200 text-red-700 p-2 rounded"
-                            title="Reject"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      </Modal>
 
-      {/* Rejection modal */}
-      {showRejectModal && (
-        <div className="fixed inset-0 bg-gray-900/70 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Reject Organization Request</h2>
-            <p className="text-gray-600 mb-4">
-              Please provide a reason for rejecting this organization registration request.
-            </p>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-medium mb-1">Rejection Reason</label>
-              <textarea
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
-                placeholder="e.g., Invalid CIN, Incomplete information, etc."
-              />
+      <Modal
+        open={showViewModal && !!selectedRequest}
+        onClose={() => setShowViewModal(false)}
+        title="Organization Request Details"
+        description="Full details of the organization registration request"
+        footer={
+          <Button variant="outline" onClick={() => setShowViewModal(false)}>
+            Close
+          </Button>
+        }
+      >
+        {selectedRequest && (
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground">Status</h3>
+              <div className="mt-1">{getStatusBadge(selectedRequest.status)}</div>
             </div>
-            
-            <div className="flex justify-end space-x-3">
-              <Button
-                onClick={() => setShowRejectModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleReject}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center"
-                disabled={!rejectionReason.trim()}
-              >
-                <X className="h-4 w-4 mr-1" />
-                Reject Request
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* View request details modal */}
-      {showViewModal && selectedRequest && (
-        <div className="fixed inset-0 bg-gray-900/70 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-lg">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">Organization Request Details</h2>
-              <Button onClick={() => setShowViewModal(false)} className="bg-white hover:bg-white hover:scale-110 text-indigo-400 hover:text-indigo-600">
-                <X className="h-6 w-6" />
-              </Button>
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground">Organization Name</h3>
+              <p className="mt-1 flex items-center text-foreground">
+                <Building2 className="h-4 w-4 mr-1.5 text-muted-foreground" />
+                {selectedRequest.organizationName}
+              </p>
             </div>
-            
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Status</h3>
-                <div className="mt-1">{getStatusBadge(selectedRequest.status)}</div>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Organization Name</h3>
-                <p className="mt-1 text-gray-900">{selectedRequest.organizationName}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">CIN</h3>
-                <p className="mt-1 text-gray-900">{selectedRequest.CIN}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Requested On</h3>
-                {/* <p className="mt-1 text-gray-900">{formatDate(selectedRequest.createdAt)}</p> */}
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Organization ID</h3>
-                <p className="mt-1 text-gray-900">{selectedRequest.orgId}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Owner ID</h3>
-                <p className="mt-1 text-gray-900">{selectedRequest.ownerUid}</p>
-              </div>
-              
-              {selectedRequest.status !== 'pending' && (
-                <>
+
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground">CIN</h3>
+              <p className="mt-1 text-foreground">{selectedRequest.CIN}</p>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground">Requested On</h3>
+              <p className="mt-1 flex items-center text-foreground">
+                <Clock className="h-4 w-4 mr-1.5 text-muted-foreground" />
+                {selectedRequest.createdAt
+                  ? new Date(selectedRequest.createdAt).toLocaleString()
+                  : '—'}
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground">Organization ID</h3>
+              <p className="mt-1 text-foreground">{selectedRequest.orgId || '—'}</p>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground">Owner ID</h3>
+              <p className="mt-1 flex items-center text-foreground">
+                <UserIcon className="h-4 w-4 mr-1.5 text-muted-foreground" />
+                {selectedRequest.ownerUid}
+              </p>
+            </div>
+
+            {selectedRequest.status !== 'pending' && (
+              <>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Processed On</h3>
+                  <p className="mt-1 text-foreground">
+                    {selectedRequest.processedAt
+                      ? new Date(selectedRequest.processedAt).toLocaleString()
+                      : '—'}
+                  </p>
+                </div>
+
+                {selectedRequest.status === 'rejected' && selectedRequest.rejectionReason && (
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500">Processed On</h3>
-                    {/* <p className="mt-1 text-gray-900">{formatDate(selectedRequest.processedAt)}</p> */}
+                    <h3 className="text-sm font-medium text-muted-foreground">Rejection Reason</h3>
+                    <p className="mt-1 flex items-start text-foreground">
+                      <FileText className="h-4 w-4 mr-1.5 mt-0.5 text-muted-foreground" />
+                      {selectedRequest.rejectionReason}
+                    </p>
                   </div>
-                  
-                  {selectedRequest.status === 'rejected' && selectedRequest.rejectionReason && (
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Rejection Reason</h3>
-                      <p className="mt-1 text-gray-900">{selectedRequest.rejectionReason}</p>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-            
-            <div className="mt-6 flex justify-end">
-              <Button 
-                onClick={() => setShowViewModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200"
-              >
-                Close
-              </Button>
-            </div>
+                )}
+              </>
+            )}
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
     </div>
   );
 };

@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Edit, Trash2, X, Save, RefreshCw } from 'lucide-react';
+import { Search, Plus, Edit, Save, RefreshCw, User as UserIcon, AlertCircle, Ban, CircleCheckBig } from 'lucide-react';
 import { getAllUsers, disableUser, enableUser } from '../../services/auth.service';
 import { getAllOrganizations, getOrganizationUsers } from '../../services/organization.service';
 import { toast } from 'react-toastify';
 import { User } from '../../types/User';
 import { Organization } from '../../types/Organization';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Modal } from '@/components/ui/modal';
+import Loader from '@/components/ui/loader';
 
 const ManageUsers: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -21,7 +25,7 @@ const ManageUsers: React.FC = () => {
   const [formData, setFormData] = useState<Partial<User>>({
     name: '',
     email: '',
-    role: 'user', // Replace with a valid UserRole value or undefined
+    role: 'user',
     status: 'approved',
     userType: 'individual',
     orgId: ''
@@ -29,17 +33,14 @@ const ManageUsers: React.FC = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
 
-  // Fetch organizations and users from API
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        
-        // Fetch organizations
+
         const orgsData = await getAllOrganizations();
         setOrganizations(orgsData);
-        
-        // Fetch all users
+
         const usersData = await getAllUsers();
         if (Array.isArray(usersData)) {
           setUsers(usersData);
@@ -61,34 +62,29 @@ const ManageUsers: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Filter and search logic
     let result = [...users];
-    
-    // Apply user type filter
+
     if (userTypeFilter !== 'all') {
       result = result.filter(user => user.userType === userTypeFilter);
     }
-    
-    // Apply organization filter (only for organizational users)
+
     if (selectedOrgFilter !== 'all') {
-      result = result.filter(user => 
+      result = result.filter(user =>
         user.userType === 'organization' && user.orgId === selectedOrgFilter
       );
     }
-    
-    // Apply search term
+
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      result = result.filter(user => 
+      result = result.filter(user =>
         (user.name && user.name.toLowerCase().includes(term)) ||
         (user.email && user.email.toLowerCase().includes(term))
       );
     }
-    
+
     setFilteredUsers(result);
   }, [searchTerm, userTypeFilter, selectedOrgFilter, users]);
 
-  // Load organization users when selecting an organization filter
   useEffect(() => {
     const loadOrgUsers = async () => {
       if (selectedOrgFilter !== 'all') {
@@ -114,9 +110,8 @@ const ManageUsers: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    
+
     if (name === 'userType' && value === 'individual') {
-      // Clear organization related fields if switching to individual user type
       setFormData(prev => ({
         ...prev,
         [name]: value,
@@ -159,13 +154,9 @@ const ManageUsers: React.FC = () => {
 
   const handleCreateUser = async () => {
     try {
-      // This would use your API service for creating users
-      // For example: await createUser(formData);
-      
       toast.success('User created successfully');
       setShowModal(false);
-      
-      // Refresh user list after creating
+
       const updatedUsers = await getAllUsers();
       if (Array.isArray(updatedUsers)) {
         setUsers(updatedUsers);
@@ -178,15 +169,11 @@ const ManageUsers: React.FC = () => {
 
   const handleUpdateUser = async () => {
     if (!selectedUser) return;
-    
+
     try {
-      // This would use your API service for updating users
-      // For example: await updateUser(selectedUser.id, formData);
-      
       toast.success('User updated successfully');
       setShowModal(false);
-      
-      // Refresh user list after updating
+
       const updatedUsers = await getAllUsers();
       if (Array.isArray(updatedUsers)) {
         setUsers(updatedUsers);
@@ -211,13 +198,12 @@ const ManageUsers: React.FC = () => {
         await disableUser(uid);
         toast.success('User has been disabled');
       }
-      
-      // Refresh user list after status change
+
       const updatedUsers = await getAllUsers();
       if (Array.isArray(updatedUsers)) {
         setUsers(updatedUsers);
       }
-      
+
       setShowDeleteConfirm(false);
       setDeleteUserId(null);
     } catch (error) {
@@ -226,337 +212,326 @@ const ManageUsers: React.FC = () => {
     }
   };
 
-  // Format date for display
-  // const formatDate = (dateString: string | Date | undefined) => {
-  //   if (!dateString) return 'Never';
-  //   const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
-  //   return new Intl.DateTimeFormat('en-US', {
-  //     year: 'numeric', 
-  //     month: 'short', 
-  //     day: 'numeric',
-  //     hour: '2-digit',
-  //     minute: '2-digit'
-  //   }).format(date);
-  // };
+  const selectClass =
+    "flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+
+  const actionButtonClass =
+    "h-8 w-8 p-0 rounded-lg inline-flex items-center justify-center";
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Manage Users</h1>
-        <Button
-          onClick={openCreateModal}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center"
-        >
-          <Plus className="h-5 w-5 mr-1" />
+    <div className="space-y-6">
+      <div className="flex justify-between items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Manage Users</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            View and manage all users across the platform
+          </p>
+        </div>
+        <Button onClick={openCreateModal}>
+          <Plus className="h-4 w-4 mr-2" />
           Add User
         </Button>
       </div>
-      
-      {/* Filters and search */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
+
+      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-border flex flex-col md:flex-row gap-3 items-stretch">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search users..."
+              className="pl-9"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-          <input
-            type="text"
-            placeholder="Search users..."
-            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        
-        <div className="flex items-center space-x-3">
-          <select
-            value={userTypeFilter}
-            onChange={(e) => setUserTypeFilter(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">All Users</option>
-            <option value="individual">Individual</option>
-            <option value="organization">Organizational</option>
-          </select>
-          
-          {(userTypeFilter === 'organization' || userTypeFilter === 'all') && (
+
+          <div className="flex items-center gap-3">
             <select
-              value={selectedOrgFilter}
-              onChange={(e) => setSelectedOrgFilter(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={userTypeFilter}
+              onChange={(e) => setUserTypeFilter(e.target.value)}
+              className={selectClass}
             >
-              <option value="all">All Organizations</option>
-              {organizations.map(org => (
-                <option key={org.id} value={org.id}>{org.name}</option>
-              ))}
+              <option value="all">All Users</option>
+              <option value="individual">Individual</option>
+              <option value="organization">Organizational</option>
             </select>
-          )}
-          
-          <Button
-            onClick={() => {
-              setSearchTerm('');
-              setUserTypeFilter('all');
-              setSelectedOrgFilter('all');
-            }}
-            className="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded flex items-center"
-            title="Reset Filters"
-          >
-            <RefreshCw className="h-5 w-5" />
-          </Button>
+
+            {(userTypeFilter === 'organization' || userTypeFilter === 'all') && (
+              <select
+                value={selectedOrgFilter}
+                onChange={(e) => setSelectedOrgFilter(e.target.value)}
+                className={selectClass}
+              >
+                <option value="all">All Organizations</option>
+                {organizations.map(org => (
+                  <option key={org.id} value={org.id}>{org.name}</option>
+                ))}
+              </select>
+            )}
+
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSearchTerm('');
+                setUserTypeFilter('all');
+                setSelectedOrgFilter('all');
+              }}
+              title="Reset Filters"
+              className="h-10 w-10 p-0"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-      </div>
-      
-      {/* Table */}
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      ) : filteredUsers.length === 0 ? (
-        <div className="text-center py-10 text-gray-600">
-          No users match your criteria
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Type
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Organization
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Role
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Last Login
-                </th>
-                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredUsers.map((user) => (
-                <tr key={user.uid || user.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="font-medium text-gray-900">{user.name}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                    {user.email}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                      ${user.userType === 'individual' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>
-                      {user.userType === 'individual' ? 'Individual' : 'Organizational'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                    {user.orgId ? (
-                      organizations.find(org => org.id === user.orgId)?.name || 'Unknown'
-                    ) : '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                    {user.role === 'super_admin' ? 'Super Admin' : 
-                      user.role === 'admin' ? 'Admin' : 'User'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                      ${user.status === 'approved' ? 'bg-green-100 text-green-800' : 
-                        user.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                        'bg-red-100 text-red-800'}`}>
-                      {user.status === 'approved' ? 'Approved' : 
-                       user.status === 'pending' ? 'Pending' : 'Rejected'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                    {/* {formatDate(user.lastLogin)} */}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex justify-end space-x-2">
-                      <Button
-                        onClick={() => openEditModal(user)}
-                        className="bg-blue-100 hover:bg-blue-200 text-blue-700 p-2 rounded"
-                        title="Edit"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        onClick={() => confirmDelete(user.uid || user.id || '')}
-                        className="bg-red-100 hover:bg-red-200 text-red-700 p-2 rounded"
-                        title={user.disabled ? "Enable User" : "Disable User"}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </td>
+
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader />
+          </div>
+        ) : filteredUsers.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            No users match your criteria
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-border">
+              <thead className="bg-muted/40">
+                <tr>
+                  {["Name", "Email", "Type", "Organization", "Role", "Status", "Last Login", "Actions"].map((h, i) => (
+                    <th
+                      key={h}
+                      scope="col"
+                      className={`px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider ${
+                        i === 7 ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-      
-      {/* Create/Edit Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-gray-900/70 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">
-                {modalMode === 'create' ? 'Add New User' : 'Edit User'}
-              </h2>
-              <Button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-indigo-600 bg-white hover:bg-gray-50 hover:scale-110">
-                <X className="h-10 w-10" />
-              </Button>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-gray-700 text-sm font-medium mb-1">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name || ''}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-gray-700 text-sm font-medium mb-1">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email || ''}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-gray-700 text-sm font-medium mb-1">User Type</label>
-                <select
-                  name="userType"
-                  value={formData.userType || 'individual'}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="individual">Individual</option>
-                  <option value="organization">Organizational</option>
-                </select>
-              </div>
-              
-              {formData.userType === 'organization' && (
-                <div>
-                  <label className="block text-gray-700 text-sm font-medium mb-1">Organization</label>
-                  <select
-                    name="orgId"
-                    value={formData.orgId || ''}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Organization</option>
-                    {organizations.map(org => (
-                      <option key={org.id} value={org.id}>{org.name}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-              
-              <div>
-                <label className="block text-gray-700 text-sm font-medium mb-1">Role</label>
-                <select
-                  name="role"
-                  value={formData.role || 'user'}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="admin">Admin</option>
-                  <option value="user">User</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-gray-700 text-sm font-medium mb-1">Status</label>
-                <select
-                  name="status"
-                  value={formData.status || 'approved'}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="approved">Approved</option>
-                  <option value="pending">Pending</option>
-                  <option value="rejected">Rejected</option>
-                </select>
-              </div>
-            </div>
-            
-            <div className="mt-6 flex justify-end space-x-3">
-              <Button 
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-white bg-red-600 hover:bg-red-700"
+              </thead>
+              <tbody className="divide-y divide-border">
+                {filteredUsers.map((user) => (
+                  <tr key={user.uid || user.id} className="hover:bg-muted/40 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-sm flex-shrink-0">
+                          {(user.name || user.email || '?').charAt(0).toUpperCase()}
+                        </div>
+                        <div className="ml-3 font-medium text-foreground">{user.name}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-muted-foreground">
+                      {user.email}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {user.userType === 'individual' ? (
+                        <Badge variant="secondary" className="gap-1.5">
+                          <UserIcon className="h-3 w-3" />
+                          Individual
+                        </Badge>
+                      ) : (
+                        <Badge variant="info" className="gap-1.5">
+                          Organizational
+                        </Badge>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-muted-foreground">
+                      {user.orgId ? (
+                        organizations.find(org => org.id === user.orgId)?.name || 'Unknown'
+                      ) : '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {user.role === 'super_admin' ? (
+                        <Badge variant="destructive">Super Admin</Badge>
+                      ) : user.role === 'admin' ? (
+                        <Badge variant="secondary">Admin</Badge>
+                      ) : (
+                        <Badge variant="outline">User</Badge>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {user.status === 'approved' ? (
+                        <Badge variant="success">Approved</Badge>
+                      ) : user.status === 'pending' ? (
+                        <Badge variant="warning">Pending</Badge>
+                      ) : (
+                        <Badge variant="destructive">Rejected</Badge>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-muted-foreground">
+                      {user.lastLogin
+                        ? new Date(user.lastLogin).toLocaleDateString()
+                        : '—'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end gap-1.5">
+                        <Button
+                          onClick={() => openEditModal(user)}
+                          variant="outline"
+                          className={actionButtonClass}
+                          title="Edit"
+                        >
+                          <Edit className="h-4 w-4 text-primary" />
+                        </Button>
+                        <Button
+                          onClick={() => confirmDelete(user.uid || user.id || '')}
+                          variant="outline"
+                          className={actionButtonClass}
+                          title={user.disabled ? "Enable User" : "Disable User"}
+                        >
+                          {user.disabled ? (
+                            <CircleCheckBig className="h-4 w-4 text-green-600" />
+                          ) : (
+                            <Ban className="h-4 w-4 text-amber-600" />
+                          )}
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <Modal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        size="lg"
+        title={modalMode === 'create' ? 'Add New User' : 'Edit User'}
+        description={
+          modalMode === 'create'
+            ? 'Create a new user account'
+            : 'Update user account details'
+        }
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setShowModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={modalMode === 'create' ? handleCreateUser : handleUpdateUser}>
+              <Save className="h-4 w-4 mr-1" />
+              {modalMode === 'create' ? 'Create' : 'Update'}
+            </Button>
+          </>
+        }
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Name</label>
+            <Input
+              type="text"
+              name="name"
+              value={formData.name || ''}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Email</label>
+            <Input
+              type="email"
+              name="email"
+              value={formData.email || ''}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">User Type</label>
+            <select
+              name="userType"
+              value={formData.userType || 'individual'}
+              onChange={handleInputChange}
+              className={selectClass}
+            >
+              <option value="individual">Individual</option>
+              <option value="organization">Organizational</option>
+            </select>
+          </div>
+
+          {formData.userType === 'organization' && (
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">Organization</label>
+              <select
+                name="orgId"
+                value={formData.orgId || ''}
+                onChange={handleInputChange}
+                className={selectClass}
               >
-                Cancel
-              </Button>
-              <Button 
-                onClick={modalMode === 'create' ? handleCreateUser : handleUpdateUser}
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center"
-              >
-                <Save className="h-4 w-4 mr-1" />
-                {modalMode === 'create' ? 'Create' : 'Update'}
-              </Button>
+                <option value="">Select Organization</option>
+                {organizations.map(org => (
+                  <option key={org.id} value={org.id}>{org.name}</option>
+                ))}
+              </select>
             </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Role</label>
+            <select
+              name="role"
+              value={formData.role || 'user'}
+              onChange={handleInputChange}
+              className={selectClass}
+            >
+              <option value="admin">Admin</option>
+              <option value="user">User</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Status</label>
+            <select
+              name="status"
+              value={formData.status || 'approved'}
+              onChange={handleInputChange}
+              className={selectClass}
+            >
+              <option value="approved">Approved</option>
+              <option value="pending">Pending</option>
+              <option value="rejected">Rejected</option>
+            </select>
           </div>
         </div>
-      )}
-      
-      {/* Delete/Disable Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-gray-900/70 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">Confirm Action</h2>
-              <p className="text-gray-600 mt-2">
-                Are you sure you want to {
-                  users.find(u => (u.uid || u.id) === deleteUserId)?.disabled 
-                    ? 'enable' 
-                    : 'disable'
-                } this user?
-              </p>
-            </div>
-            
-            <div className="flex justify-end space-x-3">
-              <Button 
-                onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200"
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={() => {
-                  const user = users.find(u => (u.uid || u.id) === deleteUserId);
-                  if (user && deleteUserId) {
-                    handleToggleUserStatus(deleteUserId, Boolean(user.disabled));
-                  }
-                }}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center"
-              >
-                <Trash2 className="h-4 w-4 mr-1" />
-                Confirm
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      </Modal>
+
+      <Modal
+        open={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        title="Confirm Action"
+        description={`Are you sure you want to ${
+          users.find(u => (u.uid || u.id) === deleteUserId)?.disabled
+            ? 'enable'
+            : 'disable'
+        } this user?`}
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                const user = users.find(u => (u.uid || u.id) === deleteUserId);
+                if (user && deleteUserId) {
+                  handleToggleUserStatus(deleteUserId, Boolean(user.disabled));
+                }
+              }}
+            >
+              <AlertCircle className="h-4 w-4 mr-1" />
+              Confirm
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-muted-foreground">
+          The user&apos;s access will be updated immediately.
+        </p>
+      </Modal>
     </div>
   );
 };

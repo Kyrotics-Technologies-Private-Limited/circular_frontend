@@ -1,215 +1,218 @@
 // src/pages/Home.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import {
+  Languages,
+  FolderOpen,
+  Users,
+  Columns2,
+  FileText,
+  Download,
+  ArrowRight,
+  Sparkles,
+  ShieldCheck,
+} from 'lucide-react';
 
 const Home: React.FC = () => {
+  const features = [
+    {
+      icon: FolderOpen,
+      name: 'Nested Folder Structure',
+      description: 'Organize your files with an intuitive folder hierarchy similar to Google Drive.',
+      accent: 'from-primary/15 to-primary/5 text-primary',
+    },
+    {
+      icon: Languages,
+      name: 'Multiple Language Support',
+      description: 'Translate your documents into numerous languages with high accuracy.',
+      accent: 'from-amber-500/15 to-amber-500/5 text-amber-600',
+    },
+    {
+      icon: Users,
+      name: 'Team Collaboration',
+      description: 'Work together with your team by sharing access to organizations and files.',
+      accent: 'from-primary/15 to-primary/5 text-primary',
+    },
+    {
+      icon: Columns2,
+      name: 'Split-View Editing',
+      description: 'Edit translations with original and translated content side by side.',
+      accent: 'from-amber-500/15 to-amber-500/5 text-amber-600',
+    },
+    {
+      icon: FileText,
+      name: 'PDF and Word Support',
+      description: 'Upload and translate documents in popular formats like PDF and Word.',
+      accent: 'from-primary/15 to-primary/5 text-primary',
+    },
+    {
+      icon: Download,
+      name: 'Download Translated Documents',
+      description: 'Export your translated documents in multiple formats for sharing.',
+      accent: 'from-amber-500/15 to-amber-500/5 text-amber-600',
+    },
+  ];
+
   return (
-    <div className="bg-white">
+    <div className="bg-background">
+      {/* Hero */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-y-0 h-full w-full" aria-hidden="true">
-          <div className="relative h-full">
-            <svg
-              className="absolute right-full transform translate-y-1/3 translate-x-1/4 md:translate-y-1/2 sm:translate-x-1/2 lg:translate-x-full"
-              width="404"
-              height="784"
-              fill="none"
-              viewBox="0 0 404 784"
-            >
-              <defs>
-                <pattern
-                  id="e229dbec-10e9-49ee-8ec3-0286ca089edf"
-                  x="0"
-                  y="0"
-                  width="20"
-                  height="20"
-                  patternUnits="userSpaceOnUse"
-                >
-                  <rect x="0" y="0" width="4" height="4" className="text-gray-200" fill="currentColor" />
-                </pattern>
-              </defs>
-              <rect width="404" height="784" fill="url(#e229dbec-10e9-49ee-8ec3-0286ca089edf)" />
-            </svg>
-            <svg
-              className="absolute left-full transform -translate-y-3/4 -translate-x-1/4 sm:-translate-x-1/2 md:-translate-y-1/2 lg:-translate-x-3/4"
-              width="404"
-              height="784"
-              fill="none"
-              viewBox="0 0 404 784"
-            >
-              <defs>
-                <pattern
-                  id="d2a68204-c383-44b1-b99f-42ccff4e5365"
-                  x="0"
-                  y="0"
-                  width="20"
-                  height="20"
-                  patternUnits="userSpaceOnUse"
-                >
-                  <rect x="0" y="0" width="4" height="4" className="text-gray-200" fill="currentColor" />
-                </pattern>
-              </defs>
-              <rect width="404" height="784" fill="url(#d2a68204-c383-44b1-b99f-42ccff4e5365)" />
-            </svg>
-          </div>
-        </div>
+        <div className="absolute inset-0 bg-linear-to-b from-primary/5 via-transparent to-transparent" aria-hidden="true" />
+        <div className="absolute -top-40 right-0 h-96 w-96 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
+        <div className="absolute top-20 -left-20 h-72 w-72 rounded-full bg-amber-400/15 blur-3xl" aria-hidden="true" />
 
-        <div className="relative pt-6 pb-16 sm:pb-24">
-          <div className="mt-16 mx-auto max-w-7xl px-4 sm:mt-24 sm:px-6">
-            <div className="text-center">
-              <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                <span className="block">Document Translation</span>
-                <span className="block text-indigo-600">Made Simple</span>
-              </h1>
-              <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-                Upload, organize, and translate your documents with ease. Our platform supports multiple languages and document formats with a simple, intuitive interface.
-              </p>
-              <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
-                <div className="rounded-md shadow">
-                  <Link
-                    to="/login"
-                    className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10"
-                  >
-                    Get Started
-                  </Link>
-                </div>
-                <div className="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
-                  <Link
-                    to="/register"
-                    className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
-                  >
-                    Sign Up
-                  </Link>
-                </div>
+        <nav className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-primary to-primary/70 shadow-sm">
+                <Languages className="h-5 w-5 text-primary-foreground" />
               </div>
+              <span className="text-lg font-bold text-foreground tracking-tight">Bhasantar</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link
+                to="/login"
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
+              >
+                Log in
+              </Link>
+              <Link
+                to="/register"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
+              >
+                Get Started
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
           </div>
-        </div>
+        </nav>
 
-        <div className="relative">
-          <div className="absolute inset-0 flex flex-col" aria-hidden="true">
-            <div className="flex-1" />
-            <div className="flex-1 w-full bg-gray-800" />
-          </div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <img
-              className="relative rounded-lg shadow-lg"
-              src="https://via.placeholder.com/1920x1080.png?text=Document+Translation+Interface"
-              alt="App screenshot"
-            />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
+          <div className="text-center max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3.5 py-1.5 text-xs font-medium text-primary animate-fade-in">
+              <Sparkles className="h-3.5 w-3.5" />
+              Translation &amp; file management, together
+            </div>
+            <h1 className="mt-6 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-foreground text-balance">
+              Document Translation{' '}
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-primary/60">
+                Made Simple
+              </span>
+            </h1>
+            <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
+              Upload, organize, and translate your documents with ease. Our platform supports
+              multiple languages and document formats with a simple, intuitive interface.
+            </p>
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link
+                to="/register"
+                className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3.5 text-base font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 shadow-lg shadow-primary/25 hover:shadow-xl hover:-translate-y-0.5"
+              >
+                Get Started Free
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+              <Link
+                to="/login"
+                className="inline-flex items-center justify-center w-full sm:w-auto px-8 py-3.5 text-base font-semibold rounded-xl border border-border bg-card text-foreground hover:bg-accent transition-all duration-200"
+              >
+                Sign In
+              </Link>
+            </div>
+
+            <div className="mt-12 grid grid-cols-3 gap-4 max-w-lg mx-auto">
+              {[
+                { value: '30+', label: 'Languages' },
+                { value: '100%', label: 'Secure' },
+                { value: '24/7', label: 'Access' },
+              ].map((stat) => (
+                <div key={stat.label} className="rounded-2xl border border-border bg-card/60 backdrop-blur px-4 py-5">
+                  <p className="text-2xl sm:text-3xl font-bold text-foreground">{stat.value}</p>
+                  <p className="mt-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">{stat.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-      <div className="bg-gray-800">
-        <div className="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8">
-          <h2 className="text-center text-gray-100 text-sm font-semibold uppercase tracking-wide">
-            Trusted by organizations worldwide
-          </h2>
-          <div className="mt-8 grid grid-cols-2 gap-8 md:grid-cols-4">
-            <div className="col-span-1 flex justify-center md:col-span-1">
-              <div className="h-12 text-white">Company Logo</div>
-            </div>
-            <div className="col-span-1 flex justify-center md:col-span-1">
-              <div className="h-12 text-white">Company Logo</div>
-            </div>
-            <div className="col-span-1 flex justify-center md:col-span-1">
-              <div className="h-12 text-white">Company Logo</div>
-            </div>
-            <div className="col-span-1 flex justify-center md:col-span-1">
-              <div className="h-12 text-white">Company Logo</div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <div className="bg-white">
-        <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:py-24 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-extrabold text-gray-900">Key Features</h2>
-            <p className="mt-4 text-lg text-gray-500">
+      {/* Features */}
+      <div className="bg-card border-y border-border">
+        <div className="max-w-7xl mx-auto py-16 sm:py-20 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl mx-auto text-center">
+            <p className="text-sm font-semibold text-primary uppercase tracking-wider">Key Features</p>
+            <h2 className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
+              Everything you need to translate &amp; manage
+            </h2>
+            <p className="mt-4 text-base text-muted-foreground text-balance">
               Everything you need to manage and translate your documents efficiently.
             </p>
           </div>
-          <dl className="mt-12 space-y-10 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 lg:grid-cols-3 lg:gap-x-8">
-            {[
-              {
-                name: 'Nested Folder Structure',
-                description: 'Organize your files with an intuitive folder hierarchy similar to Google Drive.',
-              },
-              {
-                name: 'Multiple Language Support',
-                description: 'Translate your documents into numerous languages with high accuracy.',
-              },
-              {
-                name: 'Team Collaboration',
-                description: 'Work together with your team by sharing access to organizations and files.',
-              },
-              {
-                name: 'Split-View Editing',
-                description: 'Edit translations with original and translated content side by side.',
-              },
-              {
-                name: 'PDF and Word Support',
-                description: 'Upload and translate documents in popular formats like PDF and Word.',
-              },
-              {
-                name: 'Download Translated Documents',
-                description: 'Export your translated documents in multiple formats for sharing.',
-              },
-            ].map((feature) => (
-              <div key={feature.name} className="relative">
-                <dt>
-                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
-                    <svg
-                      className="h-6 w-6"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  </div>
-                  <p className="ml-16 text-lg leading-6 font-medium text-gray-900">{feature.name}</p>
-                </dt>
-                <dd className="mt-2 ml-16 text-base text-gray-500">{feature.description}</dd>
+
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map(({ icon: Icon, name, description, accent }) => (
+              <div
+                key={name}
+                className="group relative rounded-2xl border border-border bg-background p-6 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 hover:border-primary/30"
+              >
+                <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br ${accent}`}>
+                  <Icon className="h-6 w-6" strokeWidth={1.75} />
+                </div>
+                <h3 className="mt-4 text-lg font-semibold text-foreground">{name}</h3>
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{description}</p>
               </div>
             ))}
-          </dl>
-        </div>
-      </div>
-
-      <div className="bg-indigo-50">
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
-          <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-            <span className="block">Ready to get started?</span>
-            <span className="block text-indigo-600">Sign up today.</span>
-          </h2>
-          <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0">
-            <div className="inline-flex rounded-md shadow">
-              <Link
-                to="/register"
-                className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
-              >
-                Sign Up
-              </Link>
-            </div>
-            <div className="ml-3 inline-flex rounded-md shadow">
-              <Link
-                to="/login"
-                className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50"
-              >
-                Log In
-              </Link>
-            </div>
           </div>
         </div>
       </div>
+
+      {/* CTA band */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-linear-to-br from-primary via-primary to-primary/80" aria-hidden="true" />
+        <div className="absolute -top-24 right-1/4 h-72 w-72 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
+        <div className="absolute bottom-0 left-1/4 h-56 w-56 rounded-full bg-amber-400/25 blur-3xl" aria-hidden="true" />
+
+        <div className="relative max-w-7xl mx-auto py-16 sm:py-20 px-4 sm:px-6 lg:px-8 text-center">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 border border-white/20 mb-6">
+            <ShieldCheck className="h-6 w-6 text-white" />
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white text-balance">
+            Ready to translate your documents?
+          </h2>
+          <p className="mt-4 text-base text-white/80 max-w-xl mx-auto text-balance">
+            Join Bhasantar today and start managing and translating your files effortlessly.
+          </p>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              to="/register"
+              className="inline-flex items-center gap-2 px-8 py-3.5 text-base font-semibold rounded-xl bg-white text-primary hover:bg-white/90 transition-all duration-200 shadow-lg hover:-translate-y-0.5"
+            >
+              Sign Up Today
+              <ArrowRight className="h-5 w-5" />
+            </Link>
+            <Link
+              to="/login"
+              className="inline-flex items-center justify-center px-8 py-3.5 text-base font-semibold rounded-xl border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-all duration-200"
+            >
+              Log In
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="bg-background border-t border-border">
+        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-linear-to-br from-primary to-primary/70">
+              <Languages className="h-4 w-4 text-primary-foreground" />
+            </div>
+            <span className="text-sm font-semibold text-foreground">Bhasantar</span>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            © {new Date().getFullYear()} Bhasantar. All rights reserved.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };

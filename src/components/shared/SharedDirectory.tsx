@@ -2,10 +2,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useShare } from "../../contexts/ShareContext";
-import { FileItem, Folder } from "../../types/File";
+import { FileItem, Folder as FolderType } from "../../types/File";
 import FileCard from "../files/FileCard";
 import { Button } from "../ui/button";
 import Loader from "@/components/ui/loader";
+import { Badge } from "../ui/badge";
+import { RefreshCw, Folder as FolderIcon, Share2, AlertCircle, Inbox } from "lucide-react";
 
 /** Format an ISO date or Date into a readable string like "May 19, 2026" */
 const formatDate = (value: string | Date | undefined | null): string => {
@@ -31,7 +33,7 @@ const SharedDirectory: React.FC = () => {
 
   const [showFilesTab, setShowFilesTab] = useState<boolean>(true);
 
-  const handleFolderClick = (folder: Folder) => {
+  const handleFolderClick = (folder: FolderType) => {
     navigate(`/files?folderId=${folder.id}&shared=true`);
   };
 
@@ -47,64 +49,53 @@ const SharedDirectory: React.FC = () => {
   const hasFolders = sharedFolders.length > 0;
   const hasNoItems = !hasFiles && !hasFolders;
 
+  const tabClass = (active: boolean) =>
+    `py-3 px-1 border-b-2 font-medium text-sm transition-colors cursor-pointer ${
+      active
+        ? "border-primary text-primary"
+        : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+    }`;
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-900">Shared with Me</h1>
+      <div className="flex flex-wrap justify-between items-center gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">Shared with Me</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            Files and folders others have shared with you
+          </p>
+        </div>
 
-        <Button
-          onClick={handleRefresh}
-          className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          <svg
-            className="-ml-1 mr-2 h-5 w-5 text-gray-400"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
-              clipRule="evenodd"
-            />
-          </svg>
+        <Button variant="outline" onClick={handleRefresh}>
+          <RefreshCw className="h-4 w-4 mr-2" />
           Refresh
         </Button>
       </div>
 
       {errorShared && (
-        <div className="rounded-md bg-red-50 p-4">
-          <div className="flex">
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">
-                {errorShared}
-              </h3>
-            </div>
+        <div className="rounded-xl bg-red-50 p-4">
+          <div className="flex items-start">
+            <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+            <h3 className="text-sm font-medium text-red-800 ml-2">
+              {errorShared}
+            </h3>
           </div>
         </div>
       )}
 
       {/* Tabs */}
       {(hasFiles || hasFolders) && (
-        <div className="border-b border-gray-200">
+        <div className="border-b border-border">
           <nav className="-mb-px flex space-x-8">
             <button
               onClick={() => setShowFilesTab(true)}
-              className={`py-4 px-1 border-b-2 font-medium text-sm cursor-pointer ${
-                showFilesTab
-                  ? "border-indigo-500 text-indigo-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
+              className={tabClass(showFilesTab)}
             >
               Files ({sharedFiles.length})
             </button>
             <button
               onClick={() => setShowFilesTab(false)}
-              className={`py-4 px-1 border-b-2 font-medium text-sm cursor-pointer ${
-                !showFilesTab
-                  ? "border-indigo-500 text-indigo-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
+              className={tabClass(!showFilesTab)}
             >
               Folders ({sharedFolders.length})
             </button>
@@ -113,31 +104,20 @@ const SharedDirectory: React.FC = () => {
       )}
 
       {loadingShared ? (
-        <div className="flex justify-center py-8">
+        <div className="flex justify-center py-16">
           <Loader />
         </div>
       ) : (
         <div>
           {hasNoItems ? (
-            <div className="text-center py-12">
-              <svg
-                className="mx-auto h-12 w-12 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m-6-8h6m-3-4v12"
-                />
-              </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900">
+            <div className="flex flex-col items-center justify-center py-20 text-center rounded-2xl border border-dashed border-border bg-muted/20">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <Inbox className="h-7 w-7" />
+              </div>
+              <h3 className="mt-4 text-sm font-medium text-foreground">
                 No shared items
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-muted-foreground max-w-sm">
                 When someone shares a file or folder with you, it will appear
                 here.
               </p>
@@ -145,11 +125,11 @@ const SharedDirectory: React.FC = () => {
           ) : showFilesTab ? (
             <>
               {!hasFiles ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">No shared files</p>
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No shared files</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {sharedFiles.map((file) => (
                     <FileCard
                       key={file.id}
@@ -166,79 +146,57 @@ const SharedDirectory: React.FC = () => {
           ) : (
             <>
               {!hasFolders ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">No shared folders</p>
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No shared folders</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {sharedFolders.map((folder) => (
-                    <div
-                      key={folder.id}
-                      className="relative rounded-lg border border-gray-300 bg-white p-6 shadow-sm hover:shadow cursor-pointer transition-shadow"
-                      onClick={() => handleFolderClick(folder)}
-                    >
-                      <div className="flex items-start">
-                        <div className="flex-shrink-0">
-                          <svg
-                            className="h-10 w-10 text-yellow-500"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                            />
-                          </svg>
-                        </div>
-                        <div className="ml-3 flex-1 min-w-0">
-                          <h3 className="text-sm font-medium text-gray-900 truncate">
-                            {folder.name}
-                          </h3>
-
-                          <div className="flex flex-col text-[11px] text-gray-500 mt-1">
-                            <div className="flex items-center max-w-full">
-                              <svg className="w-3 h-3 mr-1 text-indigo-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                              </svg>
-                              <span className="truncate font-medium text-indigo-600" title={folder.sharedByName || ""}>
-                                {folder.sharedByName ? folder.sharedByName : "Shared Folder"}
-                              </span>
-                            </div>
-                            {folder.sharedAt && (
-                              <span className="text-gray-400 mt-0.5 ml-4">
-                                {formatDate(folder.sharedAt)}
-                              </span>
-                            )}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {sharedFolders.map((folder) => {
+                    const permission =
+                      folder.permissions &&
+                      folder.userId &&
+                      (folder.permissions as unknown as Record<string, string>)[
+                        folder.userId
+                      ];
+                    return (
+                      <div
+                        key={folder.id}
+                        className="group relative rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer"
+                        onClick={() => handleFolderClick(folder)}
+                      >
+                        <div className="flex items-start">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 flex-shrink-0">
+                            <FolderIcon className="h-6 w-6" strokeWidth={1.75} />
                           </div>
+                          <div className="ml-3 flex-1 min-w-0">
+                            <h3 className="text-sm font-semibold text-foreground truncate" title={folder.name}>
+                              {folder.name}
+                            </h3>
 
-                          {/* Permission badge */}
-                          <div className="mt-2 flex items-center">
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-700">
-                              {folder.permissions &&
-                              folder.userId &&
-                              (
-                                folder.permissions as unknown as Record<
-                                  string,
-                                  string
-                                >
-                              )[folder.userId]
-                                ? (
-                                    folder.permissions as unknown as Record<
-                                      string,
-                                      string
-                                    >
-                                  )[folder.userId]
-                                : "view"}
-                            </span>
+                            <div className="flex flex-col text-[11px] text-muted-foreground mt-1">
+                              <div className="flex items-center max-w-full">
+                                <Share2 className="h-3 w-3 mr-1 text-primary flex-shrink-0" />
+                                <span className="truncate font-medium text-primary" title={folder.sharedByName || ""}>
+                                  {folder.sharedByName ? folder.sharedByName : "Shared Folder"}
+                                </span>
+                              </div>
+                              {folder.sharedAt && (
+                                <span className="text-muted-foreground mt-0.5 ml-4">
+                                  {formatDate(folder.sharedAt)}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="mt-2 flex items-center">
+                              <Badge variant={permission === "edit" ? "success" : "secondary"} size="sm">
+                                {permission ? permission : "view"}
+                              </Badge>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </>

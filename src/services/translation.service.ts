@@ -8,13 +8,13 @@ import { TranslationHistory, LanguageOption } from '../types/Translation';
 export const translateFile = async (
   fileId: string,
   targetLanguage: string
-): Promise<string> => {
+): Promise<any> => {
   try {
     const response = await api.post(`/translations/${fileId}`, {
       targetLanguage
     });
     
-    return response.data.translatedContent;
+    return response.data;
   } catch (error) {
     console.error('Error translating file:', error);
     throw error;

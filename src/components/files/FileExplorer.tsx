@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFile } from "../../contexts/FileContext";
 import { useOrganization } from "../../contexts/OrganizationContext";
-import { FileItem, Folder } from "../../types/File";
+import { FileItem, Folder as FolderType } from "../../types/File";
 import { deleteFile, deleteFolder } from "../../services/file.service";
 import FileUpload from "./FileUpload";
 import FolderCreate from "./FolderCreate";
@@ -11,6 +11,15 @@ import FileCard from "./FileCard";
 import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import Loader from "@/components/ui/loader";
+import { Modal } from "../ui/modal";
+import {
+  Upload,
+  FolderPlus,
+  Trash2,
+  Folder as FolderIcon,
+  AlertCircle,
+  FolderSearch,
+} from "lucide-react";
 
 const FileExplorer: React.FC = () => {
   const navigate = useNavigate();
@@ -23,7 +32,6 @@ const FileExplorer: React.FC = () => {
     loading,
     error,
     navigateToFolder,
-    // navigateUp,
     refreshFiles,
   } = useFile();
 
@@ -36,12 +44,9 @@ const FileExplorer: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const { currentUser } = useAuth();
 
-  const handleFolderClick = async (folder: Folder) => {
+  const handleFolderClick = async (folder: FolderType) => {
     try {
-      // Add a debounce protection to prevent double navigation
       if (loading) return;
-
-      console.log("Navigating to folder:", folder.id);
       await navigateToFolder(folder);
     } catch (error) {
       console.error("Error navigating to folder:", error);
@@ -62,16 +67,11 @@ const FileExplorer: React.FC = () => {
     }
   };
 
-  // const handleBackClick = async () => {
-  //   await navigateUp();
-  // };
-
   const toggleItemSelection = (
     id: string,
     type: "file" | "folder",
     event: React.SyntheticEvent
   ) => {
-    // Stop propagation to prevent folder navigation when checking the checkbox
     event.stopPropagation();
 
     setSelectedItems((prev) => {
@@ -115,32 +115,38 @@ const FileExplorer: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-900">File Manager</h1>
+      <div className="flex flex-wrap justify-between items-center gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">File Manager</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            {currentFolder
+              ? `Inside "${currentFolder.name}"`
+              : "Your documents and folders"}
+          </p>
+        </div>
 
-        <div className="flex space-x-3">
-          <Button
-            onClick={() => setShowUploadModal(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Upload File
-          </Button>
-          <Button
-            onClick={() => setShowCreateFolderModal(true)}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            New Folder
-          </Button>
-
+        <div className="flex items-center gap-2.5">
           {hasSelected && (
             <Button
+              variant="destructive"
               onClick={handleDeleteSelected}
               disabled={isDeleting}
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:bg-red-400"
             >
-              {isDeleting ? "Deleting..." : "Delete Selected"}
+              <Trash2 className="h-4 w-4 mr-2" />
+              {isDeleting ? "Deleting..." : `Delete (${Object.keys(selectedItems).length})`}
             </Button>
           )}
+          <Button
+            variant="outline"
+            onClick={() => setShowCreateFolderModal(true)}
+          >
+            <FolderPlus className="h-4 w-4 mr-2" />
+            New Folder
+          </Button>
+          <Button onClick={() => setShowUploadModal(true)}>
+            <Upload className="h-4 w-4 mr-2" />
+            Upload File
+          </Button>
         </div>
       </div>
 
@@ -151,78 +157,88 @@ const FileExplorer: React.FC = () => {
       />
 
       {(error || actionError) && (
-        <div className="rounded-md bg-red-50 p-4">
-          <div className="flex">
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">
-                {error || actionError}
-              </h3>
-            </div>
+        <div className="rounded-xl bg-red-50 p-4">
+          <div className="flex items-start">
+            <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+            <h3 className="text-sm font-medium text-red-800 ml-2">
+              {error || actionError}
+            </h3>
           </div>
         </div>
       )}
 
       {loading ? (
-        <div className="flex justify-center py-8">
+        <div className="flex justify-center py-16">
           <Loader />
         </div>
       ) : (
         <div>
           {folders.length === 0 && files.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">
+            <div className="flex flex-col items-center justify-center py-20 text-center rounded-2xl border border-dashed border-border bg-muted/20">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <FolderSearch className="h-7 w-7" />
+              </div>
+              <h3 className="mt-4 text-sm font-medium text-foreground">
+                {currentFolder ? "This folder is empty" : "No files or folders yet"}
+              </h3>
+              <p className="mt-1 text-sm text-muted-foreground max-w-sm">
                 {currentFolder
-                  ? "This folder is empty."
-                  : "No files or folders yet. Upload a file or create a folder to get started."}
+                  ? "Upload a file or create a sub-folder to get started."
+                  : "Upload a file or create a folder to get started."}
               </p>
+              <div className="mt-5 flex gap-2.5">
+                <Button onClick={() => setShowUploadModal(true)}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload File
+                </Button>
+                <Button variant="outline" onClick={() => setShowCreateFolderModal(true)}>
+                  <FolderPlus className="h-4 w-4 mr-2" />
+                  New Folder
+                </Button>
+              </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {folders.map((folder) => (
-                <div
-                  key={folder.id}
-                  className={`relative rounded-lg border border-gray-300 bg-white p-6 shadow-sm hover:shadow cursor-pointer
-                    ${
-                      selectedItems[folder.id] ? "ring-2 ring-indigo-500" : ""
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {folders.map((folder) => {
+                const isSelected = !!selectedItems[folder.id];
+                return (
+                  <div
+                    key={folder.id}
+                    className={`group relative rounded-2xl border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer ${
+                      isSelected
+                        ? "border-primary ring-2 ring-primary/30"
+                        : "border-border hover:border-primary/30"
                     }`}
-                  onClick={() => handleFolderClick(folder)}
-                >
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <svg
-                        className="h-10 w-10 text-yellow-500"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
+                    onClick={() => handleFolderClick(folder)}
+                  >
+                    <div className="flex items-start">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 flex-shrink-0">
+                        <FolderIcon className="h-6 w-6" strokeWidth={1.75} />
+                      </div>
+                      <div className="ml-3 flex-1 min-w-0">
+                        <h3 className="text-sm font-semibold text-foreground truncate" title={folder.name}>
+                          {folder.name}
+                        </h3>
+                        <p className="text-xs text-muted-foreground mt-1">Folder</p>
+                      </div>
+                      <div
+                        className="ml-2 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                          checked={isSelected}
+                          onChange={(e) =>
+                            toggleItemSelection(folder.id, "folder", e)
+                          }
+                          aria-label={`Select ${folder.name}`}
                         />
-                      </svg>
-                    </div>
-                    <div className="ml-3 flex-1">
-                      <h3 className="text-sm font-medium text-gray-900 truncate">
-                        {folder.name}
-                      </h3>
-                      <p className="text-xs text-gray-500">Folder</p>
-                    </div>
-                    <div className="ml-4" onClick={(e) => e.stopPropagation()}>
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                        checked={!!selectedItems[folder.id]}
-                        onChange={(e) =>
-                          toggleItemSelection(folder.id, "folder", e)
-                        }
-                      />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               {files.map((file) => (
                 <FileCard
@@ -230,8 +246,6 @@ const FileExplorer: React.FC = () => {
                   file={file}
                   isSelected={!!selectedItems[file.id]}
                   onSelect={() => {
-                    // We're creating a version without the event parameter
-                    // since FileCard's onSelect doesn't accept parameters
                     toggleItemSelection(
                       file.id,
                       "file",
@@ -246,71 +260,37 @@ const FileExplorer: React.FC = () => {
         </div>
       )}
 
-      {/* File Upload Modal */}
-      {showUploadModal && (
-        <div className="fixed z-10 inset-0 overflow-y-auto">
-          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div
-              className="fixed inset-0 transition-opacity"
-              aria-hidden="true"
-            >
-              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
-            </div>
-            <span
-              className="hidden sm:inline-block sm:align-middle sm:h-screen"
-              aria-hidden="true"
-            >
-              &#8203;
-            </span>
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-              <div className="bg-white p-6">
-                <FileUpload
-                  organizationId={currentOrganization?.id || ""}
-                  folderId={currentFolder?.id}
-                  onSuccess={() => {
-                    setShowUploadModal(false);
-                    refreshFiles();
-                  }}
-                  onCancel={() => setShowUploadModal(false)}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        open={showUploadModal}
+        onClose={() => setShowUploadModal(false)}
+        size="sm"
+      >
+        <FileUpload
+          organizationId={currentOrganization?.id || ""}
+          folderId={currentFolder?.id}
+          onSuccess={() => {
+            setShowUploadModal(false);
+            refreshFiles();
+          }}
+          onCancel={() => setShowUploadModal(false)}
+        />
+      </Modal>
 
-      {/* Create Folder Modal */}
-      {showCreateFolderModal && (
-        <div className="fixed z-10 inset-0 overflow-y-auto">
-          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div
-              className="fixed inset-0 transition-opacity"
-              aria-hidden="true"
-            >
-              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
-            </div>
-            <span
-              className="hidden sm:inline-block sm:align-middle sm:h-screen"
-              aria-hidden="true"
-            >
-              &#8203;
-            </span>
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-              <div className="bg-white p-6">
-                <FolderCreate
-                  organizationId={currentOrganization?.id || ""}
-                  parentFolderId={currentFolder?.id}
-                  onSuccess={() => {
-                    setShowCreateFolderModal(false);
-                    refreshFiles();
-                  }}
-                  onCancel={() => setShowCreateFolderModal(false)}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        open={showCreateFolderModal}
+        onClose={() => setShowCreateFolderModal(false)}
+        size="sm"
+      >
+        <FolderCreate
+          organizationId={currentOrganization?.id || ""}
+          parentFolderId={currentFolder?.id}
+          onSuccess={() => {
+            setShowCreateFolderModal(false);
+            refreshFiles();
+          }}
+          onCancel={() => setShowCreateFolderModal(false)}
+        />
+      </Modal>
     </div>
   );
 };

@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Languages, ArrowRight, Loader2 } from "lucide-react";
 
 interface TranslationOptionsProps {
   languages: LanguageOption[];
@@ -31,7 +32,6 @@ const TranslationOptions: React.FC<TranslationOptionsProps> = ({
   translating,
   hasOriginalContent,
 }) => {
-  // Default languages if API fails to load
   const defaultLanguages: LanguageOption[] = [
     { code: "hi", name: "Hindi" },
     { code: "bn", name: "Bengali" },
@@ -53,7 +53,6 @@ const TranslationOptions: React.FC<TranslationOptionsProps> = ({
     { code: "ar", name: "Arabic" },
   ];
 
-  // Use API languages or fall back to defaults
   const displayLanguages = languages.length > 0 ? languages : defaultLanguages;
 
   const getLanguageName = (code: string): string => {
@@ -62,15 +61,17 @@ const TranslationOptions: React.FC<TranslationOptionsProps> = ({
   };
 
   return (
-    <div className="flex items-center space-x-2">
-      <div className="flex items-center space-x-2">
-        <span className="text-xs font-medium text-gray-700 whitespace-nowrap hidden md:inline">Source:</span>
+    <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-medium text-muted-foreground whitespace-nowrap hidden lg:inline">
+          Source:
+        </span>
         <Select
           value={sourceLanguage}
           onValueChange={onSourceLanguageChange}
           disabled={translating}
         >
-          <SelectTrigger className="w-[110px] h-8 text-xs">
+          <SelectTrigger className="w-[110px] h-7 text-xs">
             <SelectValue>{getLanguageName(sourceLanguage)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
@@ -83,14 +84,18 @@ const TranslationOptions: React.FC<TranslationOptionsProps> = ({
         </Select>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <span className="text-xs font-medium text-gray-700 whitespace-nowrap hidden md:inline">Target:</span>
+      <ArrowRight className="h-3.5 w-3.5 text-muted-foreground hidden md:inline" />
+
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-medium text-muted-foreground whitespace-nowrap hidden lg:inline">
+          Target:
+        </span>
         <Select
           value={selectedLanguage}
           onValueChange={onLanguageChange}
           disabled={translating}
         >
-          <SelectTrigger className="w-[110px] h-8 text-xs">
+          <SelectTrigger className="w-[110px] h-7 text-xs">
             <SelectValue>{getLanguageName(selectedLanguage)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
@@ -106,34 +111,19 @@ const TranslationOptions: React.FC<TranslationOptionsProps> = ({
       <Button
         onClick={onTranslate}
         disabled={translating || !hasOriginalContent}
-        className="inline-flex items-center justify-center px-3 h-8 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400"
+        size="sm"
+        className="h-7 text-xs"
       >
         {translating ? (
           <>
-            <svg
-              className="animate-spin -ml-1 mr-2 h-3 w-3 text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
+            <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
             Translating...
           </>
         ) : (
-          "Translate"
+          <>
+            <Languages className="h-3.5 w-3.5 mr-2" />
+            Translate
+          </>
         )}
       </Button>
     </div>

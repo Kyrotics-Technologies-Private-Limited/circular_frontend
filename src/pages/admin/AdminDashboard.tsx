@@ -8,18 +8,35 @@ import { getOrganizationUsers } from "../../services/organization.service";
 import { Link } from "react-router-dom";
 import { getAllOrganizations } from "../../services/organization.service";
 import { getAllRequests } from "../../services/request.service";
+import { Request } from "../../services/request.service";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import Loader from "@/components/ui/loader";
-const parseDate = (d: any): Date => {
+import {
+  Building2,
+  Users,
+  Clock,
+  FileText,
+  Languages,
+  User,
+  FilePlus2,
+  AlertCircle,
+  FolderOpen,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const parseDate = (d: unknown): Date => {
   if (!d) return new Date();
   if (d instanceof Date) return d;
   if (typeof d === "object") {
-    if ("_seconds" in d) return new Date(d._seconds * 1000);
-    if ("seconds" in d) return new Date(d.seconds * 1000);
+    const rec = d as { _seconds?: number; seconds?: number };
+    if ("_seconds" in rec && typeof rec._seconds === "number")
+      return new Date(rec._seconds * 1000);
+    if ("seconds" in rec && typeof rec.seconds === "number")
+      return new Date(rec.seconds * 1000);
   }
-  return new Date(d);
+  return new Date(d as string);
 };
-
 
 const AdminDashboard: React.FC = () => {
   const { currentUser } = useAuth();
@@ -32,7 +49,7 @@ const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [organizationsCount, setOrganizationsCount] = useState<number>(0);
-  const [pendingRequests, setPendingRequests] = useState<any[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<Request[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -118,13 +135,52 @@ const AdminDashboard: React.FC = () => {
     else return (bytes / 1048576).toFixed(2) + " MB";
   };
 
+  const statCard = (
+    to: string | null,
+    icon: React.ReactNode,
+    iconClass: string,
+    label: string,
+    value: string | number
+  ) => {
+    const content = (
+      <div className="flex items-center gap-4">
+        <div
+          className={cn(
+            "flex h-11 w-11 items-center justify-center rounded-xl text-white flex-shrink-0",
+            iconClass
+          )}
+        >
+          {icon}
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-muted-foreground truncate">
+            {label}
+          </p>
+          <p className="text-2xl font-semibold text-foreground">{value}</p>
+        </div>
+      </div>
+    );
+
+    return (
+      <div className="rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+        {to ? (
+          <Link to={to} className="block">
+            {content}
+          </Link>
+        ) : (
+          content
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-foreground">
           {isSuperAdmin ? "Super Admin Dashboard" : "Admin Dashboard"}
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           {isSuperAdmin
             ? "Overview of all organizations and system statistics"
             : "Overview of your organization and statistics"}
@@ -132,261 +188,96 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       {error && (
-        <div className="rounded-md bg-red-50 p-4">
-          <div className="flex">
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">{error}</h3>
-            </div>
+        <div className="rounded-xl bg-red-50 p-4">
+          <div className="flex items-start">
+            <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+            <h3 className="text-sm font-medium text-red-800 ml-2">{error}</h3>
           </div>
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {isSuperAdmin && (
-          <Link
-            to="/super-admin/organizations"
-            className="bg-white overflow-hidden shadow rounded-lg"
-          >
-            <div className="px-4 py-5 sm:p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 bg-purple-500 rounded-md p-3">
-                  <svg
-                    className="h-6 w-6 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                    />
-                  </svg>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Organizations
-                    </dt>
-                    <dd>
-                      <div className="text-lg font-medium text-gray-900">
-                        {organizationsCount}
-                      </div>
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </Link>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {isSuperAdmin &&
+          statCard(
+            "/super-admin/organizations",
+            <Building2 className="h-5 w-5" />,
+            "bg-violet-500",
+            "Organizations",
+            organizationsCount
+          )}
+
+        {statCard(
+          isSuperAdmin ? "/super-admin/users" : "/admin/user-management",
+          <Users className="h-5 w-5" />,
+          "bg-primary",
+          "Total Users",
+          totalUsers
         )}
 
-        <Link
-          to={`${
-            isSuperAdmin ? "/super-admin/users" : "/admin/user-management"
-          }`}
-          className="bg-white overflow-hidden shadow rounded-lg"
-        >
-          <div className="px-4 py-5 sm:p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 bg-indigo-500 rounded-md p-3">
-                <svg
-                  className="h-6 w-6 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                  />
-                </svg>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Total Users
-                  </dt>
-                  <dd>
-                    <div className="text-lg font-medium text-gray-900">
-                      {totalUsers}
-                    </div>
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </Link>
-        {isSuperAdmin && (
-          <Link
-            to="/super-admin/requests"
-            className="bg-white overflow-hidden shadow rounded-lg"
-          >
-            <div className="px-4 py-5 sm:p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 bg-yellow-500 rounded-md p-3">
-                  <svg
-                    className="h-6 w-6 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Pending Requests
-                    </dt>
-                    <dd>
-                      <div className="text-lg font-medium text-gray-900">
-                        {pendingRequests.length}
-                      </div>
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </Link>
-        )}
+        {isSuperAdmin &&
+          statCard(
+            "/super-admin/requests",
+            <Clock className="h-5 w-5" />,
+            "bg-amber-500",
+            "Pending Requests",
+            pendingRequests.length
+          )}
 
-        {!isSuperAdmin && (
-          <Link
-            to="/admin/files"
-            className="bg-white overflow-hidden shadow rounded-lg"
-          >
-            <div className="px-4 py-5 sm:p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 bg-green-500 rounded-md p-3">
-                  <svg
-                    className="h-6 w-6 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Total Files
-                    </dt>
-                    <dd>
-                      <div className="text-lg font-medium text-gray-900">
-                        {loading ? "..." : totalFiles.length}
-                      </div>
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </Link>
-        )}
+        {!isSuperAdmin &&
+          statCard(
+            "/admin/files",
+            <FolderOpen className="h-5 w-5" />,
+            "bg-emerald-500",
+            "Total Files",
+            loading ? "..." : totalFiles.length
+          )}
 
-        {!isSuperAdmin && (
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 bg-pink-500 rounded-md p-3">
-                  <svg
-                    className="h-6 w-6 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"
-                    />
-                  </svg>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Total Translations
-                    </dt>
-                    <dd>
-                      <div className="text-lg font-medium text-gray-900">
-                        {loading ? "..." : totalTranslations}
-                      </div>
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {!isSuperAdmin &&
+          statCard(
+            null,
+            <Languages className="h-5 w-5" />,
+            "bg-pink-500",
+            "Total Translations",
+            loading ? "..." : totalTranslations
+          )}
       </div>
 
       {isSuperAdmin && (
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-          <div className="px-4 py-5 sm:px-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900">
+        <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+          <div className="px-6 py-5">
+            <h3 className="text-lg font-semibold text-foreground">
               Recent Requests
             </h3>
-            <p className="mt-1 max-w-2xl text-sm text-gray-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               Latest requests requiring your attention
             </p>
           </div>
-          <div className="border-t border-gray-200">
+          <div className="border-t border-border">
             {pendingRequests.length > 0 ? (
-              <ul className="divide-y divide-gray-200">
+              <ul className="divide-y divide-border">
                 {pendingRequests.map((request) => (
-                  <li key={request.id} className="px-4 py-4 sm:px-6">
+                  <li key={request.id} className="px-6 py-4">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-indigo-600 truncate">
+                      <p className="text-sm font-medium text-primary truncate">
                         {request.organizationName}
                       </p>
                       <div className="ml-2 flex-shrink-0 flex">
-                        <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                        <Badge variant="warning">
+                          <Clock className="h-3 w-3 mr-1" />
                           {formatTimeAgo(parseDate(request.createdAt))}
-                        </p>
+                        </Badge>
                       </div>
                     </div>
-                    <div className="mt-2 sm:flex sm:justify-between">
-                      <div className="sm:flex">
-                        <p className="flex items-center text-sm text-gray-500">
-                          <svg
-                            className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                          {request.ownerName}
-                        </p>
-                      </div>
-                      <div className="mt-2 flex sm:mt-0">
-                        <Button className="mr-2 inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+                      <p className="flex items-center text-sm text-muted-foreground">
+                        <User className="h-4 w-4 mr-1.5 text-muted-foreground" />
+                        {request.ownerUid}
+                      </p>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="default">
                           Approve
                         </Button>
-                        <Button className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <Button size="sm" variant="outline">
                           Reject
                         </Button>
                       </div>
@@ -395,8 +286,8 @@ const AdminDashboard: React.FC = () => {
                 ))}
               </ul>
             ) : (
-              <div className="px-4 py-5 sm:p-6 text-center">
-                <p className="text-gray-500">No pending requests.</p>
+              <div className="px-6 py-8 text-center">
+                <p className="text-muted-foreground">No pending requests.</p>
               </div>
             )}
           </div>
@@ -404,166 +295,80 @@ const AdminDashboard: React.FC = () => {
       )}
 
       {!isSuperAdmin && (
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-          <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
+        <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+          <div className="px-6 py-5 flex flex-wrap justify-between items-center gap-3">
             <div>
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
+              <h3 className="text-lg font-semibold text-foreground">
                 Recent Files
               </h3>
-              <p className="mt-1 max-w-2xl text-sm text-gray-500">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Your most recently uploaded files
               </p>
             </div>
-            <Link
-              to="/admin/files"
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Upload New File
+            <Link to="/admin/files">
+              <Button>
+                <FilePlus2 className="h-4 w-4 mr-2" />
+                Upload New File
+              </Button>
             </Link>
           </div>
 
-          {error && (
-            <div className="border-t border-gray-200 px-4 py-5 sm:p-6">
-              <div className="rounded-md bg-red-50 p-4">
-                <div className="flex">
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-red-800">
-                      {error}
-                    </h3>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="border-t border-gray-200">
-            {loading ? (
-              <div className="flex justify-center items-center py-8">
-                <Loader />
-              </div>
-            ) : recentFiles.length > 0 ? (
+          <div className="border-t border-border">
+            {recentFiles.length > 0 ? (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-border">
+                  <thead className="bg-muted/40">
                     <tr>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Name
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Size
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Upload Date
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Status
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Actions
-                      </th>
+                      {["Name", "Size", "Upload Date", "Status", "Actions"].map(
+                        (h) => (
+                          <th
+                            key={h}
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider"
+                          >
+                            {h}
+                          </th>
+                        )
+                      )}
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="divide-y divide-border">
                     {recentFiles.map((file) => (
-                      <tr key={file.id} className="hover:bg-gray-50">
+                      <tr key={file.id} className="hover:bg-muted/40 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="flex-shrink-0">
-                              {file.type.includes("pdf") ? (
-                                <svg
-                                  className="h-6 w-6 text-red-500"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                                  />
-                                </svg>
-                              ) : file.type.includes("word") ? (
-                                <svg
-                                  className="h-6 w-6 text-blue-500"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                                  />
-                                </svg>
-                              ) : (
-                                <svg
-                                  className="h-6 w-6 text-gray-400"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                                  />
-                                </svg>
-                              )}
+                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary flex-shrink-0">
+                              <FileText className="h-4 w-4" />
                             </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">
+                            <div className="ml-3">
+                              <div className="text-sm font-medium text-foreground">
                                 {file.name}
                               </div>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-muted-foreground">
                             {formatFileSize(file.size)}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-muted-foreground">
                             {parseDate(file.uploadedAt).toLocaleDateString()}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {file.translatedContent ? (
-                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                              Translated
-                            </span>
+                            <Badge variant="success">Translated</Badge>
                           ) : (
-                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                              Not Translated
-                            </span>
+                            <Badge variant="warning">Not Translated</Badge>
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-3">
+                          <div className="flex gap-3">
                             <Link
                               to={`/admin/translation/${file.id}`}
-                              className="text-indigo-600 hover:text-indigo-900"
+                              className="text-primary hover:text-primary/80"
                             >
                               {file.translatedContent ? "Edit" : "Translate"}
                             </Link>
@@ -571,7 +376,7 @@ const AdminDashboard: React.FC = () => {
                               href={file.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-gray-600 hover:text-gray-900"
+                              className="text-muted-foreground hover:text-foreground"
                             >
                               View
                             </a>
@@ -583,13 +388,13 @@ const AdminDashboard: React.FC = () => {
                 </table>
               </div>
             ) : (
-              <div className="px-4 py-5 sm:p-6 text-center">
-                <p className="text-gray-500">No files uploaded yet.</p>
-                <Link
-                  to="/files"
-                  className="mt-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  Upload Your First File
+              <div className="px-6 py-12 text-center">
+                <p className="text-muted-foreground">No files uploaded yet.</p>
+                <Link to="/files" className="mt-4 inline-block">
+                  <Button>
+                    <FilePlus2 className="h-4 w-4 mr-2" />
+                    Upload Your First File
+                  </Button>
                 </Link>
               </div>
             )}

@@ -1,10 +1,12 @@
-// src/components/files/FileCardActions.tsx
-import React, { useState } from 'react';
+// src/components/files/fileCardActions.tsx
+import React, { useState, useRef } from 'react';
 import { FileItem, Folder } from '../../types/File';
 import ShareModal from '../shared/shareModal';
 import RenameModal from './RenameModal';
 import { useOrganization } from '../../contexts/OrganizationContext';
 import { deleteFile } from '../../services/file.service';
+import { DropdownMenu } from '../ui/dropdownMenu';
+import { MoreVertical, Share2, Pencil, Trash2 } from 'lucide-react';
 
 interface FileCardActionsProps {
   item: FileItem | Folder;
@@ -24,6 +26,8 @@ const FileCardActions: React.FC<FileCardActionsProps> = ({
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [renameModalOpen, setRenameModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const handleActionToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -45,18 +49,15 @@ const FileCardActions: React.FC<FileCardActionsProps> = ({
   const handleDeleteClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
     setActionsOpen(false);
-    
+
     if (confirm(`Are you sure you want to delete this ${type}?`)) {
       if (onDelete) {
         onDelete();
       } else {
-        // If no onDelete prop is provided, handle deletion here
         setIsDeleting(true);
         try {
           if (type === 'file') {
             await deleteFile(item.id);
-          } else {
-            // If needed, implement deleteFolder here
           }
           onSuccess();
         } catch (error) {
@@ -71,54 +72,54 @@ const FileCardActions: React.FC<FileCardActionsProps> = ({
 
   return (
     <>
-      <div className="relative">
+      <button
+        ref={triggerRef}
+        onClick={handleActionToggle}
+        className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+        disabled={isDeleting}
+        aria-label={`Actions for ${item.name}`}
+        aria-haspopup="menu"
+        aria-expanded={actionsOpen}
+      >
+        <MoreVertical className="h-4 w-4" />
+      </button>
+
+      <DropdownMenu
+        open={actionsOpen}
+        onClose={() => setActionsOpen(false)}
+        triggerRef={triggerRef}
+        align="end"
+        className="w-44"
+      >
         <button
-          onClick={handleActionToggle}
-          className="text-gray-400 hover:text-gray-500 focus:outline-none"
-          disabled={isDeleting}
+          onClick={handleShareClick}
+          className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-foreground rounded-lg hover:bg-muted transition-colors"
+          role="menuitem"
         >
-          <svg 
-            className="h-5 w-5" 
-            xmlns="http://www.w3.org/2000/svg" 
-            viewBox="0 0 20 20" 
-            fill="currentColor"
-          >
-            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-          </svg>
+          <Share2 className="h-4 w-4 text-muted-foreground" />
+          Share
         </button>
 
-        {actionsOpen && (
-          <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
-            <div className="py-1" role="menu" aria-orientation="vertical">
-              <button
-                onClick={handleShareClick}
-                className="text-left block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                role="menuitem"
-              >
-                Share
-              </button>
-              
-              {type === 'file' && (
-                <button
-                  onClick={handleRenameClick}
-                  className="text-left block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  role="menuitem"
-                >
-                  Rename
-                </button>
-              )}
-              
-              <button
-                onClick={handleDeleteClick}
-                className="text-left block w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                role="menuitem"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
+        {type === 'file' && (
+          <button
+            onClick={handleRenameClick}
+            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-foreground rounded-lg hover:bg-muted transition-colors"
+            role="menuitem"
+          >
+            <Pencil className="h-4 w-4 text-muted-foreground" />
+            Rename
+          </button>
         )}
-      </div>
+
+        <button
+          onClick={handleDeleteClick}
+          className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+          role="menuitem"
+        >
+          <Trash2 className="h-4 w-4" />
+          Delete
+        </button>
+      </DropdownMenu>
 
       {shareModalOpen && (
         <ShareModal

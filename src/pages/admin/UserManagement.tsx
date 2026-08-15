@@ -1,4 +1,4 @@
-// // // src/pages/admin/UserManagement.tsx
+// src/pages/admin/UserManagement.tsx
 
 import React, { useState, useEffect } from "react";
 import {
@@ -12,8 +12,8 @@ import {
   Shield,
   CircleCheckBig,
   Ban,
+  AlertCircle,
 } from "lucide-react";
-// import axios from 'axios';
 
 import { User, UserRole } from "../../types/User";
 import {
@@ -24,8 +24,11 @@ import {
 } from "../../services/organization.service";
 import { useOrganization } from "../../contexts/OrganizationContext";
 import { disableUser, enableUser } from "../../services/auth.service";
-import { Button } from "@/components/ui/button"
-
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Modal } from "@/components/ui/modal";
+import Loader from "@/components/ui/loader";
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -50,10 +53,7 @@ const UserManagement: React.FC = () => {
   const { currentOrganization } = useOrganization();
   const [isStatusLoading, setIsStatusLoading] = useState(false);
   const organizationId = currentOrganization?.id || "";
-  // console.log(organizationId, "Organization ID from context");
-  // console.log(currentOrganization, "Current Organization from context");
 
-  // Fetch organization users
   useEffect(() => {
     const fetchUsers = async () => {
       setIsLoading(true);
@@ -73,14 +73,9 @@ const UserManagement: React.FC = () => {
     fetchUsers();
   }, [organizationId]);
 
-  console.log('Fetched users:', users);
-
-
   useEffect(() => {
-    // Filter and search logic
     let result = [...users];
 
-    // Apply search term
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       result = result.filter(
@@ -129,16 +124,13 @@ const UserManagement: React.FC = () => {
       setError(null);
       await addOrganizationUser(organizationId, formData);
 
-      // Show success message
       setSuccess("User added successfully");
 
-      // Refresh user list
       const users = await getOrganizationUsers(organizationId);
       setUsers(users);
 
       setShowModal(false);
 
-      // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to add user");
@@ -154,7 +146,6 @@ const UserManagement: React.FC = () => {
         role: formData.role,
       });
 
-      // Update local state
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user.id === selectedUser.id
@@ -163,12 +154,10 @@ const UserManagement: React.FC = () => {
         )
       );
 
-      // Show success message
       setSuccess("User role updated successfully");
 
       setShowModal(false);
 
-      // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to update user role");
@@ -187,18 +176,15 @@ const UserManagement: React.FC = () => {
       setError(null);
       await removeOrganizationUser(organizationId, deleteUserId);
 
-      // Update local state
       setUsers((prevUsers) =>
         prevUsers.filter((user) => user.id !== deleteUserId)
       );
 
-      // Show success message
       setSuccess("User removed from organization successfully");
 
       setShowDeleteConfirm(false);
       setDeleteUserId(null);
 
-      // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to remove user");
@@ -206,28 +192,24 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  // Handle user status toggle confirmation dialog
   const confirmToggleUserStatus = (
     userId: string,
     isCurrentlyDisabled: boolean
   ) => {
     setStatusUserId(userId);
-    setIsDisabling(!isCurrentlyDisabled); // If currently disabled, we'll enable them
+    setIsDisabling(!isCurrentlyDisabled);
     setShowStatusConfirm(true);
   };
 
-  // Handle user enable/disable
-  // Handle user enable/disable
   const handleToggleUserStatus = async () => {
     if (!statusUserId) return;
 
     try {
       setError(null);
       setIsStatusLoading(true);
-      
+
       if (isDisabling) {
         await disableUser(statusUserId);
-        // Update local state
         setUsers((prevUsers) =>
           prevUsers.map((user) =>
             user.id === statusUserId ? { ...user, disabled: true } : user
@@ -236,7 +218,6 @@ const UserManagement: React.FC = () => {
         setSuccess("User disabled successfully");
       } else {
         await enableUser(statusUserId);
-        // Update local state
         setUsers((prevUsers) =>
           prevUsers.map((user) =>
             user.id === statusUserId ? { ...user, disabled: false } : user
@@ -248,7 +229,6 @@ const UserManagement: React.FC = () => {
       setShowStatusConfirm(false);
       setStatusUserId(null);
 
-      // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
       setError(
@@ -261,57 +241,50 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  // Get role badge
   const getRoleBadge = (role: UserRole) => {
     switch (role) {
       case "admin":
         return (
-          <span className="flex items-center px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800">
-            <Shield className="h-3 w-3 mr-1" />
+          <Badge variant="secondary" className="gap-1.5">
+            <Shield className="h-3 w-3" />
             Admin
-          </span>
+          </Badge>
         );
       case "user":
         return (
-          <span className="flex items-center px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+          <Badge variant="info" className="gap-1.5">
             User
-          </span>
+          </Badge>
         );
       case "super_admin":
         return (
-          <span className="flex items-center px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">
-            <Shield className="h-3 w-3 mr-1" />
+          <Badge variant="destructive" className="gap-1.5">
+            <Shield className="h-3 w-3" />
             Super Admin
-          </span>
+          </Badge>
         );
       default:
-        return (
-          <span className="flex items-center px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">
-            {role}
-          </span>
-        );
+        return <Badge variant="outline">{role}</Badge>;
     }
   };
 
-  // Get status badge
   const getStatusBadge = (disabled: boolean | undefined) => {
     if (disabled) {
       return (
-        <span className="flex items-center px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">
-          <CircleCheckBig className="h-3 w-3 mr-1" />
+        <Badge variant="destructive" className="gap-1.5">
+          <CircleCheckBig className="h-3 w-3" />
           Disabled
-        </span>
+        </Badge>
       );
     }
     return (
-      <span className="flex items-center px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
-        <CircleCheckBig className="h-3 w-3 mr-1" />
+      <Badge variant="success" className="gap-1.5">
+        <CircleCheckBig className="h-3 w-3" />
         Active
-      </span>
+      </Badge>
     );
   };
 
-  // Format date
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat("en-US", {
       year: "numeric",
@@ -320,358 +293,334 @@ const UserManagement: React.FC = () => {
     }).format(new Date(date));
   };
 
+  const actionButtonClass =
+    "h-8 w-8 p-0 rounded-lg inline-flex items-center justify-center";
+
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-foreground">
           Manage Organization Users
         </h1>
-        <Button
-          onClick={openAddModal}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center"
-        >
-          <UserPlus className="h-5 w-5 mr-1" />
-          Add User
-        </Button>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Add, edit, and manage users within your organization
+        </p>
       </div>
 
-      {/* Error message */}
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex justify-between items-center">
-          <span>{error}</span>
-          <Button onClick={() => setError(null)}>
-            <X className="h-5 w-5" />
-          </Button>
+        <div className="rounded-xl bg-red-50 p-4">
+          <div className="flex items-start">
+            <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+            <h3 className="text-sm font-medium text-red-800 ml-2">{error}</h3>
+            <button
+              onClick={() => setError(null)}
+              className="ml-auto text-red-400 hover:text-red-600"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Success message */}
       {success && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 flex justify-between items-center">
-          <span className="flex items-center">
-            <Check className="h-5 w-5 mr-1" />
-            {success}
-          </span>
-          <Button onClick={() => setSuccess(null)}>
-            <X className="h-5 w-5" />
-          </Button>
+        <div className="rounded-xl bg-green-50 p-4">
+          <div className="flex items-start">
+            <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+            <h3 className="text-sm font-medium text-green-800 ml-2">
+              {success}
+            </h3>
+            <button
+              onClick={() => setSuccess(null)}
+              className="ml-auto text-green-400 hover:text-green-600"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Search */}
-      <div className="relative mb-6">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-gray-400" />
+      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+        <div className="px-6 py-4 flex flex-wrap justify-between items-center gap-3 border-b border-border">
+          <div className="relative w-full max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search users..."
+              className="pl-9"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <Button onClick={openAddModal}>
+            <UserPlus className="h-4 w-4 mr-2" />
+            Add User
+          </Button>
         </div>
-        <input
-          type="text"
-          placeholder="Search users..."
-          className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
 
-      {/* Table */}
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      ) : filteredUsers.length === 0 ? (
-        <div className="text-center py-10 text-gray-600">No users found</div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  User
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Role
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Status
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Joined
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Last Login
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredUsers.map((user) => (
-                <tr key={user.id} className={user.disabled ? "bg-gray-50" : ""}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {user.name}
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader />
+          </div>
+        ) : filteredUsers.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            No users found
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-border">
+              <thead className="bg-muted/40">
+                <tr>
+                  {["User", "Role", "Status", "Joined", "Last Login", "Actions"].map(
+                    (h) => (
+                      <th
+                        key={h}
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider"
+                      >
+                        {h}
+                      </th>
+                    )
+                  )}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {filteredUsers.map((user) => (
+                  <tr
+                    key={user.id}
+                    className={`hover:bg-muted/40 transition-colors ${
+                      user.disabled ? "bg-muted/20" : ""
+                    }`}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-sm flex-shrink-0">
+                          {(user.name || user.email)
+                            .charAt(0)
+                            .toUpperCase()}
                         </div>
-                        <div className="text-sm text-gray-500">
-                          {user.email}
+                        <div className="ml-3">
+                          <div className="text-sm font-medium text-foreground">
+                            {user.name || "—"}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {user.email}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getRoleBadge(user.role)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(user.disabled)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {formatDate(user.createdAt)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {formatDate(user.lastLogin)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex justify-end space-x-2">
-                      <Button
-                        onClick={() =>
-                          confirmToggleUserStatus(
-                            user.id,
-                            Boolean(user.disabled)
-                          )
-                        }
-                        className={`${
-                          user.disabled
-                            ? "bg-green-100 hover:bg-green-200 text-green-700"
-                            : "bg-yellow-100 hover:bg-yellow-200 text-yellow-700"
-                        } p-2 rounded`}
-                        title={user.disabled ? "Enable User" : "Disable User"}
-                      >
-                        {user.disabled ? (
-                          <CircleCheckBig className="h-4 w-4" />
-                        ) : (
-                          <Ban className="h-4 w-4" />
-                        )}
-                      </Button>
-                      <Button
-                        onClick={() => openEditModal(user)}
-                        className="bg-blue-100 hover:bg-blue-200 text-blue-700 p-2 rounded"
-                        title="Edit Role"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        onClick={() => confirmRemoveUser(user.id)}
-                        className="bg-red-100 hover:bg-red-200 text-red-700 p-2 rounded"
-                        title="Remove from Organization"
-                        disabled={
-                          user.id ===
-                            users.find((u) => u.role === "admin")?.id &&
-                          users.filter((u) => u.role === "admin").length === 1
-                        }
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {getRoleBadge(user.role)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {getStatusBadge(user.disabled)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                      {user.createdAt ? formatDate(user.createdAt) : "—"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                      {user.lastLogin ? formatDate(user.lastLogin) : "—"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end gap-1.5">
+                        <Button
+                          onClick={() =>
+                            confirmToggleUserStatus(
+                              user.id,
+                              Boolean(user.disabled)
+                            )
+                          }
+                          variant="outline"
+                          className={actionButtonClass}
+                          title={user.disabled ? "Enable User" : "Disable User"}
+                        >
+                          {user.disabled ? (
+                            <CircleCheckBig className="h-4 w-4 text-green-600" />
+                          ) : (
+                            <Ban className="h-4 w-4 text-amber-600" />
+                          )}
+                        </Button>
+                        <Button
+                          onClick={() => openEditModal(user)}
+                          variant="outline"
+                          className={actionButtonClass}
+                          title="Edit Role"
+                        >
+                          <Edit className="h-4 w-4 text-primary" />
+                        </Button>
+                        <Button
+                          onClick={() => confirmRemoveUser(user.id)}
+                          variant="outline"
+                          className={actionButtonClass}
+                          title="Remove from Organization"
+                          disabled={
+                            user.id ===
+                              users.find((u) => u.role === "admin")?.id &&
+                            users.filter((u) => u.role === "admin").length === 1
+                          }
+                        >
+                          <Trash2 className="h-4 w-4 text-red-600" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <Modal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        title={
+          modalMode === "add" ? "Add User to Organization" : "Edit User Role"
+        }
+        description={
+          modalMode === "add"
+            ? "Invite a new user to your organization"
+            : "Change the role assigned to this user"
+        }
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setShowModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={
+                modalMode === "add" ? handleAddUser : handleUpdateUserRole
+              }
+            >
+              <Save className="h-4 w-4 mr-1" />
+              {modalMode === "add" ? "Add User" : "Update Role"}
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          {modalMode === "add" && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">
+                  Name
+                </label>
+                <Input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="John Doe"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">
+                  User Email
+                </label>
+                <Input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="user@example.com"
+                  required
+                />
+              </div>
+            </>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">
+              Role
+            </label>
+            <select
+              name="role"
+              value={formData.role}
+              onChange={handleInputChange}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
         </div>
-      )}
+      </Modal>
 
-      {/* Add/Edit User Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-gray-900/70 flex items-center justify-center z-50">
-          <div className=" rounded-lg bg-slate-100 shadow-lg shadow-gray-600 p-6 w-full max-w-md z-100">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">
-                {modalMode === "add"
-                  ? "Add User to Organization"
-                  : "Edit User Role"}
-              </h2>
-              <Button
-                onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-indigo-600  bg-white hover:bg-white hover:scale-110"
-              >
-                <X className="h-6 w-6" />
-              </Button>
-            </div>
+      <Modal
+        open={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        title="Confirm Removal"
+        description="Are you sure you want to remove this user from the organization? They will lose access to all organization resources."
+        footer={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteConfirm(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleRemoveUser}
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              Remove User
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-muted-foreground">
+          This action cannot be undone.
+        </p>
+      </Modal>
 
-            <div className="space-y-4">
-              {modalMode === "add" && (
+      <Modal
+        open={showStatusConfirm}
+        onClose={() => setShowStatusConfirm(false)}
+        title={`Confirm ${isDisabling ? "Disable" : "Enable"} User`}
+        description={
+          isDisabling
+            ? "Are you sure you want to disable this user? They will not be able to access the organization until re-enabled."
+            : "Are you sure you want to enable this user? They will regain access to the organization."
+        }
+        footer={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => setShowStatusConfirm(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleToggleUserStatus}
+              disabled={isStatusLoading}
+              variant={isDisabling ? "outline" : "default"}
+              className={isDisabling ? "text-amber-600 border-amber-300 hover:bg-amber-50" : ""}
+            >
+              {isStatusLoading ? (
                 <>
-                  <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-1">
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="John Doe"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-1">
-                      User Email
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="user@example.com"
-                      required
-                    />
-                  </div>
+                  <div className="h-4 w-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                  {isDisabling ? "Disabling..." : "Enabling..."}
+                </>
+              ) : (
+                <>
+                  {isDisabling ? (
+                    <Ban className="h-4 w-4 mr-1" />
+                  ) : (
+                    <CircleCheckBig className="h-4 w-4 mr-1" />
+                  )}
+                  {isDisabling ? "Disable User" : "Enable User"}
                 </>
               )}
-
-              <div>
-                <label className="block text-gray-700 text-sm font-medium mb-1">
-                  Role
-                </label>
-                <select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="user">User</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="mt-6 flex justify-end space-x-3">
-              <Button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-white bg-red-600 hover:bg-red-700"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={
-                  modalMode === "add" ? handleAddUser : handleUpdateUserRole
-                }
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center"
-              >
-                <Save className="h-4 w-4 mr-1" />
-                {modalMode === "add" ? "Add User" : "Update Role"}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Remove User Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-gray-900/70  bg-opacity-50  bg-shadow-md flex items-center justify-center z-50">
-          <div className="bg-slate-100 shadow-lg shadow-gray-600 rounded-lg p-6 w-full max-w-md">
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">
-                Confirm Removal
-              </h2>
-              <p className="text-gray-600 mt-2">
-                Are you sure you want to remove this user from the organization?
-                They will lose access to all organization resources.
-              </p>
-            </div>
-
-            <div className="flex justify-end space-x-3">
-              <Button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-black bg-gray-200 hover:bg-gray-100"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleRemoveUser}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center"
-              >
-                <Trash2 className="h-4 w-4 mr-1" />
-                Remove User
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Toggle User Status Confirmation Modal */}
-      {showStatusConfirm && (
-        <div className="fixed inset-0 bg-gray-900/70 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-slate-100 shadow-lg shadow-gray-600 rounded-lg p-6 w-full max-w-md">
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">
-                Confirm {isDisabling ? "Disable" : "Enable"} User
-              </h2>
-              <p className="text-gray-600 mt-2">
-                {isDisabling
-                  ? "Are you sure you want to disable this user? They will not be able to access the organization until re-enabled."
-                  : "Are you sure you want to enable this user? They will regain access to the organization."}
-              </p>
-            </div>
-
-            <div className="flex justify-end space-x-3">
-              <Button
-                onClick={() => setShowStatusConfirm(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-black bg-gray-200 hover:bg-gray-100"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleToggleUserStatus}
-                disabled={isStatusLoading}
-                className={`px-4 py-2 ${
-                  isDisabling
-                    ? "bg-yellow-600 hover:bg-yellow-700"
-                    : "bg-green-600 hover:bg-green-700"
-                } text-white rounded-md flex items-center`}
-              >
-                {isStatusLoading ? (
-                  <>
-                    <div className="h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    {isDisabling ? "Disabling..." : "Enabling..."}
-                  </>
-                ) : (
-                  <>
-                    {isDisabling ? (
-                      <Ban className="h-4 w-4 mr-1" />
-                    ) : (
-                      <CircleCheckBig className="h-4 w-4 mr-1" />
-                    )}
-                    {isDisabling ? "Disable User" : "Enable User"}
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-muted-foreground">
+          The user&apos;s access will be{" "}
+          {isDisabling ? "revoked" : "restored"} immediately.
+        </p>
+      </Modal>
     </div>
   );
 };

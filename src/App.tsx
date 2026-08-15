@@ -1,5 +1,5 @@
 // src/App.tsx
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -16,8 +16,10 @@ import Dashboard from "./pages/Dashboard";
 import Organizations from "./pages/Organizations";
 import FileManager from "./pages/FileManager";
 import SharedDirectory from "./components/shared/SharedDirectory"; // Import the SharedDirectory component
-import TranslationPage from "./pages/TranslationPage";
 import Profile from "./pages/Profile";
+import Loader from "./components/ui/loader";
+
+const TranslationPage = lazy(() => import("./pages/TranslationPage"));
 import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
 import AuthGuard from "./components/auth/AuthGuard";
@@ -44,6 +46,7 @@ const App: React.FC = () => {
   return (
     <AuthProvider>
       <Router>
+        <Suspense fallback={<Loader className="h-screen" />}>
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Home />} />
@@ -178,9 +181,10 @@ const App: React.FC = () => {
           {/* Fallback routes */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
       <ToastContainer position="top-center" autoClose={5000} />
       </Router>
-    </AuthProvider>
+      </AuthProvider>
   );
 };
 

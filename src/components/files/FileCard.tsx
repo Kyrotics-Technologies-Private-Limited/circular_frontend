@@ -1,249 +1,8 @@
-// import React from 'react';
-// import { FileItem } from '../../types/File';
-
-// interface FileCardProps {
-//   file: FileItem;
-//   isSelected: boolean;
-//   onSelect: () => void;
-//   onClick: () => void;
-// }
-
-// const FileCard: React.FC<FileCardProps> = ({ file, isSelected, onSelect, onClick }) => {
-//   // Format file size
-//   const formatFileSize = (bytes: number): string => {
-//     if (bytes === 0) return '0 Bytes';
-
-//     const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-//     const i = Math.floor(Math.log(bytes) / Math.log(1024));
-
-//     return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i];
-//   };
-
-//   // Get icon based on file type
-//   const getFileIcon = (): React.ReactElement => {
-//     if (file.type.includes('pdf')) {
-//       return (
-//         <svg className="h-8 w-8 text-red-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-//           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-//         </svg>
-//       );
-//     } else if (file.type.includes('word') || file.type.includes('document')) {
-//       return (
-//         <svg className="h-8 w-8 text-blue-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-//           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-//         </svg>
-//       );
-//     } else {
-//       return (
-//         <svg className="h-8 w-8 text-gray-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-//           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-//         </svg>
-//       );
-//     }
-//   };
-
-//   // Format date
-//   const formatDate = (date: Date): string => {
-//     return new Date(date).toLocaleDateString();
-//   };
-
-//   // Check if file has been translated
-//   const hasTranslation = !!file.translatedContent;
-
-//   return (
-//     <div
-//       className={`relative rounded-lg border border-gray-300 bg-white p-4 shadow-sm hover:shadow
-//         ${isSelected ? 'ring-2 ring-indigo-500' : ''}`}
-//     >
-//       <div className="flex items-start space-x-2">
-//         <div className="flex-shrink-0">
-//           {getFileIcon()}
-//         </div>
-//         <div className="min-w-0 flex-1">
-//           <h3 className="text-sm font-medium text-gray-900 truncate max-w-full" title={file.name}>
-//             {file.name}
-//           </h3>
-//           <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
-//           <p className="text-xs text-gray-500">Uploaded: {formatDate(file.uploadedAt)}</p>
-
-//           {hasTranslation && (
-//             <div className="mt-1">
-//               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-//                 Translated
-//               </span>
-//             </div>
-//           )}
-//         </div>
-//         <div className="flex-shrink-0 self-start z-10">
-//           <input
-//             type="checkbox"
-//             className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-//             checked={isSelected}
-//             onChange={onSelect}
-//             onClick={(e) => e.stopPropagation()}
-//           />
-//         </div>
-//       </div>
-
-//       <div
-//         className="absolute inset-0 cursor-pointer"
-//         onClick={onClick}
-//       ></div>
-//     </div>
-//   );
-// };
-
-// export default FileCard;
-
-// src/components/files/FileCard.tsx
-// import React from "react";
-// import { FileItem } from "../../types/File";
-// import FileCardActions from "./fileCardActions";
-
-// interface FileCardProps {
-//   file: FileItem;
-//   isSelected: boolean;
-//   onSelect: () => void;
-//   onClick: () => void;
-//   isShared?: boolean;
-// }
-
-// const FileCard: React.FC<FileCardProps> = ({
-//   file,
-//   isSelected,
-//   onSelect,
-//   onClick,
-//   isShared = false,
-// }) => {
-//   const getFileIcon = () => {
-//     if (file.type?.includes("pdf")) {
-//       return (
-//         <svg
-//           className="h-10 w-10 text-red-500"
-//           xmlns="http://www.w3.org/2000/svg"
-//           fill="none"
-//           viewBox="0 0 24 24"
-//           stroke="currentColor"
-//         >
-//           <path
-//             strokeLinecap="round"
-//             strokeLinejoin="round"
-//             strokeWidth={2}
-//             d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-//           />
-//         </svg>
-//       );
-//     } else if (file.type?.includes("word") || file.type?.includes("document")) {
-//       return (
-//         <svg
-//           className="h-10 w-10 text-blue-500"
-//           xmlns="http://www.w3.org/2000/svg"
-//           fill="none"
-//           viewBox="0 0 24 24"
-//           stroke="currentColor"
-//         >
-//           <path
-//             strokeLinecap="round"
-//             strokeLinejoin="round"
-//             strokeWidth={2}
-//             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-//           />
-//         </svg>
-//       );
-//     } else {
-//       return (
-//         <svg
-//           className="h-10 w-10 text-gray-500"
-//           xmlns="http://www.w3.org/2000/svg"
-//           fill="none"
-//           viewBox="0 0 24 24"
-//           stroke="currentColor"
-//         >
-//           <path
-//             strokeLinecap="round"
-//             strokeLinejoin="round"
-//             strokeWidth={2}
-//             d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-//           />
-//         </svg>
-//       );
-//     }
-//   };
-
-//   return (
-//     <div
-//       className={`relative rounded-lg border border-gray-300 bg-white p-6 shadow-sm hover:shadow cursor-pointer
-//         ${isSelected ? "ring-2 ring-indigo-500" : ""}`}
-//       onClick={onClick}
-//     >
-//       <div className="flex items-center justify-between">
-//         <div className="flex items-center">
-//           <div className="flex-shrink-0">{getFileIcon()}</div>
-//           <div className="ml-3 flex-1 text-wrap">
-//             <h3 className="text-sm font-medium text-gray-900 truncate max-w-full">
-//               {file.name}
-//             </h3>
-//             <div className="flex flex-wrap items-center mt-1">
-//               <p className="text-xs text-gray-500 mr-2">
-//                 {file.size ? (file.size / 1024).toFixed(0) + " KB" : ""}
-//               </p>
-
-//               {(isShared || file.isShared) && (
-//                 <span className="inline-flex items-center mr-2 px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-//                   Shared
-//                 </span>
-//               )}
-
-//               {file.isPublic && (
-//                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-//                   Public
-//                 </span>
-//               )}
-//             </div>
-//           </div>
-//         </div>
-
-//         <div
-//           className="ml-4 flex items-center space-x-2"
-//           onClick={(e) => e.stopPropagation()}
-//         >
-//           <input
-//             type="checkbox"
-//             className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-//             checked={isSelected}
-//             onChange={onSelect}
-//             onClick={(e) => e.stopPropagation()}
-//           />
-
-//           <FileCardActions item={file} type="file" onSuccess={() => {}} />
-//         </div>
-//       </div>
-
-//       {/* {file.translations && (
-//         <div className="mt-2 pt-2 border-t border-gray-200">
-//           <p className="text-xs font-medium text-gray-600">Translations:</p>
-//           <div className="flex flex-wrap gap-1 mt-1">
-//             {Object.keys(file.translations).map((lang) => (
-//               <span
-//                 key={lang}
-//                 className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800"
-//               >
-//                 {lang}
-//               </span>
-//             ))}
-//           </div>
-//         </div>
-//       )} */}
-//     </div>
-//   );
-// };
-
-// export default FileCard;
-
 // src/components/files/FileCard.tsx
 import React from "react";
 import { FileItem } from "../../types/File";
 import FileCardActions from "./fileCardActions";
+import { FileText, Share2, Globe, File as FileIcon } from "lucide-react";
 
 interface FileCardProps {
   file: FileItem;
@@ -263,72 +22,42 @@ const FileCard: React.FC<FileCardProps> = ({
   const getFileIcon = () => {
     if (file.type?.includes("pdf")) {
       return (
-        <svg
-          className="h-10 w-10 text-red-500"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-          />
-        </svg>
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/10 text-red-600 flex-shrink-0">
+          <FileText className="h-6 w-6" strokeWidth={1.75} />
+        </div>
       );
     } else if (file.type?.includes("word") || file.type?.includes("document")) {
       return (
-        <svg
-          className="h-10 w-10 text-blue-500"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-          />
-        </svg>
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 flex-shrink-0">
+          <FileText className="h-6 w-6" strokeWidth={1.75} />
+        </div>
       );
     } else {
       return (
-        <svg
-          className="h-10 w-10 text-gray-500"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-          />
-        </svg>
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-500/10 text-slate-500 flex-shrink-0">
+          <FileIcon className="h-6 w-6" strokeWidth={1.75} />
+        </div>
       );
     }
   };
 
   return (
     <div
-      className={`relative rounded-lg border border-gray-300 bg-white p-6 shadow-sm hover:shadow cursor-pointer
-        ${isSelected ? "ring-2 ring-indigo-500" : ""}`}
+      className={`group relative rounded-2xl border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer ${
+        isSelected
+          ? "border-primary ring-2 ring-primary/30"
+          : "border-border hover:border-primary/30"
+      }`}
       onClick={onClick}
     >
       {/* Checkbox positioned at top right corner */}
-      <div 
+      <div
         className="absolute top-3 right-3"
         onClick={(e) => e.stopPropagation()}
       >
         <input
           type="checkbox"
-          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+          className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
           checked={isSelected}
           onChange={onSelect}
           onClick={(e) => e.stopPropagation()}
@@ -337,33 +66,32 @@ const FileCard: React.FC<FileCardProps> = ({
 
       <div className="flex items-start">
         <div className="flex-shrink-0">{getFileIcon()}</div>
-        <div className="ml-3 flex-1 min-w-0"> {/* min-width: 0 ensures proper text truncation */}
-          <h3 className="text-sm font-medium text-gray-900 truncate max-w-full">
+        <div className="ml-3 flex-1 min-w-0">
+          <h3 className="text-sm font-semibold text-foreground truncate max-w-full" title={file.name}>
             {file.name}
           </h3>
           <div className="flex flex-col mt-1.5 space-y-1">
-            <div className="flex items-center text-xs text-gray-500">
+            <div className="flex items-center text-xs text-muted-foreground">
               <span>{file.size ? (file.size / 1024).toFixed(0) + " KB" : "0 KB"}</span>
-              
+
               {file.isPublic && (
-                <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700 border border-green-200">
+                <span className="ml-2 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700 border border-green-200">
+                  <Globe className="h-2.5 w-2.5" />
                   Public
                 </span>
               )}
             </div>
 
             {(isShared || file.isShared) && (
-              <div className="flex flex-col text-[11px] text-gray-500 mt-0.5">
+              <div className="flex flex-col text-[11px] text-muted-foreground mt-0.5">
                 <div className="flex items-center max-w-full">
-                  <svg className="w-3 h-3 mr-1 text-indigo-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                  </svg>
-                  <span className="truncate font-medium text-indigo-600" title={file.sharedByName || ""}>
+                  <Share2 className="h-3 w-3 mr-1 text-primary flex-shrink-0" />
+                  <span className="truncate font-medium text-primary" title={file.sharedByName || ""}>
                     {file.sharedByName ? file.sharedByName : "Shared"}
                   </span>
                 </div>
                 {file.sharedAt && (
-                  <span className="text-gray-400 mt-0.5 ml-4">
+                  <span className="text-muted-foreground mt-0.5 ml-4">
                     {new Date(file.sharedAt).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
@@ -377,29 +105,12 @@ const FileCard: React.FC<FileCardProps> = ({
         </div>
       </div>
 
-      {/* FileCardActions below the file info */}
-      <div 
+      <div
         className="absolute bottom-3 right-3"
         onClick={(e) => e.stopPropagation()}
       >
         <FileCardActions item={file} type="file" onSuccess={() => {}} />
       </div>
-
-      {/* {file.translations && (
-        <div className="mt-2 pt-2 border-t border-gray-200">
-          <p className="text-xs font-medium text-gray-600">Translations:</p>
-          <div className="flex flex-wrap gap-1 mt-1">
-            {Object.keys(file.translations).map((lang) => (
-              <span
-                key={lang}
-                className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800"
-              >
-                {lang}
-              </span>
-            ))}
-          </div>
-        </div>
-      )} */}
     </div>
   );
 };

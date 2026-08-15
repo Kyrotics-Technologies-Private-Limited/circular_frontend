@@ -1,8 +1,6 @@
 // src/components/translation/TranslationEditor.tsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-// import ReactQuill from 'react-quill';
-// import "react-quill/dist/quill.snow.css";
 import { getFileById } from "../../services/file.service";
 import {
   translateFile,
@@ -11,12 +9,11 @@ import {
 import { FileItem } from "../../types/File";
 import { LanguageOption } from "../../types/Translation";
 import SplitView from "./SplitView";
-// @ts-ignore
-import html2pdf from 'html2pdf.js';
 import TranslationOptions from "./TranslationOptions";
 import { Button } from "../ui/button";
-import { CornerUpLeft, Download } from "lucide-react";
-// import { set } from "date-fns";
+import Loader from "@/components/ui/loader";
+import { toast } from "react-toastify";
+import { CornerUpLeft, Download, Loader2 } from "lucide-react";
 
 const TranslationEditor: React.FC = () => {
   const { fileId } = useParams<{ fileId: string }>();
@@ -30,20 +27,13 @@ const TranslationEditor: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [translating, setTranslating] = useState(false);
   const [downloading, setDownloading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // const quillRef = useRef<ReactQuill | null>(null);
-  const quillRef = useRef< null>(null);
-
-  // Fetch file data and languages
   useEffect(() => {
     const fetchData = async () => {
       if (!fileId) return;
 
       try {
         setLoading(true);
-        setError(null);
 
         const [fileData, languagesData] = await Promise.all([
           getFileById(fileId),
@@ -54,15 +44,12 @@ const TranslationEditor: React.FC = () => {
         setOriginalContent(fileData.url || "");
         setTranslatedContent(fileData.translatedContent || "");
 
-        // if (fileData.targetLanguage) {
-        //   setTargetLanguage(fileData.targetLanguage);
-        // }
-        setTargetLanguage(languagesData[0].name || "Bengali"); // Default to Spanish if not set
+        setTargetLanguage(languagesData[0].name || "Bengali");
 
         setLanguages(languagesData);
       } catch (err: any) {
         console.error("Error fetching data:", err);
-        setError(err.message || "Failed to load file data");
+        toast.error(err.message || "Failed to load file data", { autoClose: 6000 });
       } finally {
         setLoading(false);
       }
@@ -71,49 +58,52 @@ const TranslationEditor: React.FC = () => {
     fetchData();
   }, [fileId]);
 
- 
-
-  // Handle translation
   const handleTranslate = async () => {
     if (!fileId) return;
 
     try {
-      setError(null);
-      setSuccessMessage(null);
       setTranslating(true);
 
       const result = await translateFile(fileId, targetLanguage);
 
-      setTranslatedContent(result);
-      setSuccessMessage("Translation completed successfully");
+      setTranslatedContent(result.translatedContent);
 
-      // Update file data
+      if (result.translationStatus === 'PARTIAL' || result.warnings) {
+        const warns = result.warnings || ["Translation completed with quality warnings."];
+        toast.warning(warns.join('\n'), { autoClose: 8000 });
+        toast.success("Translation completed (Partial/Warnings). Please review.", { autoClose: 4000 });
+      } else if (result.translationStatus === 'FAILED') {
+        toast.error("Translation failed validation gate. The output might be corrupted.", { autoClose: 8000 });
+      } else {
+        toast.success("Translation completed successfully.", { autoClose: 4000 });
+      }
+
       if (file) {
         setFile({
           ...file,
-          translatedContent: result,
+          translatedContent: result.translatedContent,
           targetLanguage,
         });
       }
-
-      console.log("Translation result:", file);
     } catch (err: any) {
       console.error("Error translating:", err);
-      setError(err.message || "Failed to translate file");
+      const errorMessage = err.response?.data?.message || err.message || "Failed to translate file";
+      toast.error(errorMessage, { autoClose: 6000 });
     } finally {
       setTranslating(false);
     }
   };
 
   // Handle download via html2pdf (direct PDF download)
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!translatedContent) return;
 
-    try {
-      setDownloading(true);
-      setError(null);
+      try {
+        setDownloading(true);
 
-      // html2canvas (used by html2pdf) crashes when trying to parse modern 'oklch' CSS functions
+        const { default: html2pdf } = await import("html2pdf.js");
+
+        // html2canvas (used by html2pdf) crashes when trying to parse modern 'oklch' CSS functions
       // used heavily by Tailwind. We intercept getComputedStyle to safely replace them.
       const originalGetComputedStyle = window.getComputedStyle;
       window.getComputedStyle = function(el, pseudoElt) {
@@ -122,15 +112,15 @@ const TranslationEditor: React.FC = () => {
           get(target, prop) {
             // Use target instead of receiver to avoid Illegal Invocation for native getters
             const value = (target as any)[prop];
-            
+
             // Native methods must be bound to the original target
             if (typeof value === 'function') {
               return value.bind(target);
             }
-            
+
             if (typeof value === 'string' && value.includes('oklch')) {
               // Replace any oklch color with a safe white/transparent fallback
-              return 'rgba(255, 255, 255, 0)'; 
+              return 'rgba(255, 255, 255, 0)';
             }
             return value;
           }
@@ -141,10 +131,8 @@ const TranslationEditor: React.FC = () => {
         window.getComputedStyle = originalGetComputedStyle;
       };
 
-      // Create a temporary container for the PDF content
       const element = document.createElement('div');
-      
-      // Inject the translated HTML with strict PDF-friendly styling
+
       element.innerHTML = `
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #000; font-size: 14px; background-color: #fff;">
           <style>
@@ -158,7 +146,6 @@ const TranslationEditor: React.FC = () => {
         </div>
       `;
 
-      // Configure html2pdf options
       const opt: any = {
         margin:       15,
         filename:     `${file?.name?.replace('.pdf', '') || 'Document'}_translated.pdf`,
@@ -167,122 +154,85 @@ const TranslationEditor: React.FC = () => {
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      // Generate and save the PDF
       html2pdf().set(opt).from(element).save().then(() => {
         cleanup();
         setDownloading(false);
       }).catch((err: any) => {
         cleanup();
         console.error("Error generating PDF:", err);
-        setError("Failed to generate PDF. Check console for details.");
+        toast.error("Failed to generate PDF. Check console for details.", { autoClose: 6000 });
         setDownloading(false);
       });
     } catch (err: any) {
       console.error("Error setting up PDF generator:", err);
-      setError("Failed to initialize PDF generator");
+      toast.error("Failed to initialize PDF generator", { autoClose: 6000 });
       setDownloading(false);
     }
   };
 
-  // Handle back Button
   const handleBack = () => {
     navigate(-1);
   };
 
-  // Handle translated content change
   const handleTranslatedContentChange = (content: string) => {
     setTranslatedContent(content);
-
   };
 
-  // Handle language change
   const handleLanguageChange = (language: string) => {
     setTargetLanguage(language);
   };
 
-  // Quill editor modules and formats
-  const quillModules = {
-    toolbar: [
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      ["bold", "italic", "underline", "strike"],
-      [{ list: "ordered" }, { list: "bullet" }],
-      [{ script: "sub" }, { script: "super" }],
-      [{ indent: "-1" }, { indent: "+1" }],
-      [{ align: [] }],
-      ["clean"],
-    ],
-  };
-
-  const quillFormats = [
-    "header",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "list",
-    "bullet",
-    "script",
-    "indent",
-    "align",
-  ];
-
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <div className="spinner">Loading...</div>
+        <Loader />
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col space-y-2">
-      <div className="flex items-center justify-between bg-white p-2 border border-gray-300 rounded-md overflow-x-auto gap-2">
-        <div className="flex items-center space-x-2 flex-shrink-0">
+    <div className="h-full flex flex-col gap-3">
+      <div className="flex items-center justify-between bg-card p-1.5 border border-border rounded-xl overflow-x-auto gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <Button
             onClick={handleBack}
-            className="inline-flex items-center px-2 h-8 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            variant="outline"
+            size="sm"
+            className="h-7"
           >
-            <CornerUpLeft className="mr-1 h-3 w-3" />
+            <CornerUpLeft className="mr-1 h-3.5 w-3.5" />
             Back
           </Button>
-          
-          <h1 className="text-sm font-semibold text-gray-900 truncate max-w-[150px] lg:max-w-[200px]" title={file?.name}>
+
+          <h1 className="text-sm font-semibold text-foreground truncate max-w-[150px] lg:max-w-[200px]" title={file?.name}>
             {file?.name}
           </h1>
         </div>
 
-        <div className="flex items-center space-x-2 flex-shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <TranslationOptions
             languages={languages}
             selectedLanguage={targetLanguage}
             onLanguageChange={handleLanguageChange}
-            sourceLanguage="English" // Assuming source language is always English
+            sourceLanguage="English"
             onSourceLanguageChange={() => {}}
             onTranslate={handleTranslate}
             translating={translating}
             hasOriginalContent={!!originalContent}
           />
-          
-          <div className="h-6 w-px bg-gray-300 mx-1"></div>
 
-          {/* <Button
-            onClick={handleSaveChanges}
-            disabled={saving || !translatedContent}
-            className="inline-flex justify-center items-center px-3 h-8 border border-transparent shadow-sm text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-green-400"
-          >
-            {saving ? "Saving..." : "Save"}
-          </Button> */}
+          <div className="h-5 w-px bg-border mx-0.5"></div>
+
           <Button
             onClick={handleDownload}
             disabled={downloading || !translatedContent}
-            className="inline-flex items-center px-2 h-8 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+            variant="outline"
+            size="sm"
+            className="h-7"
             title="Download PDF"
           >
             {downloading ? (
-              <svg className="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <Download className="h-4 w-4" />
             )}
@@ -290,41 +240,13 @@ const TranslationEditor: React.FC = () => {
         </div>
       </div>
 
-      {error && (
-        <div className="rounded-md bg-red-50 p-4">
-          <div className="flex">
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">{error}</h3>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {successMessage && (
-        <div className="rounded-md bg-green-50 p-4">
-          <div className="flex">
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-green-800">
-                {successMessage}
-              </h3>
-            </div>
-          </div>
-        </div>
-      )}
-
-
-
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden min-h-0">
         <SplitView
           originalContent={originalContent}
           translatedContent={translatedContent}
           onTranslatedContentChange={handleTranslatedContentChange}
-          quillRef={quillRef}
-          quillModules={quillModules}
-          quillFormats={quillFormats}
         />
       </div>
-
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search, Plus, Edit, Trash2, X, Save, Eye } from "lucide-react";
+import { Search, Plus, Edit, Trash2, X, Save, Eye, AlertCircle, Building2 } from "lucide-react";
 
 import { Organization } from "../../types/Organization";
 import {
@@ -9,6 +9,10 @@ import {
   updateOrganization,
 } from "../../services/organization.service";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge, type BadgeProps } from "@/components/ui/badge";
+import { Modal } from "@/components/ui/modal";
+import Loader from "@/components/ui/loader";
 
 const ManageOrganizations: React.FC = () => {
   const [organizations, setOrganizations] = useState<Organization[]>([]);
@@ -29,7 +33,6 @@ const ManageOrganizations: React.FC = () => {
   const [deleteOrgId, setDeleteOrgId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch organizations from API
   useEffect(() => {
     const fetchOrganizations = async () => {
       setIsLoading(true);
@@ -50,10 +53,8 @@ const ManageOrganizations: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Filter and search logic
     let result = [...organizations];
 
-    // Apply search term
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       result = result.filter(
@@ -131,7 +132,6 @@ const ManageOrganizations: React.FC = () => {
       setError(null);
       await updateOrganization(selectedOrg.id, formData);
 
-      // Update local state
       setOrganizations((prevOrgs) =>
         prevOrgs.map((org) =>
           org.id === selectedOrg.id ? { ...org, ...formData } : org
@@ -156,7 +156,6 @@ const ManageOrganizations: React.FC = () => {
       setError(null);
       await deleteOrganization(deleteOrgId);
 
-      // Update local state
       setOrganizations((prevOrgs) =>
         prevOrgs.filter((org) => org.id !== deleteOrgId)
       );
@@ -169,321 +168,268 @@ const ManageOrganizations: React.FC = () => {
     }
   };
 
-  // Format date for display
-  // const formatDate = (date: Date) => {
-  //   return new Intl.DateTimeFormat('en-US', {
-  //     year: 'numeric',
-  //     month: 'short',
-  //     day: 'numeric'
-  //   }).format(new Date(date));
-  // };
-
-  // Get status badge color
-  const getStatusBadgeClass = (status: string) => {
-    switch (status) {
-      case "approved":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "rejected":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
+  const statusVariant = (status: string): BadgeProps["variant"] => {
+    if (status === "approved") return "success";
+    if (status === "pending") return "warning";
+    if (status === "rejected") return "destructive";
+    return "secondary";
   };
 
+  const actionButtonClass =
+    "h-8 w-8 p-0 rounded-lg inline-flex items-center justify-center";
+
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
-          Manage Organizations
-        </h1>
-        <Button
-          onClick={openCreateModal}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center"
-        >
-          <Plus className="h-5 w-5 mr-1" />
+    <div className="space-y-6">
+      <div className="flex justify-between items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">
+            Manage Organizations
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Create, edit, and manage all organizations
+          </p>
+        </div>
+        <Button onClick={openCreateModal}>
+          <Plus className="h-4 w-4 mr-2" />
           Add Organization
         </Button>
       </div>
 
-      {/* Error message */}
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          <span className="block sm:inline">{error}</span>
-          <Button className="float-right" onClick={() => setError(null)}>
-            <X className="h-5 w-5" />
-          </Button>
+        <div className="rounded-xl bg-red-50 p-4">
+          <div className="flex items-start">
+            <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+            <h3 className="text-sm font-medium text-red-800 ml-2">{error}</h3>
+            <button
+              onClick={() => setError(null)}
+              className="ml-auto text-red-400 hover:text-red-600"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Search */}
-      <div className="relative mb-6">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-gray-400" />
+      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-border">
+          <div className="relative w-full max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search organizations..."
+              className="pl-9"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
-        <input
-          type="text"
-          placeholder="Search organizations..."
-          className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader />
+          </div>
+        ) : filteredOrgs.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            No organizations found
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-border">
+              <thead className="bg-muted/40">
+                <tr>
+                  {["Organization", "CIN", "Status", "Created", "Actions"].map(
+                    (h) => (
+                      <th
+                        key={h}
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider"
+                      >
+                        {h}
+                      </th>
+                    )
+                  )}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {filteredOrgs.map((org) => (
+                  <tr key={org.id} className="hover:bg-muted/40 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary flex-shrink-0">
+                          <Building2 className="h-4 w-4" />
+                        </div>
+                        <div className="ml-3 font-medium text-foreground">
+                          {org.name}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-muted-foreground">
+                      {org.CIN}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <Badge variant={statusVariant(org.status)}>
+                        {org.status.charAt(0).toUpperCase() + org.status.slice(1)}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-muted-foreground">
+                      {org.createdAt
+                        ? new Date(org.createdAt).toLocaleDateString()
+                        : "—"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end gap-1.5">
+                        <Button
+                          onClick={() => openViewModal(org)}
+                          variant="outline"
+                          className={actionButtonClass}
+                          title="View"
+                        >
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                        <Button
+                          onClick={() => openEditModal(org)}
+                          variant="outline"
+                          className={actionButtonClass}
+                          title="Edit"
+                        >
+                          <Edit className="h-4 w-4 text-primary" />
+                        </Button>
+                        <Button
+                          onClick={() => confirmDelete(org.id)}
+                          variant="outline"
+                          className={actionButtonClass}
+                          title="Delete"
+                        >
+                          <Trash2 className="h-4 w-4 text-red-600" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
-      {/* Table */}
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      ) : filteredOrgs.length === 0 ? (
-        <div className="text-center py-10 text-gray-600">
-          No organizations found
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Organization
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  CIN
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Status
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Created
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredOrgs.map((org) => (
-                <tr key={org.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="font-medium text-gray-900">{org.name}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-900">
-                    {org.CIN}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(
-                        org.status
-                      )}`}
-                    >
-                      {org.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-900">
-                    {/* {formatDate(org.createdAt)} */}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex justify-end space-x-2">
-                      <Button
-                        onClick={() => openViewModal(org)}
-                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded"
-                        title="View"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        onClick={() => openEditModal(org)}
-                        className="bg-blue-100 hover:bg-blue-200 text-blue-700 p-2 rounded"
-                        title="Edit"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        onClick={() => confirmDelete(org.id)}
-                        className="bg-red-100 hover:bg-red-200 text-red-700 p-2 rounded"
-                        title="Delete"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Create/Edit/View Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-gray-900/70 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">
-                {modalMode === "create"
-                  ? "Add New Organization"
-                  : modalMode === "edit"
-                  ? "Edit Organization"
-                  : "Organization Details"}
-              </h2>
+      <Modal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        title={
+          modalMode === "create"
+            ? "Add New Organization"
+            : modalMode === "edit"
+            ? "Edit Organization"
+            : "Organization Details"
+        }
+        description={
+          modalMode === "create"
+            ? "Register a new organization in the system"
+            : modalMode === "edit"
+            ? "Update organization information and status"
+            : "View organization information"
+        }
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setShowModal(false)}>
+              Cancel
+            </Button>
+            {modalMode !== "view" && (
               <Button
-                onClick={() => setShowModal(false)}
-                className="p-0 bg-white text-gray-400 hover:bg-white hover:text-indigo-600"
+                onClick={
+                  modalMode === "create"
+                    ? handleCreateOrganization
+                    : handleUpdateOrganization
+                }
               >
-                <X className="text-sm" />
+                <Save className="h-4 w-4 mr-1" />
+                {modalMode === "create" ? "Create" : "Update"}
               </Button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-gray-700 text-sm font-medium mb-1">
-                  Organization Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  disabled={modalMode === "view"}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                />
-              </div>
-
-              <div>
-                <label className="block text-gray-700 text-sm font-medium mb-1">
-                  CIN (Company Identification Number)
-                </label>
-                <input
-                  type="text"
-                  name="CIN"
-                  value={formData.CIN}
-                  onChange={handleInputChange}
-                  disabled={modalMode === "view"}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                />
-              </div>
-
-              {(modalMode === "edit" || modalMode === "view") && (
-                <div>
-                  <label className="block text-gray-700 text-sm font-medium mb-1">
-                    Status
-                  </label>
-                  <select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleInputChange}
-                    disabled={modalMode === "view"}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                </div>
-              )}
-
-              {selectedOrg && modalMode === "view" && (
-                <>
-                  <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-1">
-                      Owner ID
-                    </label>
-                    <input
-                      type="text"
-                      value={selectedOrg.ownerUid}
-                      disabled
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-1">
-                      Created At
-                    </label>
-                    {/* <input
-                      type="text"
-                      value={formatDate(selectedOrg.createdAt)}
-                      disabled
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100"
-                    /> */}
-                  </div>
-                </>
-              )}
-            </div>
-
-            <div className="mt-6 flex justify-end space-x-3">
-              <Button
-                onClick={() => setShowModal(false)}
-                className="bg-red-500"
-              >
-                Cancel
-              </Button>
-
-              {modalMode !== "view" && (
-                <Button
-                  onClick={
-                    modalMode === "create"
-                      ? handleCreateOrganization
-                      : handleUpdateOrganization
-                  }
-                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 flex items-center"
-                >
-                  <Save className="h-4 w-4 mr-1" />
-                  {modalMode === "create" ? "Create" : "Update"}
-                </Button>
-              )}
-            </div>
+            )}
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">
+              Organization Name
+            </label>
+            <Input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              disabled={modalMode === "view"}
+            />
           </div>
-        </div>
-      )}
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-gray-900/70 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">
-                Confirm Deletion
-              </h2>
-              <p className="text-gray-600 mt-2">
-                Are you sure you want to delete this organization? This action
-                cannot be undone.
-              </p>
-            </div>
-
-            <div className="flex justify-end space-x-3">
-              <Button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md bg-slate-100 text-gray-700 hover:bg-slate-200"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleDeleteOrganization}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center"
-              >
-                <Trash2 className="h-4 w-4 mr-1" />
-                Delete
-              </Button>
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">
+              CIN (Company Identification Number)
+            </label>
+            <Input
+              type="text"
+              name="CIN"
+              value={formData.CIN}
+              onChange={handleInputChange}
+              disabled={modalMode === "view"}
+            />
           </div>
+
+          {(modalMode === "edit" || modalMode === "view") && (
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                Status
+              </label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleInputChange}
+                disabled={modalMode === "view"}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+          )}
+
+          {selectedOrg && modalMode === "view" && (
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                Owner ID
+              </label>
+              <Input type="text" value={selectedOrg.ownerUid} disabled />
+            </div>
+          )}
         </div>
-      )}
+      </Modal>
+
+      <Modal
+        open={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        title="Confirm Deletion"
+        description="Are you sure you want to delete this organization? This action cannot be undone."
+        footer={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteConfirm(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteOrganization}>
+              <Trash2 className="h-4 w-4 mr-1" />
+              Delete
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-muted-foreground">
+          All users and files associated with this organization will lose access.
+        </p>
+      </Modal>
     </div>
   );
 };
