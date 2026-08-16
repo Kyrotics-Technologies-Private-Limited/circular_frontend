@@ -28,7 +28,7 @@ const FileCard: React.FC<FileCardProps> = ({
       );
     } else if (file.type?.includes("word") || file.type?.includes("document")) {
       return (
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 flex-shrink-0">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary flex-shrink-0">
           <FileText className="h-6 w-6" strokeWidth={1.75} />
         </div>
       );

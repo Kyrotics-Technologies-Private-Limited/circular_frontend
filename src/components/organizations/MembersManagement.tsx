@@ -199,7 +199,7 @@ const MembersManagement: React.FC<MembersManagementProps> = ({
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                  className="mt-1 focus:ring-ring focus:border-primary block w-full shadow-sm sm:text-sm border-input rounded-md"
                   placeholder="Enter member's email"
                   required
                 />
@@ -217,7 +217,7 @@ const MembersManagement: React.FC<MembersManagementProps> = ({
                   name="role"
                   value={role}
                   onChange={(e) => setRole(e.target.value as "user" | "admin")}
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-input focus:outline-none focus:ring-ring focus:border-primary sm:text-sm rounded-md"
                 >
                   <option value="user">Member</option>
                   <option value="admin">Admin</option>
@@ -228,7 +228,7 @@ const MembersManagement: React.FC<MembersManagementProps> = ({
                 <button
                   type="submit"
                   disabled={adding}
-                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400"
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring disabled:bg-muted disabled:text-muted-foreground"
                 >
                   {adding ? "Adding..." : "Add Member"}
                 </button>
@@ -252,8 +252,8 @@ const MembersManagement: React.FC<MembersManagementProps> = ({
                 className="px-4 py-4 sm:px-6 flex items-center justify-between"
               >
                 <div className="flex items-center">
-                  <div className="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                    <span className="text-indigo-700 font-medium">
+                  <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-primary font-medium">
                       {member.displayName.charAt(0).toUpperCase()}
                     </span>
                   </div>
@@ -272,7 +272,7 @@ const MembersManagement: React.FC<MembersManagementProps> = ({
                     type="button"
                     onClick={() => handleRemoveMember(member.id)}
                     disabled={removing === member.id}
-                    className="inline-flex items-center px-3 py-1 border border-transparent text-xs leading-4 font-medium rounded text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                    className="inline-flex items-center px-3 py-1 border border-transparent text-xs leading-4 font-medium rounded text-destructive bg-destructive/10 hover:bg-destructive/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-destructive disabled:opacity-50"
                   >
                     {removing === member.id ? "Removing..." : "Remove"}
                   </button>

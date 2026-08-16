@@ -113,7 +113,7 @@ const OrganizationDetails: React.FC = () => {
         </h2>
         <button
           onClick={handleBack}
-          className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+          className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary-hover"
         >
           Back to Organizations
         </button>
@@ -171,7 +171,7 @@ const OrganizationDetails: React.FC = () => {
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                    className="mt-1 focus:ring-ring focus:border-primary block w-full shadow-sm sm:text-sm border-input rounded-md"
                   />
                 </div>
 
@@ -188,7 +188,7 @@ const OrganizationDetails: React.FC = () => {
                     id="cin"
                     value={CIN}
                     onChange={(e) => setCIN(e.target.value)}
-                    className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                    className="mt-1 focus:ring-ring focus:border-primary block w-full shadow-sm sm:text-sm border-input rounded-md"
                   />
                 </div>
 
@@ -203,7 +203,7 @@ const OrganizationDetails: React.FC = () => {
                   <button
                     type="submit"
                     disabled={saving}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary-hover"
                   >
                     {saving ? "Saving..." : "Save Changes"}
                   </button>
@@ -235,7 +235,7 @@ const OrganizationDetails: React.FC = () => {
                 <div className="flex justify-end">
                   <button
                     onClick={() => setEditing(true)}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary-hover"
                   >
                     Edit Organization
                   </button>

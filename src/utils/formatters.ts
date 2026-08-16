@@ -1,5 +1,69 @@
 // src/utils/formatters.ts
 
+type TimestampLike = {
+  seconds?: number;
+  nanoseconds?: number;
+  _seconds?: number;
+  _nanoseconds?: number;
+  toDate?: () => Date;
+};
+
+/**
+ * Safely parse a date from multiple formats:
+ * JS Date, ISO/date string, number, or a Firestore Timestamp object
+ * ({ seconds, nanoseconds }, { _seconds, _nanoseconds }, or with toDate()).
+ * Returns null when the value is missing or unparseable.
+ */
+export const parseDateValue = (date: unknown): Date | null => {
+  if (!date) return null;
+
+  if (date instanceof Date) {
+    return isNaN(date.getTime()) ? null : date;
+  }
+
+  if (typeof date === 'object') {
+    const ts = date as TimestampLike;
+    try {
+      if (typeof ts.toDate === 'function') {
+        const d = ts.toDate();
+        return isNaN(d.getTime()) ? null : d;
+      }
+      if (typeof ts._seconds === 'number') return new Date(ts._seconds * 1000);
+      if (typeof ts.seconds === 'number') return new Date(ts.seconds * 1000);
+    } catch {
+      return null;
+    }
+  }
+
+  if (typeof date === 'string' || typeof date === 'number') {
+    const d = new Date(date);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  return null;
+};
+
+/**
+ * Format a date (any supported format) to a readable string.
+ * Returns an empty string when the date is invalid or missing.
+ */
+export const formatDateValue = (
+  date: unknown,
+  includeTime: boolean = false
+): string => {
+  const dateObj = parseDateValue(date);
+  if (!dateObj) return '';
+
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    ...(includeTime ? { hour: '2-digit', minute: '2-digit' } : {})
+  };
+
+  return new Intl.DateTimeFormat('en-US', options).format(dateObj);
+};
+
 /**
  * Format date to a readable string
  * @param date Date object or string

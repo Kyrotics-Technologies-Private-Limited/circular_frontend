@@ -1,9 +1,12 @@
 // src/components/layout/Sidebar.tsx
-import React, { useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigation } from '../../contexts/NavigationContext';
-import { LayoutDashboard, FolderOpen, Share2, Building2, UserCircle, ShieldCheck, X, Languages } from 'lucide-react';
+import { LayoutDashboard, FolderOpen, Share2, Building2, UserCircle, ShieldCheck, X, Languages, LogOut } from 'lucide-react';
+import { logoutUser } from '../../services/auth.service';
+import { Modal } from '../ui/modal';
+import { Button } from '../ui/button';
 
 interface SidebarProps {
   onClose: () => void;
@@ -14,6 +17,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, showOrgManagement = false })
   const { currentUser } = useAuth();
   const { setActiveItem } = useNavigation();
   const location = useLocation();
+  const navigate = useNavigate();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const navigation = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
@@ -98,23 +112,49 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, showOrgManagement = false })
       </nav>
 
       <div className="flex-shrink-0 border-t border-sidebar-border p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-bold">
-            {initials}
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">
-              {currentUser?.name || 'User'}
-            </p>
-            <p className="text-xs text-muted-foreground truncate">{currentUser?.email}</p>
-            {currentUser?.role !== 'user' && (
-              <p className="text-xs font-semibold text-primary">
-                {currentUser?.role === 'super_admin' ? 'Super Admin' : 'Admin'}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-bold">
+              {initials}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-foreground truncate">
+                {currentUser?.name || 'User'}
               </p>
-            )}
+              <p className="text-xs text-muted-foreground truncate">{currentUser?.email}</p>
+            </div>
           </div>
+          <button
+            onClick={() => setShowLogoutModal(true)}
+            className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
+            title="Sign out"
+            aria-label="Sign out"
+          >
+            <LogOut className="h-5 w-5" />
+          </button>
         </div>
       </div>
+
+      <Modal
+        open={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        title="Sign Out"
+        description="Are you sure you want to sign out?"
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setShowLogoutModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleLogout}>
+              Sign out
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-foreground">
+          You will be safely logged out of Bhasantar.
+        </p>
+      </Modal>
     </div>
   );
 };

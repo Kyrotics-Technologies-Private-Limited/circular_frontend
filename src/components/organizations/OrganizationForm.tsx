@@ -83,7 +83,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
                 type="text"
                 name="name"
                 id="name"
-                className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                className="mt-1 focus:ring-ring focus:border-primary block w-full shadow-sm sm:text-sm border-input rounded-md"
                 placeholder="Enter organization name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -102,7 +102,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
                 type="text"
                 id="cin"
                 name="cin"
-                className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                className="mt-1 focus:ring-ring focus:border-primary block w-full shadow-sm sm:text-sm border-input rounded-md"
                 placeholder="Enter company identification number"
                 value={CIN}
                 onChange={(e) => setCIN(e.target.value)}
@@ -123,7 +123,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary-hover"
               >
                 {loading ? "Creating..." : "Create Organization"}
               </button>

@@ -5,6 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useOrganization } from "../contexts/OrganizationContext";
 import { getFiles } from "../services/file.service";
 import { FileItem } from "../types/File";
+import { parseDateValue } from "../utils/formatters";
 import {
   FileText,
   Languages,
@@ -31,7 +32,11 @@ const Dashboard: React.FC = () => {
         setLoading(true);
         const files = await getFiles(userType === 'organization' ? currentOrganization?.id : undefined);
         const sorted = [...files]
-          .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
+          .sort(
+            (a, b) =>
+              (parseDateValue(b.uploadedAt)?.getTime() ?? 0) -
+              (parseDateValue(a.uploadedAt)?.getTime() ?? 0)
+          )
           .slice(0, 5);
 
         setTotalFiles(files.length);

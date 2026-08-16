@@ -55,11 +55,8 @@ const FileExplorer: React.FC = () => {
   };
 
   const handleFileClick = (file: FileItem) => {
-    if (currentUser?.role === "admin") {
+    if (currentUser?.role === "admin" || currentUser?.role === "super_admin") {
       navigate(`/admin/translation/${file.id}`);
-      return;
-    } else if (currentUser?.role === "super_admin") {
-      navigate(`/super-admin/translation/${file.id}`);
       return;
     } else {
       navigate(`/translation/${file.id}`);

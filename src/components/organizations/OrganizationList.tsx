@@ -33,7 +33,7 @@ const OrganizationList: React.FC<OrganizationListProps> = ({
         <button
           type="button"
           onClick={onCreateNew}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring"
         >
           Create New
         </button>
@@ -45,9 +45,9 @@ const OrganizationList: React.FC<OrganizationListProps> = ({
             <li key={org.id}>
               <div className="px-4 py-4 sm:px-6 flex items-center justify-between">
                 <div className="flex items-center">
-                  <div className="flex-shrink-0 h-12 w-12 bg-indigo-100 rounded-md flex items-center justify-center">
+                  <div className="flex-shrink-0 h-12 w-12 bg-primary/10 rounded-md flex items-center justify-center">
                     <svg
-                      className="h-6 w-6 text-indigo-600"
+                      className="h-6 w-6 text-primary"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -75,13 +75,13 @@ const OrganizationList: React.FC<OrganizationListProps> = ({
                   <button
                     type="button"
                     // onClick={() => handleSelect(org)}
-                    className="inline-flex items-center px-3 py-1 border border-transparent text-xs leading-4 font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    className="inline-flex items-center px-3 py-1 border border-transparent text-xs leading-4 font-medium rounded text-primary bg-primary/10 hover:bg-primary/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring"
                   >
                     Select
                   </button>
                   <Link
                     to={`/organizations/${org.id}`}
-                    className="inline-flex items-center px-3 py-1 border border-gray-300 text-xs leading-4 font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    className="inline-flex items-center px-3 py-1 border border-gray-300 text-xs leading-4 font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring"
                   >
                     Manage
                   </Link>

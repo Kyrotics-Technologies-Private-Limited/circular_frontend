@@ -12,6 +12,7 @@ import { FileProvider } from "./contexts/FileContext";
 import { ShareProvider } from "./contexts/ShareContext"; // Add ShareProvider import
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
+import ForgotPassword from "./components/auth/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import Organizations from "./pages/Organizations";
 import FileManager from "./pages/FileManager";
@@ -52,6 +53,7 @@ const App: React.FC = () => {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
       
 
           {/* Protected routes for all authenticated users */}
