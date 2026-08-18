@@ -9,8 +9,6 @@ import { parseDateValue } from "../utils/formatters";
 import {
   FileText,
   Languages,
-  Upload,
-  FolderPlus,
   Share2,
   ArrowRight,
   Clock,
@@ -77,38 +75,14 @@ const Dashboard: React.FC = () => {
       iconBg: "bg-amber-500/10 text-amber-600",
     },
     {
-      title: "Quick Actions",
-      value: "3",
-      subtitle: "Upload, create, share",
-      icon: ArrowRight,
-      href: "/files",
-      linkText: "Open file manager",
+      title: userType === 'organization' ? "Shared Files" : "View All Files",
+      value: "View",
+      subtitle: userType === 'organization' ? "Collaborate with your team" : "Browse your documents",
+      icon: Share2,
+      href: userType === 'organization' ? "/shared" : "/files",
+      linkText: userType === 'organization' ? "Open shared directory" : "Open file manager",
       gradient: "from-slate-700 to-slate-700/70",
       iconBg: "bg-slate-500/10 text-slate-600",
-    },
-  ];
-
-  const quickActions = [
-    {
-      title: "Upload New File",
-      description: "Add documents to translate",
-      icon: Upload,
-      href: "/files",
-      accent: "bg-primary/10 text-primary",
-    },
-    {
-      title: "Create Folder",
-      description: "Organize your workspace",
-      icon: FolderPlus,
-      href: "/files",
-      accent: "bg-slate-500/10 text-slate-600",
-    },
-    {
-      title: userType === 'organization' ? "Share Files" : "View All Files",
-      description: userType === 'organization' ? "Collaborate with your team" : "Browse your documents",
-      icon: Share2,
-      href: "/files",
-      accent: "bg-amber-500/10 text-amber-600",
     },
   ];
 
@@ -150,27 +124,7 @@ const Dashboard: React.FC = () => {
         ))}
       </div>
 
-      {/* Quick Actions */}
-      <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
-        <div className="px-6 py-5 border-b border-border">
-          <h3 className="text-lg font-semibold text-foreground">Quick Actions</h3>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border">
-          {quickActions.map(({ title, description, icon: Icon, href, accent }) => (
-            <Link
-              key={title}
-              to={href}
-              className="p-6 flex flex-col items-center justify-center text-center hover:bg-muted/40 transition-colors duration-150 group"
-            >
-              <span className={`flex h-14 w-14 items-center justify-center rounded-2xl ${accent} transition-transform duration-200 group-hover:scale-110`}>
-                <Icon className="h-7 w-7" strokeWidth={1.75} />
-              </span>
-              <span className="mt-3 text-sm font-semibold text-foreground">{title}</span>
-              <span className="mt-1 text-xs text-muted-foreground">{description}</span>
-            </Link>
-          ))}
-        </div>
-      </div>
+
 
       {/* Recent files */}
       {recentFiles.length > 0 && (

@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   X,
   LogOut,
+  Languages,
 } from "lucide-react";
 import { logoutUser } from "../../services/auth.service";
 import { Modal } from "../ui/modal";
@@ -45,7 +46,8 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
   const isAdmin = currentUser?.role === "admin";
 
   const navigation = [
-    { name: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
+    ...(isSuperAdmin ? [{ name: "Dashboard", path: "/super-admin/dashboard", icon: LayoutDashboard }] : []),
+    ...(isAdmin ? [{ name: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard }] : []),
     ...(isSuperAdmin
       ? [
           { name: "Organizations", path: "/super-admin/organizations", icon: Building2 },
@@ -57,6 +59,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
       ? [
           { name: "Directory", path: "/admin/files", icon: FolderOpen },
           { name: "Shared Directory", path: "/admin/shared", icon: Share2 },
+          { name: "Quick Translate", path: "/quick-translate", icon: Languages },
           { name: "User Management", path: "/admin/user-management", icon: UserCog },
           { name: "Organization Settings", path: "/admin/organization-settings", icon: Settings },
         ]

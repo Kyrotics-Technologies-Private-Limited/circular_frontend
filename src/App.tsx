@@ -21,6 +21,7 @@ import Profile from "./pages/Profile";
 import Loader from "./components/ui/loader";
 
 const TranslationPage = lazy(() => import("./pages/TranslationPage"));
+const QuickTranslatePage = lazy(() => import("./pages/QuickTranslatePage"));
 import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
 import AuthGuard from "./components/auth/AuthGuard";
@@ -37,6 +38,7 @@ import ManageRequests from "./pages/superAdmin/ManageRequest";
 import ManageOrganizations from "./pages/superAdmin/ManageOrganizations";
 import ManageUsers from "./pages/superAdmin/ManageUsers";
 import SignupRequestDetails from "./pages/superAdmin/SignupRequestDetails";
+import SuperAdminDashboard from "./pages/superAdmin/SuperAdminDashboard";
 import { ToastContainer } from "react-toastify";
 import StatusGuard from "./components/auth/StatusGuard";
 import PendingApprovalPage from "./pages/PendingApprovalPage";
@@ -78,7 +80,7 @@ const App: React.FC = () => {
                 <RoleBasedRedirect
                   userRedirect="/dashboard"
                   adminRedirect="/admin/dashboard"
-                  superAdminRedirect="/admin/dashboard"
+                  superAdminRedirect="/super-admin/dashboard"
                 />
               }
             />
@@ -98,6 +100,7 @@ const App: React.FC = () => {
               <Route path="/files" element={<FileManager />} />
               {/* Add Shared Directory route */}
               <Route path="/shared" element={<SharedDirectory />} />
+              <Route path="/quick-translate" element={<QuickTranslatePage />} />
               <Route
                 path="/translation/:fileId"
                 element={<TranslationPage />}
@@ -120,9 +123,10 @@ const App: React.FC = () => {
                   </OrganizationProvider>
                 }
               >
-                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/files" element={<FileManager />} />
               <Route path="/admin/shared" element={<SharedDirectory />} />
+              <Route path="/quick-translate" element={<QuickTranslatePage />} />
               <Route
                 path="/admin/translation/:fileId"
                 element={<TranslationPage />}
@@ -152,6 +156,10 @@ const App: React.FC = () => {
                   </OrganizationProvider>
                 }
               >
+                <Route
+                  path="/super-admin/dashboard"
+                  element={<SuperAdminDashboard />}
+                />
                 <Route
                   path="/super-admin/organizations"
                   element={<ManageOrganizations />}

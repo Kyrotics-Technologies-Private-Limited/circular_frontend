@@ -6,6 +6,10 @@ import {
   approveRequest,
   rejectRequest,
 } from "../../services/request.service";
+import {
+  getAllOrganizations,
+  getOrganizationUsers,
+} from "../../services/organization.service";
 import { Button } from "@/components/ui/button";
 import { Badge, type BadgeProps } from "@/components/ui/badge";
 import Loader from "@/components/ui/loader";
@@ -23,39 +27,45 @@ import {
 const SuperAdminDashboard: React.FC = () => {
   const [pendingRequests, setPendingRequests] = useState<Request[]>([]);
   const [recentRequests, setRecentRequests] = useState<Request[]>([]);
+  const [organizationsCount, setOrganizationsCount] = useState<number>(0);
+  const [totalUsers, setTotalUsers] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAllRequests = async () => {
+  const fetchAllData = async () => {
     try {
+      // Fetch Requests
       const allRequests = await getAllRequests();
-
       const pending = allRequests.filter((req) => req.status === "pending");
       setPendingRequests(pending);
 
       const recent = [...allRequests]
         .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
         .slice(0, 5);
-
       setRecentRequests(recent);
+
+      // Fetch Organizations and Users
+      const organizations = await getAllOrganizations();
+      setOrganizationsCount(organizations.length);
+
+      let totalUserCount = 0;
+      for (const org of organizations) {
+        const users = await getOrganizationUsers(org.id);
+        totalUserCount += users.length;
+      }
+      setTotalUsers(totalUserCount);
+
     } catch (err: any) {
-      console.error("Error fetching requests:", err);
-      setError(err.message || "Failed to load request data");
+      console.error("Error fetching data:", err);
+      setError(err.message || "Failed to load dashboard data");
     }
   };
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        setLoading(true);
-        await fetchAllRequests();
-        setError(null);
-      } catch (err: any) {
-        console.error("Error fetching dashboard data:", err);
-        setError(err.message || "Failed to load dashboard data");
-      } finally {
-        setLoading(false);
-      }
+      setLoading(true);
+      await fetchAllData();
+      setLoading(false);
     };
 
     fetchData();
@@ -64,7 +74,7 @@ const SuperAdminDashboard: React.FC = () => {
   const handleApproveRequest = async (requestId: string) => {
     try {
       await approveRequest(requestId);
-      await fetchAllRequests();
+      await fetchAllData();
     } catch (err: any) {
       console.error("Error approving request:", err);
       setError(err.message || "Failed to approve request");
@@ -77,7 +87,7 @@ const SuperAdminDashboard: React.FC = () => {
   ) => {
     try {
       await rejectRequest(requestId, reason);
-      await fetchAllRequests();
+      await fetchAllData();
     } catch (err: any) {
       console.error("Error rejecting request:", err);
       setError(err.message || "Failed to reject request");
@@ -94,7 +104,7 @@ const SuperAdminDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center min-h-screen">
         <Loader />
       </div>
     );
@@ -137,7 +147,7 @@ const SuperAdminDashboard: React.FC = () => {
                 Organizations
               </dt>
               <dd>
-                <div className="text-2xl font-semibold text-foreground">—</div>
+                <div className="text-2xl font-semibold text-foreground">{organizationsCount}</div>
               </dd>
             </div>
           </div>
@@ -153,7 +163,7 @@ const SuperAdminDashboard: React.FC = () => {
                 Total Users
               </dt>
               <dd>
-                <div className="text-2xl font-semibold text-foreground">—</div>
+                <div className="text-2xl font-semibold text-foreground">{totalUsers}</div>
               </dd>
             </div>
           </div>

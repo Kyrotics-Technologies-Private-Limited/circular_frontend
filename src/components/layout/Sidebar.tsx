@@ -33,6 +33,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, showOrgManagement = false })
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Directory', path: '/files', icon: FolderOpen },
     { name: 'Shared Directory', path: '/shared', icon: Share2 },
+    { name: 'Quick Translate', path: '/quick-translate', icon: Languages },
     ...(showOrgManagement
       ? [{ name: 'Organizations', path: '/organizations', icon: Building2 }]
       : []),

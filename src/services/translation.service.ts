@@ -99,3 +99,24 @@ export const downloadTranslatedFile = async (
     throw error;
   }
 };
+
+/**
+ * Quick translate plain text
+ */
+export const quickTranslate = async (
+  text: string,
+  targetLanguage: string,
+  signal?: AbortSignal
+): Promise<{ translatedContent: string }> => {
+  try {
+    const response = await api.post('/translations/quick/text', {
+      text,
+      targetLanguage
+    }, { signal });
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error in quick translation:', error);
+    throw error;
+  }
+};
