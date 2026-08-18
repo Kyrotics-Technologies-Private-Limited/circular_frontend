@@ -1,6 +1,5 @@
 // src/components/translation/SplitView.tsx
 import React, { useState, useEffect } from 'react';
-import DOMPurify from 'dompurify';
 import { Eye, Pencil, GripVertical, FileText, Languages, Download, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import HtmlEditor from './HtmlEditor';
@@ -44,10 +43,19 @@ const SplitView: React.FC<SplitViewProps> = ({
 }) => {
   const [splitRatio, setSplitRatio] = useState<number>(getInitialSplit);
   const [isDragging, setIsDragging] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
 
-  const sanitizedContent = translatedContent
-    ? DOMPurify.sanitize(translatedContent, { USE_PROFILES: { html: true } })
-    : '';
+  useEffect(() => {
+    if (translatedContent) {
+      const blob = new Blob([translatedContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      setPreviewUrl(url);
+      
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setPreviewUrl("");
+    }
+  }, [translatedContent]);
 
   // Handle split view resizing
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -191,10 +199,11 @@ const SplitView: React.FC<SplitViewProps> = ({
     }
 
     return (
-      <div
-        className="p-4 prose prose-sm max-w-none"
-        style={{ minHeight: '100%' }}
-        dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+      <iframe
+        src={previewUrl}
+        title="Translated document"
+        className="w-full h-full border-0 bg-white"
+        sandbox="allow-same-origin"
       />
     );
   };
