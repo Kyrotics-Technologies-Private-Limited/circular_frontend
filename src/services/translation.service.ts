@@ -1,6 +1,6 @@
 // src/services/translation.service.ts
 import api from './api';
-import { TranslationHistory, LanguageOption } from '../types/Translation';
+import { LanguageOption } from '../types/Translation';
 
 /**
  * Translate a file
@@ -20,7 +20,17 @@ export const translateFile = async (
     throw error;
   }
 };
-
+export const checkTranslationStatus = async (
+  fileId: string
+): Promise<any> => {
+  try {
+    const response = await api.get(`/translations/${fileId}/status`);
+    return response.data;
+  } catch (error) {
+    console.error('Error checking translation status:', error);
+    throw error;
+  }
+};
 /**
  * Update translated content
  */
@@ -38,20 +48,7 @@ export const updateTranslatedContent = async (
   }
 };
 
-/**
- * Get translation history for a file
- */
-export const getTranslationHistory = async (
-  fileId: string
-): Promise<TranslationHistory[]> => {
-  try {
-    const response = await api.get(`/translations/${fileId}/history`);
-    return response.data.history;
-  } catch (error) {
-    console.error('Error getting translation history:', error);
-    throw error;
-  }
-};
+
 
 /**
  * Get supported languages for translation

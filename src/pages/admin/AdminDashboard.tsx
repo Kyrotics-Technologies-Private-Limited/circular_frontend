@@ -59,7 +59,7 @@ const AdminDashboard: React.FC = () => {
 
           setRecentFiles(sorted);
           setTotalFiles(files);
-          setTotalTranslations(files.filter((f) => f.translatedContent).length);
+          setTotalTranslations(files.filter((f) => f.translatedFileUrl).length);
 
           const users = await getOrganizationUsers(currentOrganization.id);
           setTotalUsers(users.length);
@@ -230,7 +230,7 @@ const AdminDashboard: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-muted-foreground">
-                          {formatFileSize(file.size)}
+                          {formatFileSize(file.sizeBytes)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -239,7 +239,7 @@ const AdminDashboard: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {file.translatedContent ? (
+                        {file.translatedFileUrl ? (
                           <Badge variant="success">Translated</Badge>
                         ) : (
                           <Badge variant="warning">Not Translated</Badge>
@@ -251,10 +251,10 @@ const AdminDashboard: React.FC = () => {
                             to={`/admin/translation/${file.id}`}
                             className="text-primary hover:text-primary/80"
                           >
-                            {file.translatedContent ? "Edit" : "Translate"}
+                            {file.translatedFileUrl ? "Edit" : "Translate"}
                           </Link>
                           <a
-                            href={file.url}
+                            href={file.originalFileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-muted-foreground hover:text-foreground"

@@ -49,7 +49,7 @@ const Dashboard: React.FC = () => {
     fetchRecentFiles();
   }, [currentOrganization, userType]);
 
-  const translatedCount = recentFiles.filter((f) => f.translatedContent).length;
+  const translatedCount = recentFiles.filter((f) => f.translatedFileUrl).length;
 
   const stats = [
     {
@@ -152,8 +152,8 @@ const Dashboard: React.FC = () => {
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">{file.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {file.size ? (file.size / 1024).toFixed(0) + " KB" : ""}
-                      {file.translatedContent && " · Translated"}
+                      {file.sizeBytes ? (file.sizeBytes / 1024).toFixed(0) + " KB" : ""}
+                      {file.translatedFileUrl && " · Translated"}
                     </p>
                   </div>
                 </div>

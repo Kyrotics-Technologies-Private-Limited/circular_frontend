@@ -7,23 +7,24 @@ export type Permission = {
 export interface FileItem {
   id: string;
   name: string;
-  path: string;
-  type: string;
-  size: number;
-  url: string;
+  originalFilePath: string;
+  originalFileUrl: string;
+  translatedFilePath?: string;
+  translatedFileUrl?: string;
+  mimeType: string;
+  sizeBytes: number;
   organizationId?: string;
   userId?: string;
   folderId: string | null;
   isShared: boolean;
   isPublic?: boolean;
-  textContent?: string;
-  translatedContent?: string;
   targetLanguage?: string;
+  translationStatus?: string;
   uploadedBy: string;
   uploadedAt: Date;
-  lastUpdatedAt: Date;
+  updatedAt: Date;
   permissions: Permission[];
-  lastUpdatedBy?: string;
+  updatedBy?: string;
   sharedByName?: string;
   sharedAt?: string;
 }

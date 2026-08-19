@@ -6,6 +6,7 @@ import {
   translateFile,
   getSupportedLanguages,
   updateTranslatedContent,
+  checkTranslationStatus,
 } from "../../services/translation.service";
 import { FileItem } from "../../types/File";
 import { LanguageOption } from "../../types/Translation";
@@ -51,6 +52,13 @@ const TranslationEditor: React.FC = () => {
   const fileIdRef = useRef(fileId);
   const translatingRef = useRef(false);
   const saveTimerRef = useRef<number | null>(null);
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     fileIdRef.current = fileId;
@@ -73,10 +81,24 @@ const TranslationEditor: React.FC = () => {
         ]);
 
         setFile(fileData);
-        setOriginalContent(fileData.url || "");
-        setTranslatedContent(fileData.translatedContent || "");
-        latestContentRef.current = fileData.translatedContent || "";
-        lastSavedRef.current = fileData.translatedContent || "";
+        setOriginalContent(fileData.originalFileUrl || (fileData as any).url || "");
+        
+        let initialTranslatedContent = "";
+        const tUrl = fileData.translatedFileUrl;
+        if (tUrl) {
+          try {
+            const res = await fetch(tUrl);
+            if (res.ok) {
+              initialTranslatedContent = await res.text();
+            }
+          } catch (e) {
+            console.error("Failed to fetch translated HTML:", e);
+          }
+        }
+        
+        setTranslatedContent(initialTranslatedContent);
+        latestContentRef.current = initialTranslatedContent;
+        lastSavedRef.current = initialTranslatedContent;
 
         const preferred =
           (fileData.targetLanguage && languagesData.some((l) => l.code === fileData.targetLanguage)
@@ -93,6 +115,15 @@ const TranslationEditor: React.FC = () => {
         );
 
         setLanguages(languagesData);
+
+        if (fileData.translationStatus === 'PROCESSING') {
+          const langToUse = languagesData.some((l) => l.code === preferred)
+            ? preferred
+            : languagesData.some((l) => l.code === "bn")
+              ? "bn"
+              : languagesData[0]?.code || "es";
+          pollTranslation(fileId, langToUse);
+        }
       } catch (err: any) {
         console.error("Error fetching data:", err);
         toast.error(err.message || "Failed to load file data", { autoClose: 6000 });
@@ -143,41 +174,88 @@ const TranslationEditor: React.FC = () => {
     queueSave();
   };
 
+  const pollTranslation = async (fId: string, tLang: string, initialResult?: any) => {
+    try {
+      setTranslating(true);
+      let result = initialResult;
+
+      if (!result || result.translationStatus === 'PROCESSING' || result.status === 'PROCESSING') {
+        if (!initialResult) {
+           toast.info("Resuming translation progress...");
+        } else {
+           toast.info("Translation started. It may take a minute...");
+        }
+        
+        while (isMounted.current) {
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          if (!isMounted.current) break;
+          const statusRes = await checkTranslationStatus(fId);
+          if (statusRes.status === 'COMPLETED' || statusRes.status === 'FAILED') {
+             result = statusRes;
+             break;
+          }
+        }
+      }
+
+      if (!isMounted.current || !result) return;
+
+      let fetchedContent = "";
+      if (result.status === 'COMPLETED' && result.translatedContentUrl) {
+         try {
+            const res = await fetch(result.translatedContentUrl);
+            if (res.ok) fetchedContent = await res.text();
+         } catch (e) {
+            console.error("Failed to fetch translated HTML:", e);
+         }
+      }
+
+      if (!isMounted.current) return;
+
+      setTranslatedContent(fetchedContent);
+      latestContentRef.current = fetchedContent;
+      lastSavedRef.current = fetchedContent;
+      setSaveState("saved");
+
+      if (result.status === 'COMPLETED' && (!result.warnings || result.warnings.length === 0)) {
+        toast.success("Translation completed successfully.", { autoClose: 4000 });
+      } else if (result.status === 'COMPLETED' || result.status === 'PARTIAL') {
+        const warns = result.warnings || ["Translation completed with quality warnings."];
+        toast.warning(warns.join('\n'), { autoClose: 8000 });
+        toast.success("Translation completed (Partial/Warnings). Please review.", { autoClose: 4000 });
+      } else {
+        toast.error(result.error || "Translation failed validation gate. The output might be corrupted.", { autoClose: 8000 });
+      }
+
+      setFile(prev => prev ? {
+        ...prev,
+        translatedFileUrl: result.translatedContentUrl,
+        targetLanguage: tLang,
+      } : prev);
+
+    } catch (err: any) {
+      if (!isMounted.current) return;
+      console.error("Error polling translation:", err);
+      toast.error("Error checking translation status.", { autoClose: 6000 });
+    } finally {
+      if (isMounted.current) setTranslating(false);
+    }
+  };
+
   const handleTranslate = async () => {
     if (!fileId || translatingRef.current) return;
 
     try {
       setTranslating(true);
-
       const result = await translateFile(fileId, targetLanguage);
-
-      setTranslatedContent(result.translatedContent);
-      latestContentRef.current = result.translatedContent;
-      lastSavedRef.current = result.translatedContent;
-      setSaveState("saved");
-
-      if (result.translationStatus === 'PARTIAL' || result.warnings) {
-        const warns = result.warnings || ["Translation completed with quality warnings."];
-        toast.warning(warns.join('\n'), { autoClose: 8000 });
-        toast.success("Translation completed (Partial/Warnings). Please review.", { autoClose: 4000 });
-      } else if (result.translationStatus === 'FAILED') {
-        toast.error("Translation failed validation gate. The output might be corrupted.", { autoClose: 8000 });
-      } else {
-        toast.success("Translation completed successfully.", { autoClose: 4000 });
-      }
-
-      if (file) {
-        setFile({
-          ...file,
-          translatedContent: result.translatedContent,
-          targetLanguage,
-        });
-      }
+      if (!isMounted.current) return;
+      
+      pollTranslation(fileId, targetLanguage, result);
+      
     } catch (err: any) {
+      if (!isMounted.current) return;
       console.error("Error translating:", err);
       const errorMessage = err.response?.data?.message || err.message || "Failed to translate file";
       toast.error(errorMessage, { autoClose: 6000 });
-    } finally {
       setTranslating(false);
     }
   };
@@ -322,7 +400,7 @@ const TranslationEditor: React.FC = () => {
   };
 
   const statusTranslated = !!translatedContent;
-  const fileSize = file?.size ? (file.size / 1024).toFixed(0) + " KB" : "";
+  const fileSize = file?.sizeBytes ? (file.sizeBytes / 1024).toFixed(0) + " KB" : "";
   const uploadedDate = formatDateValue(file?.uploadedAt);
 
   const saveLabel =
@@ -459,7 +537,7 @@ const TranslationEditor: React.FC = () => {
         <SplitView
           originalContent={originalContent}
           translatedContent={translatedContent}
-          fileType={file?.type}
+          fileType={file?.mimeType}
           fileName={file?.name}
           viewMode={viewMode}
           isEditMode={isEditMode}

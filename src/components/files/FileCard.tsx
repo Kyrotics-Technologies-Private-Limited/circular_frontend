@@ -20,13 +20,13 @@ const FileCard: React.FC<FileCardProps> = ({
   isShared = false,
 }) => {
   const getFileIcon = () => {
-    if (file.type?.includes("pdf")) {
+    if (file.mimeType?.includes("pdf")) {
       return (
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/10 text-red-600 flex-shrink-0">
           <FileText className="h-6 w-6" strokeWidth={1.75} />
         </div>
       );
-    } else if (file.type?.includes("word") || file.type?.includes("document")) {
+    } else if (file.mimeType?.includes("word") || file.mimeType?.includes("document")) {
       return (
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary flex-shrink-0">
           <FileText className="h-6 w-6" strokeWidth={1.75} />
@@ -72,7 +72,7 @@ const FileCard: React.FC<FileCardProps> = ({
           </h3>
           <div className="flex flex-col mt-1.5 space-y-1">
             <div className="flex items-center text-xs text-muted-foreground">
-              <span>{file.size ? (file.size / 1024).toFixed(0) + " KB" : "0 KB"}</span>
+              <span>{file.sizeBytes ? (file.sizeBytes / 1024).toFixed(0) + " KB" : "0 KB"}</span>
 
               {file.isPublic && (
                 <span className="ml-2 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700 border border-green-200">
