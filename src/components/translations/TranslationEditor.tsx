@@ -537,6 +537,7 @@ const TranslationEditor: React.FC = () => {
         <SplitView
           originalContent={originalContent}
           translatedContent={translatedContent}
+          translatedFileUrl={file?.translatedFileUrl}
           fileType={file?.mimeType}
           fileName={file?.name}
           viewMode={viewMode}

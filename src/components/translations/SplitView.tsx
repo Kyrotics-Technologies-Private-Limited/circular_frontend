@@ -11,6 +11,7 @@ export type ViewMode = 'split' | 'original' | 'translated';
 interface SplitViewProps {
   originalContent: string;
   translatedContent: string;
+  translatedFileUrl?: string;
   fileType?: string;
   fileName?: string;
   viewMode: ViewMode;
@@ -34,6 +35,7 @@ const getInitialSplit = (): number => {
 const SplitView: React.FC<SplitViewProps> = ({
   originalContent,
   translatedContent,
+  translatedFileUrl,
   fileType,
   fileName,
   viewMode,
@@ -216,7 +218,7 @@ const SplitView: React.FC<SplitViewProps> = ({
       );
     }
 
-    if (!translatedContent) {
+    if (!translatedContent && !translatedFileUrl) {
       return (
         <div className="p-8 h-full flex flex-col items-center justify-center text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-translation/10 text-translation-foreground">
@@ -234,7 +236,7 @@ const SplitView: React.FC<SplitViewProps> = ({
 
     return (
       <iframe
-        src={previewUrl}
+        src={previewUrl || translatedFileUrl}
         title="Translated document"
         className="w-full h-full border-0 bg-white"
         sandbox="allow-same-origin"
