@@ -44,6 +44,7 @@ const SplitView: React.FC<SplitViewProps> = ({
   const [splitRatio, setSplitRatio] = useState<number>(getInitialSplit);
   const [isDragging, setIsDragging] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [originalBlobUrl, setOriginalBlobUrl] = useState<string>("");
 
   useEffect(() => {
     if (translatedContent) {
@@ -56,6 +57,44 @@ const SplitView: React.FC<SplitViewProps> = ({
       setPreviewUrl("");
     }
   }, [translatedContent]);
+
+  const urlObj = (() => {
+    try {
+      return originalContent ? new URL(originalContent, window.location.href) : null;
+    } catch {
+      return null;
+    }
+  })();
+  const urlPath = urlObj ? urlObj.pathname.toLowerCase() : '';
+  const safeName = (fileName || '').toLowerCase();
+
+  const isImage = !!fileType?.includes('image') || safeName.match(/\.(jpg|jpeg|png|gif|webp)$/) || urlPath.match(/\.(jpg|jpeg|png|gif|webp)$/);
+  const isPdf = !!fileType?.includes('pdf') || safeName.endsWith('.pdf') || urlPath.endsWith('.pdf') || originalContent?.toLowerCase().includes('.pdf');
+  const isInlineText =
+    !!fileType?.includes('html') || fileType === 'text/plain' || safeName.match(/\.(html|txt)$/) || urlPath.match(/\.(html|txt)$/);
+
+  useEffect(() => {
+    let urlToRevoke = "";
+    if (isInlineText && originalContent) {
+      fetch(originalContent)
+        .then(res => res.text())
+        .then(text => {
+          const blob = new Blob([text], { type: 'text/html' });
+          const url = URL.createObjectURL(blob);
+          urlToRevoke = url;
+          setOriginalBlobUrl(url);
+        })
+        .catch(err => {
+          console.error("Failed to fetch original HTML:", err);
+          setOriginalBlobUrl(originalContent);
+        });
+    } else {
+      setOriginalBlobUrl(originalContent || "");
+    }
+    return () => {
+      if (urlToRevoke) URL.revokeObjectURL(urlToRevoke);
+    };
+  }, [originalContent, isInlineText]);
 
   // Handle split view resizing
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -111,11 +150,6 @@ const SplitView: React.FC<SplitViewProps> = ({
   const paneHeaderClass =
     "flex h-8 items-center justify-between bg-muted/60 text-muted-foreground text-xs font-semibold uppercase tracking-wide border-b border-border px-2.5";
 
-  const isImage = !!fileType?.includes('image');
-  const isPdf = !!fileType?.includes('pdf');
-  const isInlineText =
-    !!fileType?.includes('html') || fileType === 'text/plain';
-
   const renderOriginalContent = () => {
     if (isImage) {
       return (
@@ -129,7 +163,7 @@ const SplitView: React.FC<SplitViewProps> = ({
     if (isPdf || isInlineText) {
       return (
         <iframe
-          src={originalContent || undefined}
+          src={(isInlineText ? originalBlobUrl : originalContent) || undefined}
           title="Original document"
           width="100%"
           height="100%"
