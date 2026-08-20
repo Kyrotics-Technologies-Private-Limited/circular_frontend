@@ -66,7 +66,8 @@ export const registerUser = async ({
   } catch (error: any) {
     console.error("Registration error:", error);
     // Return a more specific error message if available
-    throw new Error(error.message || "Registration failed");
+    const serverMessage = error.response?.data?.message;
+    throw new Error(serverMessage || error.message || "Registration failed");
   }
 };
 

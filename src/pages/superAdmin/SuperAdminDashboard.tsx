@@ -40,7 +40,11 @@ const SuperAdminDashboard: React.FC = () => {
       setPendingRequests(pending);
 
       const recent = [...allRequests]
-        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        .sort((a, b) => {
+          const aTime = a.createdAt ? ((a.createdAt as any)._seconds ? (a.createdAt as any)._seconds * 1000 : new Date(a.createdAt).getTime()) : 0;
+          const bTime = b.createdAt ? ((b.createdAt as any)._seconds ? (b.createdAt as any)._seconds * 1000 : new Date(b.createdAt).getTime()) : 0;
+          return bTime - aTime;
+        })
         .slice(0, 5);
       setRecentRequests(recent);
 
@@ -94,8 +98,11 @@ const SuperAdminDashboard: React.FC = () => {
     }
   };
 
-  const formatTimeAgo = (date: Date) => {
-    const diff = Date.now() - date.getTime();
+  const formatTimeAgo = (date: any) => {
+    if (!date) return "Unknown";
+    let dTime = date._seconds ? date._seconds * 1000 : new Date(date).getTime();
+    if (isNaN(dTime)) return "Unknown";
+    const diff = Date.now() - dTime;
     if (diff < 60000) return "Just now";
     if (diff < 3600000) return `${Math.floor(diff / 60000)} minutes ago`;
     if (diff < 86400000) return `${Math.floor(diff / 3600000)} hours ago`;
@@ -207,11 +214,10 @@ const SuperAdminDashboard: React.FC = () => {
                       Organization Registration Request
                     </p>
                     <div className="ml-2 flex-shrink-0 flex">
-                      <Badge variant={statusVariant(request.status)}>
+                      <Badge variant={statusVariant(request.status || 'unknown')}>
                         {request.status === "pending"
                           ? formatTimeAgo(request.createdAt)
-                          : request.status.charAt(0).toUpperCase() +
-                            request.status.slice(1)}
+                          : request.status ? request.status.charAt(0).toUpperCase() + request.status.slice(1) : 'Unknown'}
                       </Badge>
                     </div>
                   </div>

@@ -254,7 +254,9 @@ const ManageRequests: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-muted-foreground">
                       {request.createdAt
-                        ? new Date(request.createdAt).toLocaleDateString()
+                        ? (request.createdAt as any)._seconds
+                          ? new Date((request.createdAt as any)._seconds * 1000).toLocaleDateString()
+                          : new Date(request.createdAt).toLocaleDateString()
                         : '—'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -367,7 +369,9 @@ const ManageRequests: React.FC = () => {
               <p className="mt-1 flex items-center text-foreground">
                 <Clock className="h-4 w-4 mr-1.5 text-muted-foreground" />
                 {selectedRequest.createdAt
-                  ? new Date(selectedRequest.createdAt).toLocaleString()
+                  ? (selectedRequest.createdAt as any)._seconds
+                    ? new Date((selectedRequest.createdAt as any)._seconds * 1000).toLocaleString()
+                    : new Date(selectedRequest.createdAt).toLocaleString()
                   : '—'}
               </p>
             </div>
@@ -391,7 +395,9 @@ const ManageRequests: React.FC = () => {
                   <h3 className="text-sm font-medium text-muted-foreground">Processed On</h3>
                   <p className="mt-1 text-foreground">
                     {selectedRequest.processedAt
-                      ? new Date(selectedRequest.processedAt).toLocaleString()
+                      ? (selectedRequest.processedAt as any)._seconds
+                        ? new Date((selectedRequest.processedAt as any)._seconds * 1000).toLocaleString()
+                        : new Date(selectedRequest.processedAt).toLocaleString()
                       : '—'}
                   </p>
                 </div>

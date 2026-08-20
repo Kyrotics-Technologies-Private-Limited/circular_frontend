@@ -267,13 +267,15 @@ const ManageOrganizations: React.FC = () => {
                       {org.CIN}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <Badge variant={statusVariant(org.status)}>
-                        {org.status.charAt(0).toUpperCase() + org.status.slice(1)}
+                      <Badge variant={statusVariant(org.status || 'unknown')}>
+                        {org.status ? org.status.charAt(0).toUpperCase() + org.status.slice(1) : 'Unknown'}
                       </Badge>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-muted-foreground">
                       {org.createdAt
-                        ? new Date(org.createdAt).toLocaleDateString()
+                        ? (org.createdAt as any)._seconds
+                          ? new Date((org.createdAt as any)._seconds * 1000).toLocaleDateString()
+                          : new Date(org.createdAt).toLocaleDateString()
                         : "—"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

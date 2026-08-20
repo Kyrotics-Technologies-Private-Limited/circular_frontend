@@ -106,8 +106,16 @@ const SignupRequestDetails: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+  const formatDate = (dateString: any) => {
+    if (!dateString) return "—";
+    let date;
+    if (dateString._seconds) {
+      date = new Date(dateString._seconds * 1000);
+    } else {
+      date = new Date(dateString);
+    }
+    if (isNaN(date.getTime())) return "Invalid Date";
+    
     return new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
       month: 'short',
@@ -174,8 +182,8 @@ const SignupRequestDetails: React.FC = () => {
             Signup Request: {request.organizationName}
           </h1>
         </div>
-        <Badge variant={statusVariant(request.status)} size="lg">
-          {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+        <Badge variant={statusVariant(request.status || 'unknown')} size="lg">
+          {request.status ? request.status.charAt(0).toUpperCase() + request.status.slice(1) : 'Unknown'}
         </Badge>
       </div>
 

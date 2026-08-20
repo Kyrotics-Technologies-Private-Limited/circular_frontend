@@ -84,9 +84,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, showOrgManagement = false })
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Workspace
-        </p>
+       
         {navigation.map((item) => {
           const Icon = item.icon;
           return (
