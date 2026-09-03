@@ -239,7 +239,7 @@ const SplitView: React.FC<SplitViewProps> = ({
         src={previewUrl || translatedFileUrl}
         title="Translated document"
         className="w-full h-full border-0 bg-white"
-        sandbox="allow-same-origin"
+        sandbox="allow-same-origin allow-scripts"
       />
     );
   };
