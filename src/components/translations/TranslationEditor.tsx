@@ -354,25 +354,17 @@ const TranslationEditor: React.FC = () => {
       };
 
       const element = document.createElement('div');
-
-      element.innerHTML = `
-        <div style="font-family: Arial, sans-serif; padding: 20px; color: #000; font-size: 14px; background-color: #fff;">
-          <style>
-            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-            th, td { border: 1px solid #000; padding: 6px 10px; text-align: left; }
-            th { font-weight: bold; background-color: #f3f4f6; }
-            h2, h3, h4 { text-align: center; margin-top: 15px; margin-bottom: 10px; }
-            p { margin-bottom: 10px; }
-          </style>
-          ${translatedContent}
-        </div>
-      `;
+      // Apply a white background to avoid transparent/black PDF issues, but don't force fonts or padding
+      // so the original document styles (from the translated HTML) are perfectly preserved.
+      element.style.backgroundColor = '#ffffff';
+      element.innerHTML = translatedContent;
 
       const opt: any = {
-        margin:       15,
+        margin:       0,
         filename:     `${file?.name?.replace('.pdf', '') || 'Document'}_translated.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
+        image:        { type: 'jpeg', quality: 1 },
+        html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+        pagebreak:    { mode: ['css', 'avoid-all', 'legacy'] },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
